@@ -433,9 +433,6 @@ public class WorkerPool {
     Response response = null;
     ByteBuf out = null;
 
-    /*new code*/
-    LOG.info("private void handle(ChannelHandlerContext ctx, Object msg, boolean useSync)");
-    /*code end*/
 
     if (method == TransportMethod.INDEX_GET_ROW) {
       try {
@@ -721,6 +718,13 @@ public class WorkerPool {
     ServerState state = runningContext.getState();
     String log = "server is busy now, retry later";
     long startTs = System.currentTimeMillis();
+
+
+    /*new code*/
+    LOG.info("private void handle(ChannelHandlerContext ctx, Object msg, boolean useSync)");
+    LOG.info("method = " + method);
+    /*code end*/
+
     switch (method) {
       case GET_ROWSPLIT: {
         if (state == ServerState.BUSY) {
