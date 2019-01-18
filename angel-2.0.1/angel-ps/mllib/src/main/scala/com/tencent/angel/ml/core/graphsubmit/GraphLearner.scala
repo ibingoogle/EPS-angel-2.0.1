@@ -81,6 +81,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       /*new code*/
       if (ctx.getTaskId.getIndex != 0 && epoch >= skippedEpochStart && epoch <= skippedEpochEnd){
         LOG.info(s"task ${ctx.getTaskId.getIndex} skips epoch $epoch!")
+        iter.next()
       }else{
         LOG.info("start to feedData ...")
         graph.feedData(iter.next())
