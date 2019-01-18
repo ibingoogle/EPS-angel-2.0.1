@@ -41,6 +41,10 @@ trait Trainable {
 
   def pushGradient(): Unit
 
+  /*new code*/
+  def pushGradient_null(): Unit = {}
+  /*code end*/
+
   def update(epoch: Int, batchSize: Int): Future[VoidResult]
 
   def init(taskId: Int)

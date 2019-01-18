@@ -150,6 +150,14 @@ class AngelGraph(val placeHolder: PlaceHolder, val conf: SharedConf) extends Ser
     timeStats.pushParamsTime += (System.currentTimeMillis() - start)
   }
 
+  /*new code*/
+  def pushGradient_null(): Unit = {
+    val start = System.currentTimeMillis()
+    trainableLayer.foreach(layer => layer.pushGradient_null())
+    timeStats.pushParamsTime += (System.currentTimeMillis() - start)
+  }
+  /*code end*/
+
   def update(epoch: Int, batchSize: Int): Unit = {
     val start = System.currentTimeMillis()
     val updateFuture = trainableLayer.map (layer => layer.update(epoch, batchSize))

@@ -82,6 +82,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (ctx.getTaskId.getIndex != 0 && epoch >= skippedEpochStart && epoch <= skippedEpochEnd){
         LOG.info(s"task ${ctx.getTaskId.getIndex} skips epoch $epoch!")
         iter.next()
+        LOG.info("just push null gradient ...")
+        graph.pushGradient_null() //
       }else{
         LOG.info("start to feedData ...")
         graph.feedData(iter.next())
