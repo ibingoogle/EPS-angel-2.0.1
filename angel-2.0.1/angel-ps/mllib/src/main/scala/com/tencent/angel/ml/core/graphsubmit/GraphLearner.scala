@@ -58,6 +58,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     var batchCount: Int = 0
     var loss: Double = 0.0
     while (iter.hasNext) {
+      /* old code
       // LOG.info("start to feedData ...")
       graph.feedData(iter.next())
 
@@ -76,12 +77,37 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       // waiting all gradient pushed
 
       // LOG.info("waiting for push barrier ...")
+      code end */
+      /*new code*/
+      if (ctx.getTaskId.getIndex != 0 && epoch >= skippedEpochStart && epoch <= skippedEpochEnd){
+        LOG.info(s"task ${ctx.getTaskId.getIndex} skips epoch $epoch!")
+      }else{
+        LOG.info("start to feedData ...")
+        graph.feedData(iter.next())
+
+        LOG.info("start to pullParams ...")
+        graph.pullParams(epoch)
+
+        LOG.info("calculate to forward ...")
+        loss = graph.calLoss() // forward
+        LOG.info(s"The training los of epoch $epoch batch $batchCount is $loss" )
+
+        LOG.info("calculate to backward ...")
+        graph.calBackward() // backward
+
+        LOG.info("calculate and push gradient ...")
+        graph.pushGradient() // pushgrad
+        // waiting all gradient pushed
+
+        LOG.info("waiting for push barrier ...")
+      }
+      /*code end*/
       PSAgentContext.get().barrier(ctx.getTaskId.getIndex)
       if (decayOnBatch) {
         graph.setLR(ssScheduler.next())
       }
       if (ctx.getTaskId.getIndex == 0) {
-        // LOG.info("start to update ...")
+        LOG.info("start to update ...")
         graph.update(epoch * numBatch + batchCount, 1) // update parameters on PS
       }
 
