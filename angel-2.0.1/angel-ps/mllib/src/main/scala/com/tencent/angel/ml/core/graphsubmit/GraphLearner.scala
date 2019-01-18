@@ -42,6 +42,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val modelSize: Long = SharedConf.modelSize
   val lr0: Double = SharedConf.learningRate
 
+  /*new code*/
+  val skippedEpochStart: Int = SharedConf.skippedEpochStart
+  val skippedEpochEnd: Int = SharedConf.skippedEpochEnd
+  /*code end*/
+
   // Init Graph Model
   val model: GraphModel = GraphModel(modelClassName, conf, ctx)
   model.buildNetwork()
@@ -132,6 +137,14 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         negTrainData.shuffle()
       }
     }
+
+    /*new code*/
+    LOG.info(s"skipped epoch start at $skippedEpochStart epoch.")
+    LOG.info(s"skipped epoch end at $skippedEpochEnd epoch.")
+
+    LOG.info(s"num of batches within one epoch = $numBatch.")
+    LOG.info(s"batchSize = $batchSize.")
+    /*code end*/
 
     while (ctx.getEpoch < epochNum) {
       val epoch = ctx.getEpoch

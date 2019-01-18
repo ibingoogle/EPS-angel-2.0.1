@@ -72,6 +72,13 @@ object MLConf {
   val ML_MODEL_IS_CLASSIFICATION = "ml.model.is.classification"
   val DEFAULT_ML_MODEL_IS_CLASSIFICATION = true
 
+  /*new code*/
+  val ML_SKIPPED_EPOCH_START = "ml.skipped.epoch.start"
+  val DEFAULT_ML_SKIPPED_EPOCH_START = -1
+  val ML_SKIPPED_EPOCH_END = "ml.skipped.epoch.end"
+  val DEFAULT_ML_SKIPPED_EPOCH_END = -1
+  /*code end*/
+
   val ML_EPOCH_NUM = "ml.epoch.num"
   val DEFAULT_ML_EPOCH_NUM = 30
   val ML_BATCH_SAMPLE_RATIO = "ml.batch.sample.ratio"

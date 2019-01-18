@@ -426,6 +426,19 @@ object SharedConf {
     sc.getInt(MLConf.ML_EPOCH_NUM, MLConf.DEFAULT_ML_EPOCH_NUM)
   }
 
+  /*new code*/
+  def skippedEpochStart: Int = {
+    get()
+
+    sc.getInt(MLConf.ML_SKIPPED_EPOCH_START, MLConf.DEFAULT_ML_SKIPPED_EPOCH_START)
+  }
+  def skippedEpochEnd: Int = {
+    get()
+
+    sc.getInt(MLConf.ML_SKIPPED_EPOCH_END, MLConf.DEFAULT_ML_SKIPPED_EPOCH_END)
+  }
+  /*code end*/
+
   def modelSize: Long = {
     get()
 
