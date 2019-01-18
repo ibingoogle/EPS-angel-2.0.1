@@ -1138,6 +1138,12 @@ public class WorkerPool {
     PartitionKey partKey = request.getPartKey();
     ServerPartition part =
       context.getMatrixStorageManager().getPart(partKey.getMatrixId(), partKey.getPartitionId());
+
+    /*new code*/
+    LOG.info("put update request=" + request);
+    LOG.info("partKey is = " + partKey);
+    /*code end*/
+
     if (part == null) {
       String log = "update " + request + " failed. The partition " + partKey + " does not exist";
       LOG.fatal(log);
