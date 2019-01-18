@@ -432,6 +432,11 @@ public class WorkerPool {
     TransportMethod method = TransportMethod.typeIdToTypeMap.get(methodId);
     Response response = null;
     ByteBuf out = null;
+
+    /*new code*/
+    LOG.info("private void handle(ChannelHandlerContext ctx, Object msg, boolean useSync)");
+    /*code end*/
+
     if (method == TransportMethod.INDEX_GET_ROW) {
       try {
         out = handleIndexGetRow(clientId, seqId, in);
