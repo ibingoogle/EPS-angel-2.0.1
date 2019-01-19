@@ -173,6 +173,9 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
 
     LOG.info(s"num of batches within one epoch = $numBatch.")
     LOG.info(s"batchSize = $batchSize.")
+
+    LOG.info(s"Trainable layers in the graph are:")
+    graph.getTrainable.foreach(layer => LOG.info(layer.toString))
     /*code end*/
 
     while (ctx.getEpoch < epochNum) {
