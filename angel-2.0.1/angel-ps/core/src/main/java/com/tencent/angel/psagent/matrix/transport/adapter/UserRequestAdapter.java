@@ -373,12 +373,27 @@ public class UserRequestAdapter {
       clock = -1;
     }
 
+    /* new code*/
+    int i = 0;
+    /*code end*/
+
     for (Entry<PartitionKey, List<RowUpdateSplit>> partUpdateEntry : psUpdateData.entrySet()) {
+      /* old code
       matrixClient.update(requestId, matrixId, partUpdateEntry.getKey(),
         new RowSplitsUpdateItem(partUpdateEntry.getValue()), taskContext, clock, updateClock,
         UpdateOp.PLUS);
+      */
       /*new code*/
+      PartitionKey Pkey = partUpdateEntry.getKey();
+      matrixClient.update(requestId, matrixId, Pkey,
+              new RowSplitsUpdateItem(partUpdateEntry.getValue()), taskContext, clock, updateClock,
+              UpdateOp.PLUS);
+      LOG.info(i);
       LOG.info("go to matrixClient.update(*) with clock = " + clock + " updateClock = " + updateClock);
+      LOG.info("requestId = " + requestId);
+      LOG.info("matrixId = " + matrixId);
+      LOG.info("PartitionKe = " + Pkey.toString());
+      i++;
       /*code end*/
     }
   }
