@@ -719,12 +719,6 @@ public class WorkerPool {
     String log = "server is busy now, retry later";
     long startTs = System.currentTimeMillis();
 
-
-    /*new code*/
-    LOG.info("private void handle(ChannelHandlerContext ctx, Object msg, boolean useSync)");
-    LOG.info("method = " + method);
-    /*code end*/
-
     switch (method) {
       case GET_ROWSPLIT: {
         if (state == ServerState.BUSY) {
@@ -1148,11 +1142,6 @@ public class WorkerPool {
     ServerPartition part =
       context.getMatrixStorageManager().getPart(partKey.getMatrixId(), partKey.getPartitionId());
 
-    /*new code*/
-    LOG.info("put update request=" + request);
-    LOG.info("partKey is = " + partKey);
-    /*code end*/
-
     if (part == null) {
       String log = "update " + request + " failed. The partition " + partKey + " does not exist";
       LOG.fatal(log);
@@ -1196,6 +1185,13 @@ public class WorkerPool {
             .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex
             + ", updateClock = " + updateClock);
       }
+
+      /*new code*/
+      LOG.info(
+              "update split request matrixId = " + partKey.getMatrixId() + ", partId = " + partKey
+                      .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex
+                      + ", updateClock = " + updateClock);
+      /*code end*/
 
       try {
         state = part.getState();
