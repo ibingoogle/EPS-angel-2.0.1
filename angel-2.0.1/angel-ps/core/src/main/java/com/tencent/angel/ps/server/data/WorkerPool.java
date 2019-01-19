@@ -1186,13 +1186,6 @@ public class WorkerPool {
             + ", updateClock = " + updateClock);
       }
 
-      /*new code*/
-      LOG.info(
-              "update split request matrixId = " + partKey.getMatrixId() + ", partId = " + partKey
-                      .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex
-                      + ", updateClock = " + updateClock);
-      /*code end*/
-
       try {
         state = part.getState();
         if (state != PartitionState.READ_AND_WRITE) {
@@ -1201,6 +1194,14 @@ public class WorkerPool {
           LOG.error(log);
           return new UpdateResponse(ResponseType.SERVER_HANDLE_FAILED, log);
         }
+
+        /*new code*/
+        LOG.info(
+                "update split request matrixId = " + partKey.getMatrixId() + ", partId = " + partKey
+                        .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex
+                        + ", updateClock = " + updateClock);
+        LOG.info("op = " + request.getOp());
+      /*code end*/
 
         part.update(in, request.getOp());
         if (updateClock) {
