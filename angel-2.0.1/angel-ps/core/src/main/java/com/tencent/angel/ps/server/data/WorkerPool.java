@@ -1196,6 +1196,7 @@ public class WorkerPool {
         }
 
         /*new code*/
+        LOG.info("put update request=" + request);
         LOG.info(
                 "update split request matrixId = " + partKey.getMatrixId() + ", partId = " + partKey
                         .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex

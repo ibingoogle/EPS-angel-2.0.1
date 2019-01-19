@@ -345,6 +345,9 @@ public class UserRequestAdapter {
     requests.put(requestId, request);
 
     // Send request to PSS
+    /*new code*/
+    LOG.info("Flush the matrix oplog to parameter servers.");
+    /*code end*/
     plus(requestId, matrixId, psUpdateData, taskContext, updateClock);
     return result;
   }
@@ -891,6 +894,9 @@ public class UserRequestAdapter {
       requestIdToSubresponsMap.put(requestId, cache);
       requestIdToResultMap.put(requestId, result);
       requests.put(requestId, request);
+      /*new code*/
+      LOG.info("plus 2");
+      /*code end*/
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
@@ -977,6 +983,9 @@ public class UserRequestAdapter {
       requestIdToSubresponsMap.put(requestId, cache);
       requestIdToResultMap.put(requestId, result);
       requests.put(requestId, request);
+      /*new code*/
+      LOG.info("plus 3");
+      /*code end*/
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
@@ -1050,6 +1059,9 @@ public class UserRequestAdapter {
       requestIdToSubresponsMap.put(requestId, cache);
       requestIdToResultMap.put(requestId, result);
       requests.put(requestId, request);
+      /*new code*/
+      LOG.info("plus 3");
+      /*code end*/
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
