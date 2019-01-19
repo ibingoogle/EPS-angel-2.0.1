@@ -377,6 +377,9 @@ public class UserRequestAdapter {
       matrixClient.update(requestId, matrixId, partUpdateEntry.getKey(),
         new RowSplitsUpdateItem(partUpdateEntry.getValue()), taskContext, clock, updateClock,
         UpdateOp.PLUS);
+      /*new code*/
+      LOG.info("go to matrixClient.update(*) with clock = " + clock + " updateClock = " + updateClock);
+      /*code end*/
     }
   }
 
@@ -967,6 +970,11 @@ public class UserRequestAdapter {
   public Future<VoidResult> update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) {
     assert rowIds.length == rows.length;
     checkParams(matrixId, rowIds);
+
+    /*new code*/
+    LOG.info("update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
+    LOG.info("rows.length = " + rows.length);
+    /*code end*/
 
     if (useNewSplit(matrixId, rows)) {
       for (int i = 0; i < rows.length; i++) {

@@ -179,9 +179,6 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
           case ("dense", "dense" | "component_dense") => // dense data, dense model
             val weightGrad: Matrix = Ufuncs.dot(graph.placeHolder.getFeats, true, backward, false, parallel)
               .imul(normal)
-            /*new code*/
-            LOG.info("pushGradient() in SimpleInputLayer.scala")
-            /*code end*/
             PSMatrixUtils.incrementRowByMatrix(weightId, numSlot, weightGrad)
           case _ => // sparse data, dense or sparse model, note: dense data, sparse model is not allowed
             val vectors = (0 until outputDim).toArray.map { colId =>
@@ -200,6 +197,10 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
 
               weightRowGrad
             }
+
+            /*new code*/
+            LOG.info("pushGradient() in SimpleInputLayer.scala")
+            /*code end*/
 
             PSMatrixUtils.incrementRows(weightId, vectors.map(_.getRowId), vectors)
         }
