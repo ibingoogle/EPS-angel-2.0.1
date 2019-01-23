@@ -345,9 +345,7 @@ public class UserRequestAdapter {
     requests.put(requestId, request);
 
     // Send request to PSS
-    /*new code*/
-    LOG.info("Flush the matrix oplog to parameter servers.");
-    /*code end*/
+    LOG.info("Flush the matrix oplog to parameter servers.");//////
     plus(requestId, matrixId, psUpdateData, taskContext, updateClock);
     return result;
   }
@@ -376,9 +374,7 @@ public class UserRequestAdapter {
       clock = -1;
     }
 
-    /* new code*/
-    int i = 0;
-    /*code end*/
+    int i = 0;//////
 
     for (Entry<PartitionKey, List<RowUpdateSplit>> partUpdateEntry : psUpdateData.entrySet()) {
       /* old code
