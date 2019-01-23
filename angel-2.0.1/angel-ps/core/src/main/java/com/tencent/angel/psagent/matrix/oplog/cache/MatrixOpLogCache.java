@@ -302,7 +302,6 @@ public class MatrixOpLogCache {
             mergingCounters.addTo(message.getMatrixId(), -1);
 
             // Wake up blocked flush/clock request
-            LOG.info("MERGE_SUCCESS!!!!!!!!!!!");
             checkAndWakeUpListeners(message.getMatrixId());
             break;
           }
@@ -313,7 +312,6 @@ public class MatrixOpLogCache {
             // updates are merged
             addToListenerList(message);
             // Wake up blocked flush/clock request
-            LOG.info("FLUSH!!!!!!!!!!1");
 
             checkAndWakeUpListeners(message.getMatrixId());
             break;

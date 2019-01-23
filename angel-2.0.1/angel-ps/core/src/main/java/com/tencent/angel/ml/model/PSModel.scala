@@ -220,6 +220,8 @@ class PSModel(
   @throws(classOf[AngelException])
   def flush(): Future[VoidResult] = {
     try {
+      LOG.info("flush() in PSModel.scala")
+      System.out.print("flush() in PSModel.scala")
       return getClient.flush
     }
     catch {
