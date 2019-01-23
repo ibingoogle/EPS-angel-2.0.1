@@ -116,7 +116,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       }
 
       // waiting all gradient update finished
-      // LOG.info("waiting for update barrier ...")
+      LOG.info("waiting for update barrier ...")
       PSAgentContext.get().barrier(ctx.getTaskId.getIndex)
       batchCount += 1
 

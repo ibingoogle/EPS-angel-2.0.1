@@ -200,7 +200,7 @@ public class MatrixOpLogCache {
     try {
       // Generate a clock request and put it to request queue
       LOG.debug("task " + context.getIndex() + " clock matrix " + matrixId);
-      LOG.info("task " + context.getIndex() + " clock matrix " + matrixId + "flushFirst = " + flushFirst);//////
+      LOG.info("task " + context.getIndex() + " clock matrix " + matrixId + " flushFirst = " + flushFirst);//////
       ClockMessage clockMessage =
         new ClockMessage(seqIdGenerator.incrementAndGet(), matrixId, context, flushFirst);
       messageToFutureMap.put(clockMessage, futureResult);
@@ -393,11 +393,14 @@ public class MatrixOpLogCache {
             "currentMergePos=" + currentMergePos + ", message.getSeqId()=" + message.getSeqId());
           if (currentMergePos > message.getSeqId()) {
             LOG.debug("clock opLogs for " + matrixId + ", oplog=" + opLogs.get(matrixId));
+            LOG.info("clock opLogs for " + matrixId + ", oplog=" + opLogs.get(matrixId));//////
             if (message.getType() == OpLogMessageType.CLOCK) {
               ClockMessage clockMessage = (ClockMessage) message;
               if (!clockMessage.isFlushFirst()) {
+                LOG.info(clockMessage.isFlushFirst());//////
                 clock(clockMessage, null);
               } else {
+                LOG.info(clockMessage.isFlushFirst());//////
                 clock(clockMessage, opLogs.remove(matrixId));
               }
             } else {
@@ -515,6 +518,7 @@ public class MatrixOpLogCache {
     }
 
     @Override public void run() {
+      LOG.info("this.matrixOpLog = " + this.matrixOpLog);
       UserRequestAdapter adapter = PSAgentContext.get().getUserRequestAdapter();
       try {
         if ((matrixOpLog != null) && needFlushLocalStorage(message.getMatrixId())) {

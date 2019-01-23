@@ -319,6 +319,8 @@ public class UserRequestAdapter {
       return ret;
     }
 
+    LOG.info("matrixOpLog = " + matrixOpLog + ", updateClock = " + updateClock);//////
+
     Map<PartitionKey, List<RowUpdateSplit>> psUpdateData =
       new HashMap<PartitionKey, List<RowUpdateSplit>>();
     FlushRequest request =
