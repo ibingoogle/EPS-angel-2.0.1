@@ -175,6 +175,7 @@ public class MatrixOpLogCache {
     FutureResult<VoidResult> futureResult = new FutureResult<>();
     try {
       // Generate a flush request and put it to request queue
+      LOG.info("Generate a flush request and put it to request queue");
       OpLogMessage flushMessage =
         new OpLogMessage(seqIdGenerator.incrementAndGet(), matrixId, OpLogMessageType.FLUSH,
           context);
