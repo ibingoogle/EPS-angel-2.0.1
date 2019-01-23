@@ -1209,6 +1209,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         rpcContext.before(item.getContext().getServerId());
       }
       LOG.debug("submit request seqId=" + seqId + ",request=" + item);
+      LOG.info("submit request seqId=" + seqId + ",request=" + item);//////
       seqIdToRequestMap.put(seqId, item);
       requestThreadPool.execute(new Requester(item, seqId));
     }
@@ -1826,6 +1827,9 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         LOG.debug("request " + request + " with seqId=" + seqId + " get location use time " + (
           System.currentTimeMillis() - startTs));
       }
+
+      LOG.info("request " + request + " with seqId=" + seqId + " get location use time " + (
+              System.currentTimeMillis() - startTs)); //////
 
       // Get the channel for the location
       startTs = System.currentTimeMillis();

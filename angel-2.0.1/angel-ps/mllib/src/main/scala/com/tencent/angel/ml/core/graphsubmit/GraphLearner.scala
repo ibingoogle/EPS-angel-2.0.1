@@ -107,6 +107,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       /*code end*/
 
       PSAgentContext.get().barrier(ctx.getTaskId.getIndex)
+      LOG.info("push barrier is finished!") //////
       if (decayOnBatch) {
         graph.setLR(ssScheduler.next())
       }
@@ -118,6 +119,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       // waiting all gradient update finished
       LOG.info("waiting for update barrier ...")
       PSAgentContext.get().barrier(ctx.getTaskId.getIndex)
+      LOG.info("update barrier is finished!") //////
       batchCount += 1
 
       LOG.info(s"epoch $epoch batch $batchCount is finished!")

@@ -518,7 +518,7 @@ public class MatrixOpLogCache {
     }
 
     @Override public void run() {
-      LOG.info("this.matrixOpLog = " + this.matrixOpLog);
+      LOG.info("this.matrixOpLog = " + this.matrixOpLog); //////
       UserRequestAdapter adapter = PSAgentContext.get().getUserRequestAdapter();
       try {
         if ((matrixOpLog != null) && needFlushLocalStorage(message.getMatrixId())) {
