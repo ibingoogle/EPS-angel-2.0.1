@@ -894,9 +894,6 @@ public class UserRequestAdapter {
       requestIdToSubresponsMap.put(requestId, cache);
       requestIdToResultMap.put(requestId, result);
       requests.put(requestId, request);
-      /*new code*/
-      LOG.info("plus 2");
-      /*code end*/
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
@@ -983,9 +980,6 @@ public class UserRequestAdapter {
       requestIdToSubresponsMap.put(requestId, cache);
       requestIdToResultMap.put(requestId, result);
       requests.put(requestId, request);
-      /*new code*/
-      LOG.info("plus 3");
-      /*code end*/
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
@@ -1020,6 +1014,10 @@ public class UserRequestAdapter {
       MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
       long colNum = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId).getColNum();
       for (PartitionKey partKey : partitions) {
+        /*new code*/
+        LOG.info("update clock = -1");
+        LOG.info("partKey = " + partKey);
+        /*code end*/
         RowsViewUpdateItem item = new RowsViewUpdateItem(partKey, rows, colNum);
         matrixClient.update(requestId, request.getMatrixId(), partKey, item, null, -1, false, op);
       }
@@ -1059,9 +1057,6 @@ public class UserRequestAdapter {
       requestIdToSubresponsMap.put(requestId, cache);
       requestIdToResultMap.put(requestId, result);
       requests.put(requestId, request);
-      /*new code*/
-      LOG.info("plus 3");
-      /*code end*/
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
