@@ -367,6 +367,8 @@ public class PSAgentContext {
     // clock first
     MatrixClient client = MatrixClientFactory.get(matrixId, taskId);
     client.clock(false);
+    
+    LOG.info("client.clock(false);");
 
     int clock = client.getTaskContext().getMatrixClock(matrixId);
 

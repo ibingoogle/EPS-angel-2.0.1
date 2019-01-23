@@ -105,6 +105,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("waiting for push barrier ...")
       }
       /*code end*/
+
       PSAgentContext.get().barrier(ctx.getTaskId.getIndex)
       if (decayOnBatch) {
         graph.setLR(ssScheduler.next())

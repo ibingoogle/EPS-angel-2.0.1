@@ -299,7 +299,6 @@ public class MatrixClientImpl extends MatrixClient {
   }
 
   @Override public Future<VoidResult> flush() throws AngelException {
-    System.out.print("flush() in MatrixClientImpl.java");
     return PSAgentContext.get().getMatrixOpLogCache().flush(taskContext, matrixId);
   }
 

@@ -200,6 +200,7 @@ public class MatrixOpLogCache {
     try {
       // Generate a clock request and put it to request queue
       LOG.debug("task " + context.getIndex() + " clock matrix " + matrixId);
+      LOG.info("task " + context.getIndex() + " clock matrix " + matrixId + "flushFirst = " + flushFirst);//////
       ClockMessage clockMessage =
         new ClockMessage(seqIdGenerator.incrementAndGet(), matrixId, context, flushFirst);
       messageToFutureMap.put(clockMessage, futureResult);
@@ -307,10 +308,10 @@ public class MatrixOpLogCache {
             break;
           }
 
+          // reaction to both CLOCK and FLUSH message!!!!!! //
           case CLOCK:
           case FLUSH: {
-            LOG.info("FLUSH!!!!!");//////
-            LOG.info("message.getType() = " + message.getType());
+            LOG.info("message.getType() = " + message.getType()); //////
             // Add flush/clock request to listener list to waiting for all the existing
             // updates are merged
             addToListenerList(message);
@@ -326,7 +327,6 @@ public class MatrixOpLogCache {
     private void checkAndWakeUpListeners(int matrixId) {
       // If all updates are merged for this matrix, we need wake up flush/clock requests which are
       // blocked.
-      LOG.info("checkAndWakeUpListeners(int matrixId)");
       if (mergingCounters.get(matrixId) == 0) {
 
         // Get next merge message sequence id
@@ -377,7 +377,6 @@ public class MatrixOpLogCache {
     private void wakeup(int matrixId, int currentMergePos) {
       // Wake up listeners(flush/clock requests) that have little sequence id than current merge
       // position
-      LOG.info("wakeup(int matrixId, int currentMergePos)");//////
       wakeupListeners(matrixId, currentMergePos);
       // Wake up blocked merge requests
       wakeupWaitMessages(matrixId);
@@ -385,7 +384,6 @@ public class MatrixOpLogCache {
 
     private void wakeupListeners(int matrixId, int currentMergePos) {
       LOG.debug("wakeup clock listeners for matrix " + matrixId);
-      LOG.info("wakeup clock listeners for matrix " + matrixId);//////
       List<OpLogMessage> messages = flushListeners.get(matrixId);
       if (messages != null) {
         Iterator<OpLogMessage> iter = messages.iterator();
@@ -467,12 +465,10 @@ public class MatrixOpLogCache {
     }
 
     private void flush(OpLogMessage message, MatrixOpLog opLog) {
-      LOG.info("flush(OpLogMessage message, MatrixOpLog opLog)");//////
       workerPool.execute(new Flusher(message, opLog));
     }
 
     private void clock(OpLogMessage message, MatrixOpLog opLog) {
-      LOG.info("clock(OpLogMessage message, MatrixOpLog opLog)");//////
       workerPool.execute(new Flusher(message, opLog));
     }
   }
@@ -519,7 +515,6 @@ public class MatrixOpLogCache {
     }
 
     @Override public void run() {
-      LOG.info("run() in Flusher");//////
       UserRequestAdapter adapter = PSAgentContext.get().getUserRequestAdapter();
       try {
         if ((matrixOpLog != null) && needFlushLocalStorage(message.getMatrixId())) {
