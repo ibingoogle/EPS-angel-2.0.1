@@ -1180,14 +1180,17 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       }
 
       // Submit new put RPCS
+      LOG.info("// Submit new put RPCS");//////
       LinkedBlockingQueue<Request> putQueue = null;
       while (true) {
         putQueue = choosePutQueue();
         if (putQueue == null) {
+          LOG.info("putQueue == null");//////
           return;
         }
 
         // if submit task in getQueue failed, we should make up the last chosen get queue index
+        LOG.info("putQueue == " + putQueue.toString());//////
         if (!putQueue.isEmpty() && submitTask(putQueue) == 0) {
           makeUpChoosedPutQueue();
           return;
@@ -1209,7 +1212,6 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         rpcContext.before(item.getContext().getServerId());
       }
       LOG.debug("submit request seqId=" + seqId + ",request=" + item);
-      LOG.info("submit request seqId=" + seqId + ",request=" + item);//////
       seqIdToRequestMap.put(seqId, item);
       requestThreadPool.execute(new Requester(item, seqId));
     }
@@ -1827,9 +1829,6 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         LOG.debug("request " + request + " with seqId=" + seqId + " get location use time " + (
           System.currentTimeMillis() - startTs));
       }
-
-      LOG.info("request " + request + " with seqId=" + seqId + " get location use time " + (
-              System.currentTimeMillis() - startTs)); //////
 
       // Get the channel for the location
       startTs = System.currentTimeMillis();
