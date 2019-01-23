@@ -147,6 +147,7 @@ public class ServerPartition implements Serialize {
    * @param buf serialized update vector
    */
   public void update(ByteBuf buf, UpdateOp op) {
+    LOG.info("startUpdate()");//////
     startUpdate();
     try {
       int rowNum = buf.readInt();
@@ -154,9 +155,12 @@ public class ServerPartition implements Serialize {
       RowType rowType;
 
       for (int i = 0; i < rowNum; i++) {
+        LOG.info("rowNum = " + i);
         rowId = buf.readInt();
         rowType = RowType.valueOf(buf.readInt());
+        LOG.info("rowType = " + rowType);
         ServerRow row = getRow(rowId);
+        LOG.info("row.update(rowType, buf, op);");
         row.update(rowType, buf, op);
       }
     } finally {
