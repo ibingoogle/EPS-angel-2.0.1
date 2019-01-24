@@ -1196,15 +1196,28 @@ public class WorkerPool {
         }
 
         /*new code*/
-        LOG.info("put update request=" + request);
-        LOG.info(
-                "update split request matrixId = " + partKey.getMatrixId() + ", partId = " + partKey
-                        .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex
-                        + ", updateClock = " + updateClock);
-        LOG.info("op = " + request.getOp());
-      /*code end*/
+        String[] infos = new String[3];
+        String requeststirng = request.toString();
+        LOG.info("put update request=" + requeststirng);
+        infos[0] = requeststirng;
 
+        String infostring = "update split request matrixId = " + partKey.getMatrixId() + ", partId = " + partKey
+                .getPartitionId() + " clock = " + clock + ", taskIndex=" + taskIndex
+                + ", updateClock = " + updateClock;
+        LOG.info(infostring);
+        infos[1] = infostring;
+
+        String opstring = request.getOp().toString();
+        LOG.info("op = " + opstring);
+        infos[2] = opstring;
+        /*code end*/
+
+        /* old code
         part.update(in, request.getOp());
+         */
+        /* new code */
+        part.update_with_more(in, request.getOp(),infos);
+        /* code end */
         if (updateClock) {
           context.getClockVectorManager()
             .updateClock(partKey.getMatrixId(), partKey.getPartitionId(), taskIndex, clock);

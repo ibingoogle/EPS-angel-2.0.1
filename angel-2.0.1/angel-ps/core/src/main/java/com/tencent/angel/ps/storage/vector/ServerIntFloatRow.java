@@ -272,8 +272,11 @@ public class ServerIntFloatRow extends ServerFloatRow {
   }
 
   private void updateUseIntFloatSparse(ByteBuf buf, UpdateOp op) {
+    LOG.info("updateUseIntFloatSparse(ByteBuf buf, UpdateOp op)");//////
     int size = buf.readInt();
     if (op == UpdateOp.PLUS) {
+      LOG.info("op == UpdateOp.PLUS");//////
+      LOG.info("size = " + size);//////
       for (int i = 0; i < size; i++) {
         int index = buf.readInt();
         intFloatRow.set(index, intFloatRow.get(index) + buf.readFloat());

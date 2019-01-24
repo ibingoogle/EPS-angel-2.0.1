@@ -168,6 +168,41 @@ public class ServerPartition implements Serialize {
     }
   }
 
+  /** new code
+   * Direct plus to rows in this partition with more information
+   *
+   * @param buf serialized update vector
+   */
+  public void update_with_more(ByteBuf buf, UpdateOp op, String[] infos) {
+    LOG.info("startUpdate()");//////
+
+
+    startUpdate();
+    try {
+      int rowNum = buf.readInt();
+      int rowId;
+      RowType rowType;
+
+      LOG.info("put update request=" + infos[0]);//////
+      LOG.info(infos[1]);//////
+      LOG.info("op = " + infos[2]);//////
+
+      for (int i = 0; i < rowNum; i++) {
+        LOG.info("rowNum = " + i);
+        rowId = buf.readInt();
+        rowType = RowType.valueOf(buf.readInt());
+        LOG.info("rowType = " + rowType);
+        ServerRow row = getRow(rowId);
+        LOG.info("row.update(rowType, buf, op);");
+        LOG.info("row.class = " + row.getClass());
+        row.update(rowType, buf, op);
+      }
+    } finally {
+      endUpdate();
+    }
+  }
+  /* code end */
+
   /**
    * Update the partition use psf
    *
