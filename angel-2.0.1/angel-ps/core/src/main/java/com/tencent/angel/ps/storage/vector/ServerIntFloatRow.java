@@ -233,8 +233,11 @@ public class ServerIntFloatRow extends ServerFloatRow {
   }
 
   private void updateUseIntFloatDense(ByteBuf buf, UpdateOp op) {
+    LOG.info("updateUseIntFloatDense(ByteBuf buf, UpdateOp op)");//////
     int size = buf.readInt();
     if (op == UpdateOp.PLUS) {
+      LOG.info("op == UpdateOp.PLUS");//////
+      LOG.info("size = " + size);//////
       for (int i = 0; i < size; i++) {
         intFloatRow.set(i, intFloatRow.get(i) + buf.readFloat());
       }
