@@ -45,6 +45,9 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   /*new code*/
   val skippedEpochStart: Int = SharedConf.skippedEpochStart
   val skippedEpochEnd: Int = SharedConf.skippedEpochEnd
+
+  val skippedServerEpochStart: Int = SharedConf.skippedServerEpochStart
+  val skippedServerEpochEnd: Int = SharedConf.skippedServerEpochEnd
   /*code end*/
 
   // Init Graph Model
@@ -83,7 +86,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info(s"task ${ctx.getTaskId.getIndex} skips epoch $epoch!")
         iter.next()
         LOG.info("just push null gradient ...")
-        graph.pushGradient_null() //
+        graph.pushGradient_null() // this worker does not work, just skipped this epoch and push null
       }else{
         LOG.info("start to feedData ...")
         graph.feedData(iter.next())
@@ -99,7 +102,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         graph.calBackward() // backward
 
         LOG.info("calculate and push gradient ...")
-        graph.pushGradient() // pushgrad
+        if (epoch >= skippedServerEpochStart && epoch <= skippedServerEpochEnd){
+          graph.pushGradient_partial(epoch); // this worker push its gradients to partial servers
+        }else{
+          graph.pushGradient() // pushgrad
+        }
         // waiting all gradient pushed
 
         LOG.info("waiting for push barrier ...")

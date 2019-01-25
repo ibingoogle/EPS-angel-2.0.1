@@ -77,6 +77,11 @@ object MLConf {
   val DEFAULT_ML_SKIPPED_EPOCH_START = -1
   val ML_SKIPPED_EPOCH_END = "ml.skipped.epoch.end"
   val DEFAULT_ML_SKIPPED_EPOCH_END = -1
+
+  val ML_SKIPPED_SERVER_EPOCH_START = "ml.skipped.server.epoch.start"
+  val DEFAULT_ML_SKIPPED_SERVER_EPOCH_START = -1
+  val ML_SKIPPED_SERVER_EPOCH_END = "ml.skipped.server.epoch.end"
+  val DEFAULT_ML_SKIPPED_SERVER_EPOCH_END = -1
   /*code end*/
 
   val ML_EPOCH_NUM = "ml.epoch.num"

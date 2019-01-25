@@ -1060,6 +1060,84 @@ public class UserRequestAdapter {
     }
   }
 
+  /*new code */
+  public Future<VoidResult> update_partial(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op, int epoch) {
+    assert rowIds.length == rows.length;
+    checkParams(matrixId, rowIds);
+
+    LOG.info("update_partial in UserRequestAdapter.java in epoch = " + epoch);
+    LOG.info("update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
+    LOG.info("rows.length = " + rows.length);
+
+    if (useNewSplit(matrixId, rows)) {
+      for (int i = 0; i < rows.length; i++) {
+        rows[i].setRowId(rowIds[i]);
+        rows[i].setMatrixId(matrixId);
+      }
+
+      List<PartitionKey> partitions =
+              PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
+
+      UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
+      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
+      FutureResult<VoidResult> result = new FutureResult<>();
+      int requestId = request.getRequestId();
+      requestIdToSubresponsMap.put(requestId, cache);
+      requestIdToResultMap.put(requestId, result);
+      requests.put(requestId, request);
+
+      MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
+      long colNum = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId).getColNum();
+      for (PartitionKey partKey : partitions) {
+        LOG.info("partKey = " + partKey);
+        if (partKey.getPartitionId() == 0) {
+          LOG.info("partitionId = " + partKey.getPartitionId());
+          RowsViewUpdateItem item = new RowsViewUpdateItem(partKey, rows, colNum);
+          matrixClient.update(requestId, request.getMatrixId(), partKey, item, null, -1, false, op);
+        }
+      }
+      return result;
+    } else {
+      List<PartitionKey> partitions =
+              PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
+
+      Map<PartitionKey, List<RowUpdateSplit>> splitListMap = new HashMap<>();
+      for (int i = 0; i < rows.length; i++) {
+        rows[i].setRowId(rowIds[i]);
+        rows[i].setMatrixId(matrixId);
+        // Split this row according the matrix partitions
+        Map<PartitionKey, RowUpdateSplit> splitMap = RowUpdateSplitUtils.split(rows[i], partitions);
+
+        // Set split context
+        for (Map.Entry<PartitionKey, RowUpdateSplit> entry : splitMap.entrySet()) {
+          RowUpdateSplitContext context = new RowUpdateSplitContext();
+          context.setEnableFilter(false);
+          context.setFilterThreshold(0);
+          context.setPartKey(entry.getKey());
+          entry.getValue().setSplitContext(context);
+
+          List<RowUpdateSplit> splitList = splitListMap.get(entry.getKey());
+          if (splitList == null) {
+            splitList = new ArrayList<>();
+            splitListMap.put(entry.getKey(), splitList);
+          }
+          splitList.add(entry.getValue());
+        }
+      }
+
+      UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
+      UpdateMatrixCache cache = new UpdateMatrixCache(splitListMap.size());
+      FutureResult<VoidResult> result = new FutureResult<>();
+      int requestId = request.getRequestId();
+      requestIdToSubresponsMap.put(requestId, cache);
+      requestIdToResultMap.put(requestId, result);
+      requests.put(requestId, request);
+      plus(requestId, request.getMatrixId(), splitListMap, null, false);
+      return result;
+    }
+  }
+  /* code end*/
+
   /**
    * Row splits merge thread.
    */

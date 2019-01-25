@@ -290,6 +290,12 @@ object PSMatrixUtils {
     PSAgentContext.get().getUserRequestAdapter.update(matrixId, rowIds, vectors, UpdateOp.PLUS).get()
   }
 
+  /* new code*/
+  def incrementRows_partial(matrixId: Int, rowIds: Array[Int], vectors: Array[Vector], epoch: Int): Unit = {
+    PSAgentContext.get().getUserRequestAdapter.update_partial(matrixId, rowIds, vectors, UpdateOp.PLUS, epoch).get()
+  }
+  /*code end*/
+
   def updateRow(matrixId: Int, rowId: Int, vector: Vector): Unit = {
     PSAgentContext.get().getUserRequestAdapter.update(matrixId, rowId, vector, UpdateOp.REPLACE).get()
   }
