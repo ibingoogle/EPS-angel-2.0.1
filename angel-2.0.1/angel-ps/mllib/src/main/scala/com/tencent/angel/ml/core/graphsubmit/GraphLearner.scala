@@ -103,6 +103,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
 
         LOG.info("calculate and push gradient ...")
         if (epoch >= skippedServerEpochStart && epoch <= skippedServerEpochEnd){
+          LOG.info("partial update with epoch " + epoch)
           graph.pushGradient_partial(epoch); // this worker push its gradients to partial servers
         }else{
           graph.pushGradient() // pushgrad

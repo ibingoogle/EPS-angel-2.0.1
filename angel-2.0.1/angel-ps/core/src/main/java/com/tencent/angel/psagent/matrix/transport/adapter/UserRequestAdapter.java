@@ -1079,7 +1079,8 @@ public class UserRequestAdapter {
               PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
 
       UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
-      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
+      // UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
+      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size() - 1);
       FutureResult<VoidResult> result = new FutureResult<>();
       int requestId = request.getRequestId();
       requestIdToSubresponsMap.put(requestId, cache);

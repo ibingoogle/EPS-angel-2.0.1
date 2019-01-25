@@ -244,11 +244,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
 
               weightRowGrad
             }
-
-            /*new code*/
             LOG.info("pushGradient() in SimpleInputLayer.scala")
-            /*code end*/
-
             PSMatrixUtils.incrementRows_partial(weightId, vectors.map(_.getRowId), vectors, epoch)
         }
 
