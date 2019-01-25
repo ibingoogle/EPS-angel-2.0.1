@@ -264,7 +264,10 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
     val start = System.currentTimeMillis()
     val normal = 0.0
     status = STATUS.Backward
+    status = STATUS.Gradient
 
+    LOG.info("skip everything, no push");
+    /*
     status match {
       case STATUS.Backward =>
         (inputDataFormat, NetUtils.storageType(modelType)) match {
@@ -302,6 +305,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
 
     val end = System.currentTimeMillis()
     // println(s"pushGradient Time = ${end - start} ms")
+    */
   }
 
   override def update(epoch: Int, batchSize: Int): Future[VoidResult] = {
