@@ -294,6 +294,10 @@ object PSMatrixUtils {
   def incrementRows_partial(matrixId: Int, rowIds: Array[Int], vectors: Array[Vector], epoch: Int): Unit = {
     PSAgentContext.get().getUserRequestAdapter.update_partial(matrixId, rowIds, vectors, UpdateOp.PLUS, epoch).get()
   }
+
+  def incrementRows_none(matrixId: Int, rowIds: Array[Int], vectors: Array[Vector], epoch: Int): Unit = {
+    PSAgentContext.get().getUserRequestAdapter.update_none(matrixId, rowIds, vectors, UpdateOp.PLUS, epoch)
+  }
   /*code end*/
 
   def updateRow(matrixId: Int, rowId: Int, vector: Vector): Unit = {

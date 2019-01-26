@@ -1066,7 +1066,7 @@ public class UserRequestAdapter {
     checkParams(matrixId, rowIds);
 
     LOG.info("update_partial in UserRequestAdapter.java in epoch = " + epoch);
-    LOG.info("update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
+    LOG.info("update_partial(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
     LOG.info("rows.length = " + rows.length);
 
     if (useNewSplit(matrixId, rows)) {
@@ -1080,7 +1080,7 @@ public class UserRequestAdapter {
 
       UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
       // UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
-      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size() - 2);
+      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size() - 1);
       FutureResult<VoidResult> result = new FutureResult<>();
       int requestId = request.getRequestId();
       requestIdToSubresponsMap.put(requestId, cache);
@@ -1091,7 +1091,7 @@ public class UserRequestAdapter {
       long colNum = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId).getColNum();
       for (PartitionKey partKey : partitions) {
         LOG.info("partKey = " + partKey);
-        if (partKey.getPartitionId() < 0) {
+        if (partKey.getPartitionId() == 0) {
           LOG.info("partitionId = " + partKey.getPartitionId());
           RowsViewUpdateItem item = new RowsViewUpdateItem(partKey, rows, colNum);
           matrixClient.update(requestId, request.getMatrixId(), partKey, item, null, -1, false, op);
@@ -1136,6 +1136,14 @@ public class UserRequestAdapter {
       plus(requestId, request.getMatrixId(), splitListMap, null, false);
       return result;
     }
+  }
+
+
+  public void update_none(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op, int epoch) {
+    assert rowIds.length == rows.length;
+    LOG.info("update_none in UserRequestAdapter.java in epoch = " + epoch);
+    LOG.info("update_none(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
+    LOG.info("rows.length = " + rows.length);
   }
   /* code end*/
 

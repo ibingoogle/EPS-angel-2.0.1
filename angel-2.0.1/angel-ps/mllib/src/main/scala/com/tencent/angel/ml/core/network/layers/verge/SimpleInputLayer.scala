@@ -259,6 +259,49 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
     // println(s"pushGradient Time = ${end - start} ms")
   }
 
+  override def pushGradient_none(epoch: Int): Unit = {
+    val start = System.currentTimeMillis()
+    val normal = 1.0 / OptUtils.getNormal(mode, graph)
+
+    status match {
+      case STATUS.Backward =>
+        (inputDataFormat, NetUtils.storageType(modelType)) match {
+          case ("dense", "dense" | "component_dense") => // dense data, dense model
+            val weightGrad: Matrix = Ufuncs.dot(graph.placeHolder.getFeats, true, backward, false, parallel)
+              .imul(normal)
+            PSMatrixUtils.incrementRowByMatrix(weightId, numSlot, weightGrad)
+          case _ => // sparse data, dense or sparse model, note: dense data, sparse model is not allowed
+            val vectors = (0 until outputDim).toArray.map { colId =>
+              val weightRowGrad = valueType match {
+                case "double" =>
+                  graph.placeHolder.getFeats.transDot(backward.asInstanceOf[BlasDoubleMatrix].getCol(colId))
+                    .imul(normal)
+                case "float" =>
+                  graph.placeHolder.getFeats.transDot(backward.asInstanceOf[BlasFloatMatrix].getCol(colId))
+                    .imul(normal)
+              }
+
+              weightRowGrad.setMatrixId(weight.getMatrixId)
+              weightRowGrad.setRowId(outputDim * numSlot + colId)
+              weightRowGrad.setClock(weight.getClock)
+
+              weightRowGrad
+            }
+            LOG.info("pushGradient() in SimpleInputLayer.scala")
+            PSMatrixUtils.incrementRows_none(weightId, vectors.map(_.getRowId), vectors, epoch)
+        }
+
+
+        PSMatrixUtils.incrementRow(biasId, 0, backward.average(0).imul(-optimizer.getLR / graph.taskNum))
+
+        status = STATUS.Gradient
+      case _ =>
+    }
+
+    val end = System.currentTimeMillis()
+    // println(s"pushGradient Time = ${end - start} ms")
+  }
+
 
   override def pushGradient_null(): Unit = {
     val start = System.currentTimeMillis()

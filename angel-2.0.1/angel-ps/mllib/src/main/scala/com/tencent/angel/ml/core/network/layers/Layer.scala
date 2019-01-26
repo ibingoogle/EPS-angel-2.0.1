@@ -44,6 +44,7 @@ trait Trainable {
   /*new code*/
   def pushGradient_null(): Unit = {}
   def pushGradient_partial(epoch: Int): Unit = {}
+  def pushGradient_none(epoch: Int): Unit = {}
   /*code end*/
 
   def update(epoch: Int, batchSize: Int): Future[VoidResult]
