@@ -709,13 +709,17 @@ public abstract class AngelClient implements AngelClientInterface {
       .getJobReport().getCurIteration())) {
       LOG.info(
         "Epoch: " + report.getCurIteration() + ". Metrics=" + toString(report.getMetricsList()));
+      
       /* new code */
-      String loss = report.getMetrics(0).getValue();
-      LOG.info("Epoch: " + report.getCurIteration() + ". loss=" + loss);
-      if (OutputMetrics_boolean){
-        outputMetrics(loss);
+      if (report.getMetricsList().size() > 0){
+        String loss = report.getMetrics(0).getValue();
+        LOG.info("Epoch: " + report.getCurIteration() + ". loss=" + loss);
+        if (OutputMetrics_boolean){
+          outputMetrics(loss);
+        }
       }
       /* code end */
+
       if (report.hasLoss()) {
         LOG.info("loss/success: " + report.getLoss() + "/" + report.getSuccess());
       }
