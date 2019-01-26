@@ -1815,7 +1815,10 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       request.getContext().setActualServerId(psLoc.psId);
       request.getContext().setLocation(psLoc.loc);
 
-      LOG.info("psLocation = " + psLoc.toString() + " request = " + request + " with seqId = " + seqId);//////
+      if (request.getType().getMethodId() == 2){//////
+        LOG.info("psLocation = " + psLoc.toString() + " request = " + request + " with seqId = " + seqId);//////
+      }//////
+
 
       // If location is null, means that the server is not ready
       if (psLoc.loc == null) {
