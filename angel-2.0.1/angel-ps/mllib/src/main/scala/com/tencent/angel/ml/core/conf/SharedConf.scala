@@ -427,15 +427,26 @@ object SharedConf {
   }
 
   /*new code*/
-  def skippedEpochStart: Int = {
+  def skippedWorkerEpochBoolean: Boolean = {
     get()
 
-    sc.getInt(MLConf.ML_SKIPPED_EPOCH_START, MLConf.DEFAULT_ML_SKIPPED_EPOCH_START)
+    sc.getBoolean(MLConf.ML_SKIPPED_WORKER_EPOCH_BOOLEAN, MLConf.DEFAULT_ML_SKIPPED_WORKER_EPOCH_BOOLEAN)
   }
-  def skippedEpochEnd: Int = {
+  def skippedWorkerEpochStart: Int = {
     get()
 
-    sc.getInt(MLConf.ML_SKIPPED_EPOCH_END, MLConf.DEFAULT_ML_SKIPPED_EPOCH_END)
+    sc.getInt(MLConf.ML_SKIPPED_WORKER_EPOCH_START, MLConf.DEFAULT_ML_SKIPPED_WORKER_EPOCH_START)
+  }
+  def skippedWorkerEpochEnd: Int = {
+    get()
+
+    sc.getInt(MLConf.ML_SKIPPED_WORKER_EPOCH_END, MLConf.DEFAULT_ML_SKIPPED_WORKER_EPOCH_END)
+  }
+
+  def skippedServerEpochBoolean: Boolean = {
+    get()
+
+    sc.getBoolean(MLConf.ML_SKIPPED_SERVER_EPOCH_BOOLEAN, MLConf.DEFAULT_ML_SKIPPED_SERVER_EPOCH_BOOLEAN)
   }
   def skippedServerEpochStart: Int = {
     get()

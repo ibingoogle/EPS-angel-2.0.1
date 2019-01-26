@@ -73,11 +73,15 @@ object MLConf {
   val DEFAULT_ML_MODEL_IS_CLASSIFICATION = true
 
   /*new code*/
-  val ML_SKIPPED_EPOCH_START = "ml.skipped.epoch.start"
-  val DEFAULT_ML_SKIPPED_EPOCH_START = -1
-  val ML_SKIPPED_EPOCH_END = "ml.skipped.epoch.end"
-  val DEFAULT_ML_SKIPPED_EPOCH_END = -1
+  val ML_SKIPPED_WORKER_EPOCH_BOOLEAN = "ml.skipped.worker.epoch.boolean"
+  val DEFAULT_ML_SKIPPED_WORKER_EPOCH_BOOLEAN = false
+  val ML_SKIPPED_WORKER_EPOCH_START = "ml.skipped.worker.epoch.start"
+  val DEFAULT_ML_SKIPPED_WORKER_EPOCH_START = -1
+  val ML_SKIPPED_WORKER_EPOCH_END = "ml.skipped.worker.epoch.end"
+  val DEFAULT_ML_SKIPPED_WORKER_EPOCH_END = -1
 
+  val ML_SKIPPED_SERVER_EPOCH_BOOLEAN = "ml.skipped.server.epoch.boolean"
+  val DEFAULT_ML_SKIPPED_SERVER_EPOCH_BOOLEAN = false
   val ML_SKIPPED_SERVER_EPOCH_START = "ml.skipped.server.epoch.start"
   val DEFAULT_ML_SKIPPED_SERVER_EPOCH_START = -1
   val ML_SKIPPED_SERVER_EPOCH_END = "ml.skipped.server.epoch.end"

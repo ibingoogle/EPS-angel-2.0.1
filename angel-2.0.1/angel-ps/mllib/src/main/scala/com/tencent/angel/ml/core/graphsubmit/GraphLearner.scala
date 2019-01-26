@@ -43,9 +43,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val lr0: Double = SharedConf.learningRate
 
   /*new code*/
-  val skippedEpochStart: Int = SharedConf.skippedEpochStart
-  val skippedEpochEnd: Int = SharedConf.skippedEpochEnd
+  val skippedWorkerEpochBoolean: Boolean = SharedConf.skippedWorkerEpochBoolean
+  val skippedWorkerEpochStart: Int = SharedConf.skippedWorkerEpochStart
+  val skippedWorkerEpochEnd: Int = SharedConf.skippedWorkerEpochEnd
 
+  val skippedServerEpochBoolean: Boolean = SharedConf.skippedServerEpochBoolean
   val skippedServerEpochStart: Int = SharedConf.skippedServerEpochStart
   val skippedServerEpochEnd: Int = SharedConf.skippedServerEpochEnd
   /*code end*/
@@ -82,7 +84,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       // LOG.info("waiting for push barrier ...")
       code end */
       /*new code*/
-      if (ctx.getTaskId.getIndex != 0 && epoch >= skippedEpochStart && epoch <= skippedEpochEnd){
+      if (ctx.getTaskId.getIndex != 0 && epoch >= skippedWorkerEpochStart && epoch <= skippedWorkerEpochEnd && skippedWorkerEpochBoolean){
         LOG.info(s"task ${ctx.getTaskId.getIndex} skips epoch $epoch!")
         iter.next()
         LOG.info("just push null gradient ...")
@@ -102,7 +104,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         graph.calBackward() // backward
 
         LOG.info("calculate and push gradient ...")
-        if (epoch >= skippedServerEpochStart && epoch <= skippedServerEpochEnd){
+        if (epoch >= skippedServerEpochStart && epoch <= skippedServerEpochEnd && skippedServerEpochBoolean){
           LOG.info("partial update with epoch " + epoch)
           graph.pushGradient_partial(epoch); // this worker push its gradients to partial servers
         }else{
@@ -179,8 +181,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     }
 
     /*new code*/
-    LOG.info(s"skipped epoch start at $skippedEpochStart epoch.")
-    LOG.info(s"skipped epoch end at $skippedEpochEnd epoch.")
+    LOG.info(s"skipped epoch start at $skippedWorkerEpochStart epoch.")
+    LOG.info(s"skipped epoch end at $skippedWorkerEpochEnd epoch.")
 
     LOG.info(s"num of batches within one epoch = $numBatch.")
     LOG.info(s"batchSize = $batchSize.")
