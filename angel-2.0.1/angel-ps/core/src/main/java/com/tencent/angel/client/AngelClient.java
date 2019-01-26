@@ -712,10 +712,10 @@ public abstract class AngelClient implements AngelClientInterface {
 
       /* new code */
       if (report.getMetricsList().size() > 0){
-        String loss = report.getMetrics(0).getValue();
-        LOG.info("Epoch: " + report.getCurIteration() + ". loss=" + loss);
+        String validate_loss = report.getMetrics(1).getValue();
+        LOG.info("Epoch: " + report.getCurIteration() + ". validate.loss=" + validate_loss);
         if (OutputMetrics_boolean){
-          outputMetrics(loss);
+          outputMetrics(validate_loss);
         }
       }
       /* code end */
