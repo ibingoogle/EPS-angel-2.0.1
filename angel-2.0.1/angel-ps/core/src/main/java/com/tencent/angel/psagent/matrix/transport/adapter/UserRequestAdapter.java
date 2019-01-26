@@ -1080,7 +1080,7 @@ public class UserRequestAdapter {
 
       UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
       // UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
-      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size() - 1);
+      UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size() - 2);
       FutureResult<VoidResult> result = new FutureResult<>();
       int requestId = request.getRequestId();
       requestIdToSubresponsMap.put(requestId, cache);
@@ -1091,7 +1091,7 @@ public class UserRequestAdapter {
       long colNum = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId).getColNum();
       for (PartitionKey partKey : partitions) {
         LOG.info("partKey = " + partKey);
-        if (partKey.getPartitionId() == 0) {
+        if (partKey.getPartitionId() < 0) {
           LOG.info("partitionId = " + partKey.getPartitionId());
           RowsViewUpdateItem item = new RowsViewUpdateItem(partKey, rows, colNum);
           matrixClient.update(requestId, request.getMatrixId(), partKey, item, null, -1, false, op);
