@@ -710,11 +710,10 @@ public abstract class AngelClient implements AngelClientInterface {
       LOG.info(
         "Epoch: " + report.getCurIteration() + ". Metrics=" + toString(report.getMetricsList()));
       /* new code */
-      LOG.info("Epoch: " + report.getCurIteration() + ". loss=" + report.getLoss());
+      String loss = report.getMetrics(0).getValue();
+      LOG.info("Epoch: " + report.getCurIteration() + ". loss=" + loss);
       if (OutputMetrics_boolean){
-        float loss = report.getLoss();
         outputMetrics(loss);
-
       }
       /* code end */
       if (report.hasLoss()) {
@@ -725,7 +724,7 @@ public abstract class AngelClient implements AngelClientInterface {
   }
 
   /* new code */
-  private void outputMetrics(float loss){
+  private void outputMetrics(String loss){
     BufferedWriter out = null;
     try {
       out = new BufferedWriter(new OutputStreamWriter(
