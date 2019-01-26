@@ -56,6 +56,10 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
 /**
  * Angel application client. It provides the control interfaces for the application.
  */
@@ -109,6 +113,9 @@ public abstract class AngelClient implements AngelClientInterface {
 
   private final AtomicBoolean stopped = new AtomicBoolean(false);
 
+  private String OutputMetrics_file;//////
+  private boolean OutputMetrics_boolean;/////
+
   /**
    * Create a new AngelClient.
    *
@@ -121,6 +128,13 @@ public abstract class AngelClient implements AngelClientInterface {
     isFinished = false;
     hbIntervalMS = conf.getInt(AngelConf.ANGEL_CLIENT_HEARTBEAT_INTERVAL_MS,
       AngelConf.DEFAULT_ANGEL_CLIENT_HEARTBEAT_INTERVAL_MS);
+
+    /* new code */
+    OutputMetrics_boolean = conf.getBoolean(AngelConf.ANGEL_CLIENT_OUTPUT_METRICS_BOOLEAN,
+            AngelConf.DEFAULT_ANGEL_CLIENT_OUTPUT_METRICS_BOOLEAN);
+    OutputMetrics_file = conf.get(AngelConf.ANGEL_CLIENT_OUTPUT_METRICS_FILE,
+            AngelConf.DEFAULT_ANGEL_CLIENT_OUTPUT_METRICS_FILE);
+    /* code end */
   }
 
   @SuppressWarnings("rawtypes") @Override public void runTask(Class<? extends BaseTask> taskClass)
@@ -695,12 +709,39 @@ public abstract class AngelClient implements AngelClientInterface {
       .getJobReport().getCurIteration())) {
       LOG.info(
         "Epoch: " + report.getCurIteration() + ". Metrics=" + toString(report.getMetricsList()));
+      /* new code */
+      LOG.info("Epoch: " + report.getCurIteration() + ". loss=" + report.getLoss());
+      if (OutputMetrics_boolean){
+        float loss = report.getLoss();
+        outputMetrics(loss);
+
+      }
+      /* code end */
       if (report.hasLoss()) {
         LOG.info("loss/success: " + report.getLoss() + "/" + report.getSuccess());
       }
     }
     lastReport = response;
   }
+
+  /* new code */
+  private void outputMetrics(float loss){
+    BufferedWriter out = null;
+    try {
+      out = new BufferedWriter(new OutputStreamWriter(
+              new FileOutputStream(OutputMetrics_file, true)));
+      out.write(loss+"\r\n");
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        out.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+  /* code end */
 
   private String toString(List<Pair> metrics) {
     StringBuilder sb = new StringBuilder("{");

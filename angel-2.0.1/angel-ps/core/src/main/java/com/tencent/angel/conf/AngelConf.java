@@ -319,6 +319,17 @@ public class AngelConf extends Configuration {
     "angel.client.heartbeat.interval.timeout.ms";
   public static final int DEFAULT_ANGEL_CLIENT_HEARTBEAT_INTERVAL_TIMEOUT_MS = 30000;
 
+  /* new code */
+  public static final String ANGEL_CLIENT_OUTPUT_METRICS_BOOLEAN =
+          "angel.client.output.metrics.boolean";
+  public static final Boolean DEFAULT_ANGEL_CLIENT_OUTPUT_METRICS_BOOLEAN = false;
+
+  public static final String ANGEL_CLIENT_OUTPUT_METRICS_FILE =
+          "angel.client.output.metrics.file";
+  public static final String DEFAULT_ANGEL_CLIENT_OUTPUT_METRICS_FILE = "/opt/modules/angel-2.0.1-ps/metrics-output/loss.txt";
+
+  /* code end */
+
   // //////////////////////////////
   // Master Configs
   // //////////////////////////////
