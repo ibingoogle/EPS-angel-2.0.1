@@ -137,7 +137,17 @@ public class ClockCache {
               Map<PartitionKey, Integer> clocks = response.getClocks();
               for (Entry<PartitionKey, Integer> entry : clocks.entrySet()) {
                 // Update clock cache
-                cache.update(entry.getKey().getMatrixId(), entry.getKey(), entry.getValue());
+                // old code
+                // cache.update(entry.getKey().getMatrixId(), entry.getKey(), entry.getValue());
+                /* new code*/
+                PartitionKey PK = entry.getKey();
+                int ClockValue = entry.getValue();
+                int MatrixId = entry.getKey().getMatrixId();
+                int PartId = PK.getPartitionId();
+                LOG.info("Update clock cache");
+                LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
+                cache.update(MatrixId, PK, ClockValue);
+                /*code end*/
               }
 
               if (LOG.isDebugEnabled()) {
