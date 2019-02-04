@@ -365,13 +365,14 @@ public class PSAgentContext {
   public void barrier(int taskId) throws InvalidParameterException, InterruptedException {
     int matrixId = 0;
     // clock first
-    LOG.info("client.clock(false);");//////
+
 
     MatrixClient client = MatrixClientFactory.get(matrixId, taskId);
+    LOG.info("before client.clock, worker clock = " + client.getTaskContext().getMatrixClock(matrixId));//////
     client.clock(false);
 
     int clock = client.getTaskContext().getMatrixClock(matrixId);
-    LOG.info("current clock in MatrixId = " + matrixId + " = " + clock);//////
+    LOG.info("after client.clock, worker clock = " + clock);//////
 
     // wait
     ClockCache cache = PSAgentContext.get().getClockCache();
@@ -387,6 +388,7 @@ public class PSAgentContext {
     while (true) {
       boolean sync = true;
       /* new code */
+      LOG.info("Check: worker clock = " + clock);//////
       for (int i = 0; i < pkeys.size(); i++){
         LOG.info("partId = " + pkeys.get(i).getPartitionId() + ", clock = " + cache.getClock(matrixId, pkeys.get(i)));
       }

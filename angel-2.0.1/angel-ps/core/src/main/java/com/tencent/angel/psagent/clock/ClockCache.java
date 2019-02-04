@@ -128,7 +128,7 @@ public class ClockCache {
             LOG.error("get clocks failed from server " + serverIds[i] + " failed, ", e);
           }
         }
-
+        LOG.info("Update clock cache");//////
         // Wait the responses
         try {
           for (Entry<ParameterServerId, Future> resultEntry : psIdToResultMap.entrySet()) {
@@ -144,8 +144,10 @@ public class ClockCache {
                 int ClockValue = entry.getValue();
                 int MatrixId = entry.getKey().getMatrixId();
                 int PartId = PK.getPartitionId();
-                LOG.info("Update clock cache");
-                LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
+                // print log every 10 times
+                if(syncNum%10 == 0) {
+                  LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
+                }
                 cache.update(MatrixId, PK, ClockValue);
                 /*code end*/
               }
