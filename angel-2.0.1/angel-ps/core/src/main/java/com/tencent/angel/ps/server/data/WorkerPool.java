@@ -214,6 +214,12 @@ public class WorkerPool {
     int methodId = in.readInt();
     TransportMethod method = TransportMethod.typeIdToTypeMap.get(methodId);
 
+    /* new code */
+    if (method.getMethodId() == 15){
+      LOG.info("methodId = " + methodId);
+    }
+    /* code end */
+
     if (isDataRequest(method)) {
       total.incrementAndGet();
       runningContext.before(clientId, seqId);
