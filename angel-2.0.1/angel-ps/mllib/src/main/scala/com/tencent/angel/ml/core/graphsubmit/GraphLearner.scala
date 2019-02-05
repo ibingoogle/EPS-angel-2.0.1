@@ -233,8 +233,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       /* old code */
       // val loss: Double = trainOneEpoch(epoch, iter, numBatch)
       /* new code */
-      val loss: Double = 0.0
-      val success: Boolean = true
+      var loss: Double = 0.0
+      var success: Boolean = true
       (loss, success) = trainOneEpoch(epoch, iter, numBatch)
       /* code end */
       val trainCost = System.currentTimeMillis() - startTrain
