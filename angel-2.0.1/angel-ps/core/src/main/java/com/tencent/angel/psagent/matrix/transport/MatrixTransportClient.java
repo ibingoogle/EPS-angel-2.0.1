@@ -1942,6 +1942,18 @@ public class MatrixTransportClient implements MatrixTransportInterface {
             LOG.error("Get location from Master failed ", e);
           }
         }
+        /* new code */
+      }else if(request instanceof RemoveWorkerRequest){
+        serverId = ((RemoveWorkerRequest) request).getServerId();
+        loc = PSAgentContext.get().getLocationManager().getPsLocation(serverId);
+        if (loc == null) {
+          try {
+            loc = PSAgentContext.get().getLocationManager().getPsLocation(serverId, true);
+          } catch (Throwable e) {
+            LOG.error("Get location from Master failed ", e);
+          }
+        }
+        /* code end */
       } else {
         PartitionLocation partLoc;
         try {

@@ -775,7 +775,7 @@ public class WorkerPool {
       case REMOVE_WORKER: {
         RemoveWorkerRequest request = new RemoveWorkerRequest();
         request.deserialize(in);
-        LOG.info("receive RemoveWorkerRequest!, serverId = " + request.serverId + ", workerId = " + request.workerIndex);
+        LOG.info("receive RemoveWorkerRequest!, serverId = " + request.getServerId().getIndex() + ", workerId = " + request.workerIndex);
         result = removeWorkers(request);
         break;
       }
@@ -1046,7 +1046,7 @@ public class WorkerPool {
    * @return response contains clocks
    */
   private RemoveWorkerResponse removeWorkers(RemoveWorkerRequest request) {
-    int num = 2019 + request.serverId.getIndex();
+    int num = 2019 + request.getServerId().getIndex();
     return new RemoveWorkerResponse(ResponseType.SUCCESS, null, num);
   }
 

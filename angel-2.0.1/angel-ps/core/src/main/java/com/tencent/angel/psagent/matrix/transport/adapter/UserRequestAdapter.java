@@ -205,7 +205,7 @@ public class UserRequestAdapter {
     MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
     // Send remove worker request to every ps
     for (int i = 0; i < serverIds.length; i++) {
-      LOG.info("// Send remove worker request to every ps; serverId = " + serverIds[i]);
+      LOG.info("Send remove worker request to every ps; serverId = " + serverIds[i]);
       try {
         psIdToResultMap.put(serverIds[i], matrixClient.removeWorker(serverIds[i], taskIndex));
       } catch (Exception e) {

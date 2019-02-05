@@ -8,7 +8,7 @@ import com.tencent.angel.ps.server.data.TransportMethod;
  * Remove worker request.
  */
 public class RemoveWorkerRequest extends Request {
-   public ParameterServerId serverId;
+   private ParameterServerId serverId;
    public int workerIndex;
 
     /**
