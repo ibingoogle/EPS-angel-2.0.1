@@ -33,8 +33,11 @@ import com.tencent.angel.ml.matrix.psf.update.base.PartitionUpdateParam;
 import com.tencent.angel.ml.matrix.psf.update.base.UpdateFunc;
 import com.tencent.angel.ml.matrix.psf.update.base.UpdateParam;
 import com.tencent.angel.ml.matrix.psf.update.base.VoidResult;
+import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.server.data.request.InitFunc;
 import com.tencent.angel.ps.server.data.request.UpdateOp;
+import com.tencent.angel.ps.server.data.response.GetClocksResponse;
+import com.tencent.angel.ps.server.data.response.RemoveWorkerResponse;//////
 import com.tencent.angel.ps.storage.vector.ServerRow;
 import com.tencent.angel.psagent.PSAgentContext;
 import com.tencent.angel.psagent.matrix.ResponseType;
@@ -192,6 +195,37 @@ public class UserRequestAdapter {
       }
     }
   }
+
+  /* new code */
+  public void removeWorker(int taskIndex){
+    ParameterServerId[] serverIds =
+            PSAgentContext.get().getLocationManager().getPsIds();
+    Map<ParameterServerId, Future> psIdToResultMap =
+            new HashMap<>(serverIds.length);
+    MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
+    // Send remove worker request to every ps
+    for (int i = 0; i < serverIds.length; i++) {
+      LOG.info("// Send remove worker request to every ps; serverId = " + serverIds[i]);
+      try {
+        psIdToResultMap.put(serverIds[i], matrixClient.removeWorker(serverIds[i], taskIndex));
+      } catch (Exception e) {
+        LOG.error("remove worker failed from server " + serverIds[i] + " failed, ", e);
+      }
+    }
+    // Wait the responses
+    try {
+      for (Entry<ParameterServerId, Future> resultEntry : psIdToResultMap.entrySet()) {
+        RemoveWorkerResponse response = (RemoveWorkerResponse) resultEntry.getValue().get();
+        if (response.getResponseType() == com.tencent.angel.ps.server.data.response.ResponseType.SUCCESS) {
+          int numRestWorkers = response.numRestWorkers;
+          LOG.info("serverId = " + resultEntry.getKey().getIndex() + ", num of rest workers = " + numRestWorkers);
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("remove worker failed, ", e);
+    }
+  }
+  /* code end*/
 
   public Vector getRow(int matrixId, int rowIndex, int clock)
     throws InterruptedException, ExecutionException {

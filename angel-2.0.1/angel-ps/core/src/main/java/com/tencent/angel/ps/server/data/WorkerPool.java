@@ -771,6 +771,16 @@ public class WorkerPool {
         break;
       }
 
+      /* new code */
+      case REMOVE_WORKER: {
+        RemoveWorkerRequest request = new RemoveWorkerRequest();
+        request.deserialize(in);
+        LOG.info("receive RemoveWorkerRequest!, serverId = " + request.serverId + ", workerId = " + request.workerIndex);
+        result = removeWorkers(request);
+        break;
+      }
+      /* code end */
+
       case UPDATE_PSF: {
         if (state == ServerState.BUSY) {
           result = new UpdaterResponse(ResponseType.SERVER_IS_BUSY, log);
@@ -1027,6 +1037,17 @@ public class WorkerPool {
   private GetClocksResponse getClocks(GetClocksRequest request) {
     Map<PartitionKey, Integer> clocks = context.getClockVectorManager().getPartClocksFromCache();
     return new GetClocksResponse(ResponseType.SUCCESS, null, clocks);
+  }
+
+  /**
+   * remove worker and return the number of rest workers
+   *
+   * @param request rpc request
+   * @return response contains clocks
+   */
+  private RemoveWorkerResponse removeWorkers(RemoveWorkerRequest request) {
+    int num = 2019 + request.serverId.getIndex();
+    return new RemoveWorkerResponse(ResponseType.SUCCESS, null, num);
   }
 
   /**

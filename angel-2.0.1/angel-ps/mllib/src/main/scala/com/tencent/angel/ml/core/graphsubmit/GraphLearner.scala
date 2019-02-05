@@ -134,6 +134,12 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       batchCount += 1
 
       LOG.info(s"epoch $epoch batch $batchCount is finished!")
+
+      /* new code */
+      if (ctx.getTaskId.getIndex == 1 && epoch == 1){
+        PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex);
+      }
+      /* code end */
     }
 
     loss

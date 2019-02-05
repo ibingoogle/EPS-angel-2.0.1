@@ -30,6 +30,7 @@ import com.tencent.angel.ps.server.data.request.InitFunc;
 import com.tencent.angel.ps.server.data.request.UpdateItem;
 import com.tencent.angel.ps.server.data.request.UpdateOp;
 import com.tencent.angel.ps.server.data.response.GetClocksResponse;
+import com.tencent.angel.ps.server.data.response.RemoveWorkerResponse;
 import com.tencent.angel.ps.storage.matrix.ServerPartition;
 import com.tencent.angel.ps.storage.vector.ServerRow;
 import com.tencent.angel.psagent.matrix.oplog.cache.RowUpdateSplit;
@@ -83,6 +84,16 @@ public interface MatrixTransportInterface {
    * @return Future<Map<PartitionKey, Integer>> matrix partition clocks
    */
   Future<GetClocksResponse> getClocks(ParameterServerId serverId);
+
+  /* new code */
+  /**
+   * notify PS to Remove worker from PS
+   *
+   * @param serverId ps id
+   * @return Future<Map<PartitionKey, Integer>> matrix partition clocks
+   */
+  Future<RemoveWorkerResponse> removeWorker(ParameterServerId serverId, int workerIndex);
+  /* code end */
 
   /**
    * Update matrix partition use the update udf.

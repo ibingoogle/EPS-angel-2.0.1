@@ -359,6 +359,13 @@ public class PSAgentContext {
     return psAgent.getLocation();
   }
 
+  /* new code */
+  public void removeWorker(int taskId) throws InvalidParameterException, InterruptedException {
+    LOG.info("try remove worker!");
+    PSAgentContext.get().getUserRequestAdapter().removeWorker(taskId);
+  }
+  /* code end */
+
   /**
    * Global barrier synchronization method
    */

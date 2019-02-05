@@ -490,6 +490,17 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     return future;
   }
 
+  /* new code */
+  @Override public Future<RemoveWorkerResponse> removeWorker(ParameterServerId serverId, int workerIndex) {
+    RemoveWorkerRequest request = new RemoveWorkerRequest(serverId, workerIndex);
+    FutureResult<RemoveWorkerResponse> future = new FutureResult<>();
+    requestToResultMap.put(request, future);
+    addToGetQueueForServer(serverId, request);
+    startGet();
+    return future;
+  }
+  /* code end*/
+
   @Override public Future<VoidResult> update(int requestId, UpdateFunc updateFunc,
     PartitionUpdateParam partitionUpdaterParam) {
     ParameterServerId serverId =
@@ -1424,6 +1435,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       case GET_PSF:
       case INDEX_GET_ROW:
       case INDEX_GET_ROWS:
+      case REMOVE_WORKER://///
         getRequestSuccess(request);
         break;
 
@@ -2113,6 +2125,12 @@ public class MatrixTransportClient implements MatrixTransportInterface {
             handleGetClocksResponse(msg, seqId, (GetClocksRequest) request);
             break;
 
+          /* new code */
+          case REMOVE_WORKER:
+            handleRemoveWorkerResponse(msg, seqId, (RemoveWorkerRequest) request);
+            break;
+          /* code end */
+
           case UPDATE:
             handleUpdateResponse(msg, seqId, (UpdateRequest) request);
             break;
@@ -2229,6 +2247,26 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         handleExceptionResponse(seqId, request, response);
       }
     }
+
+    /* new code */
+    private void handleRemoveWorkerResponse(ByteBuf buf, int seqId, RemoveWorkerRequest request) {
+      RemoveWorkerResponse response = new RemoveWorkerResponse();
+      response.deserialize(buf);
+
+      handleServerState(request, response.getState());
+
+      FutureResult<RemoveWorkerResponse> future = requestToResultMap.remove(request);
+      if (future != null) {
+        future.set(response);
+      }
+
+      if (response.getResponseType() == ResponseType.SUCCESS) {
+        requestSuccess(seqId);
+      } else {
+        handleExceptionResponse(seqId, request, response);
+      }
+    }
+    /* code end */
 
     @SuppressWarnings("unchecked")
     private void handleGetPartitionResponse(ByteBuf buf, int seqId, GetPartitionRequest request) {

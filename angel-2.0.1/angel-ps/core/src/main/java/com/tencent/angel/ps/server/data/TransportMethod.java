@@ -21,10 +21,17 @@ package com.tencent.angel.ps.server.data;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum TransportMethod {
+/* old code */
+/* public enum TransportMethod {
   GET_ROWSPLIT(1), PUT_PARTUPDATE(2), GET_ROWSSPLIT(3), GET_PART(4), PUT_PART(5), GET_CLOCKS(
     6), UPDATE_PSF(7), GET_PSF(8), RECOVER_PART(9), UPDATE_CLOCK(10), UPDATE(11), INDEX_GET_ROW(
-    12), INDEX_GET_ROWS(13), UNKNOWN(14);
+    12), INDEX_GET_ROWS(13), UNKNOWN(14);*/
+/* new code */
+public enum TransportMethod {
+  GET_ROWSPLIT(1), PUT_PARTUPDATE(2), GET_ROWSSPLIT(3), GET_PART(4), PUT_PART(5), GET_CLOCKS(
+          6), UPDATE_PSF(7), GET_PSF(8), RECOVER_PART(9), UPDATE_CLOCK(10), UPDATE(11), INDEX_GET_ROW(
+          12), INDEX_GET_ROWS(13), UNKNOWN(14), REMOVE_WORKER(15);
+  /* code end*/
 
   public static Map<Integer, TransportMethod> typeIdToTypeMap;
 
@@ -44,6 +51,7 @@ public enum TransportMethod {
     typeIdToTypeMap.put(INDEX_GET_ROW.methodId, INDEX_GET_ROW);
     typeIdToTypeMap.put(INDEX_GET_ROWS.methodId, INDEX_GET_ROWS);
     typeIdToTypeMap.put(UNKNOWN.methodId, UNKNOWN);
+    typeIdToTypeMap.put(REMOVE_WORKER.methodId, REMOVE_WORKER);//////
   }
 
   public static TransportMethod valueOf(int id) {
