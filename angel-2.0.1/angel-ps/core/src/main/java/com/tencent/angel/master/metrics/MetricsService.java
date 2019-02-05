@@ -149,6 +149,8 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
 
               case TASK_ITERATION_UPDATE: {
                 int minIter = context.getWorkerManager().getMinIteration();
+                LOG.info("minIter = " + minIter);//////
+                LOG.info("currentIter = " + currentIter);//////
                 if (minIter > currentIter) {
                   calAlgoMetrics(minIter);
                   currentIter = minIter;
@@ -199,6 +201,7 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
   }
 
   private void mergeAlgoMetrics(Map<String, Metric> nameToMetricMap) {
+    LOG.info("mergeAlgoMetrics(Map<String, Metric> nameToMetricMap)");//////
     for (Map.Entry<String, Metric> metricEntry : nameToMetricMap.entrySet()) {
       Metric oldMetric = metricsCache.get(metricEntry.getKey());
       if (oldMetric == null) {
@@ -210,6 +213,7 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
   }
 
   private void calAlgoMetrics(int epoch) {
+    LOG.info("calAlgoMetrics(int epoch)");//////
     LinkedHashMap<String, String> nameToMetricMap = new LinkedHashMap<>(metricsCache.size());
     for (Map.Entry<String, Metric> metricEntry : metricsCache.entrySet()) {
       nameToMetricMap

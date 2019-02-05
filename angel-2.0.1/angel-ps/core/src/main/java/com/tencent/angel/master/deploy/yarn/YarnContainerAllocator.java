@@ -681,6 +681,12 @@ public class YarnContainerAllocator extends ContainerAllocator {
           + priority.getPriority() + " resourceName=" + resourceName + " numContainers="
           + remoteRequest.getNumContainers() + " #asks=" + ask.size());
     }
+    /* new code */
+    LOG.info(
+            "addResourceRequest:" + " applicationId=" + context.getApplicationId() + " priority="
+                    + priority.getPriority() + " resourceName=" + resourceName + " numContainers="
+                    + remoteRequest.getNumContainers() + " #asks=" + ask.size());
+    /* code end */
   }
 
   private void addResourceRequestToAsk(ResourceRequest remoteRequest) {
