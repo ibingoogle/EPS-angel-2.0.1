@@ -2,6 +2,7 @@ package com.tencent.angel.ps.server.data.request;
 
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.server.data.TransportMethod;
+import io.netty.buffer.ByteBuf;
 
 
 /**
@@ -9,6 +10,7 @@ import com.tencent.angel.ps.server.data.TransportMethod;
  */
 public class RemoveWorkerRequest extends Request {
    private ParameterServerId serverId;
+   public int serverIndex;
    public int workerIndex;
 
     /**
@@ -19,6 +21,7 @@ public class RemoveWorkerRequest extends Request {
     public RemoveWorkerRequest (ParameterServerId serverId, int workerIndex) {
         super(new RequestContext());
         this.serverId = serverId;
+        this.serverIndex = this.serverId.getIndex();
         this.workerIndex = workerIndex;
     }
 
@@ -35,6 +38,18 @@ public class RemoveWorkerRequest extends Request {
 
     @Override public TransportMethod getType() {
         return TransportMethod.REMOVE_WORKER;
+    }
+
+    @Override public void serialize(ByteBuf buf) {
+        super.serialize(buf);
+        buf.writeInt(serverIndex);
+        buf.writeInt(workerIndex);
+    }
+
+    @Override public void deserialize(ByteBuf buf) {
+        super.deserialize(buf);
+        this.serverIndex = buf.readInt();
+        this.workerIndex = buf.readInt();
     }
 
     /**

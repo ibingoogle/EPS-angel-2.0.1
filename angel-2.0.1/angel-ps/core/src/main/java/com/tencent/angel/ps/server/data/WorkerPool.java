@@ -338,7 +338,11 @@ public class WorkerPool {
       return false;
     }
 
-    if (method == TransportMethod.GET_CLOCKS || method == TransportMethod.UPDATE_CLOCK) {
+    /* old code */
+    // if (method == TransportMethod.GET_CLOCKS || method == TransportMethod.UPDATE_CLOCK) {
+    /* new code */
+    if (method == TransportMethod.GET_CLOCKS || method == TransportMethod.UPDATE_CLOCK || method == TransportMethod.REMOVE_WORKER) {
+    /* code end */
       return false;
     } else if (method == TransportMethod.INDEX_GET_ROW || method == TransportMethod.INDEX_GET_ROWS
       || method == TransportMethod.UPDATE) {
@@ -781,7 +785,7 @@ public class WorkerPool {
       case REMOVE_WORKER: {
         RemoveWorkerRequest request = new RemoveWorkerRequest();
         request.deserialize(in);
-        LOG.info("receive RemoveWorkerRequest!, serverId = " + request.getServerId().getIndex() + ", workerId = " + request.workerIndex);
+        LOG.info("receive RemoveWorkerRequest!, serverId = " + request.serverIndex + ", workerId = " + request.workerIndex);
         result = removeWorkers(request);
         break;
       }
@@ -1052,7 +1056,7 @@ public class WorkerPool {
    * @return response contains clocks
    */
   private RemoveWorkerResponse removeWorkers(RemoveWorkerRequest request) {
-    int num = 2019 + request.getServerId().getIndex();
+    int num = 2019 + request.serverIndex;
     return new RemoveWorkerResponse(ResponseType.SUCCESS, null, num);
   }
 
