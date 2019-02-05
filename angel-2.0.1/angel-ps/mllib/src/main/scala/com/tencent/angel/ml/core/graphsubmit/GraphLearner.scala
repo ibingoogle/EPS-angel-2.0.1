@@ -52,6 +52,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val skippedServerEpochBoolean: Boolean = SharedConf.skippedServerEpochBoolean
   val skippedServerEpochStart: Int = SharedConf.skippedServerEpochStart
   val skippedServerEpochEnd: Int = SharedConf.skippedServerEpochEnd
+
+  var keepExecution: Boolean = true
   /*code end*/
 
   // Init Graph Model
@@ -64,12 +66,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   /* old code */
   // def trainOneEpoch(epoch: Int, iter: Iterator[Array[LabeledData]], numBatch: Int): Double = {
   /* new code */
-  def trainOneEpoch(epoch: Int, iter: Iterator[Array[LabeledData]], numBatch: Int): (Double, Boolean) = {
+  def trainOneEpoch(epoch: Int, iter: Iterator[Array[LabeledData]], numBatch: Int): Double = {
   /* code end */
     var batchCount: Int = 0
     var loss: Double = 0.0
 
-    var success: Boolean = true//////
     breakable(//////
     while (iter.hasNext) {
       /* old code
@@ -148,18 +149,14 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (ctx.getTaskId.getIndex == 1 && epoch == 1){
         PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex)
         LOG.info("break the execution of trainOneEpoch at epoch = " + epoch + ", batch = " + batchCount)
-        success = false
+        keepExecution = false
         break()
       }
       /* code end */
     }
     )//////
 
-    /* old code */
-    //loss
-    /* new code */
-    (loss, success)
-    /* code end */
+    loss
   }
 
   /**
@@ -230,13 +227,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (!decayOnBatch) {
         graph.setLR(ssScheduler.next())
       }
-      /* old code */
-      // val loss: Double = trainOneEpoch(epoch, iter, numBatch)
-      /* new code */
-      var loss: Double = 0.0
-      var success: Boolean = true
-      (loss, success) = trainOneEpoch(epoch, iter, numBatch)
-      /* code end */
+      val loss: Double = trainOneEpoch(epoch, iter, numBatch)
       val trainCost = System.currentTimeMillis() - startTrain
       globalMetrics.metric(MLConf.TRAIN_LOSS, loss * trainDataSize)
       LOG.info(s"$epoch-th training finished! the trainCost is $trainCost")
@@ -254,7 +245,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       ctx.incEpoch()
 
       /* new code */
-      if (!success){
+      if (!keepExecution){
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
         break()
       }
