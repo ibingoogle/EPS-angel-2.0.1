@@ -69,7 +69,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     var batchCount: Int = 0
     var loss: Double = 0.0
 
-    var success: Boolean = true;//////
+    var success: Boolean = true//////
     breakable(//////
     while (iter.hasNext) {
       /* old code
@@ -115,8 +115,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("calculate and push gradient ...")
         if (epoch >= skippedServerEpochStart && epoch <= skippedServerEpochEnd && skippedServerEpochBoolean){
           LOG.info("partial update with epoch " + epoch)
-          // graph.pushGradient_partial(epoch); // this worker push its gradients to partial servers
-          graph.pushGradient_none(epoch); // this worker do not push its gradients to any server
+          // graph.pushGradient_partial(epoch) // this worker push its gradients to partial servers
+          graph.pushGradient_none(epoch) // this worker do not push its gradients to any server
         }else{
           graph.pushGradient() // pushgrad
         }
@@ -148,7 +148,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (ctx.getTaskId.getIndex == 1 && epoch == 1){
         PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex)
         LOG.info("break the execution of trainOneEpoch at epoch = " + epoch + ", batch = " + batchCount)
-        success = false;
+        success = false
         break()
       }
       /* code end */
