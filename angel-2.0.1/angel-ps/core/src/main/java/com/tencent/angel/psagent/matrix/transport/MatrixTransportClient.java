@@ -1827,7 +1827,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       request.getContext().setActualServerId(psLoc.psId);
       request.getContext().setLocation(psLoc.loc);
 
-      if (request.getType().getMethodId() == 2 && request.getType().getMethodId() == 15){//////
+      if (request.getType().getMethodId() == 2 || request.getType().getMethodId() == 15){//////
         LOG.info("psLocation = " + psLoc.toString() + " request = " + request + " with seqId = " + seqId);//////
       }//////
 
