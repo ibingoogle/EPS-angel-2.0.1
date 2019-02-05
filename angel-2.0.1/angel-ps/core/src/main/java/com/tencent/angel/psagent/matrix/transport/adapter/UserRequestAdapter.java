@@ -45,6 +45,7 @@ import com.tencent.angel.psagent.matrix.cache.MatricesCache;
 import com.tencent.angel.psagent.matrix.oplog.cache.*;
 import com.tencent.angel.psagent.matrix.transport.FutureResult;
 import com.tencent.angel.psagent.matrix.transport.MatrixTransportClient;
+import com.tencent.angel.psagent.matrix.transport.MatrixTransportInterface;
 import com.tencent.angel.psagent.task.TaskContext;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -202,7 +203,9 @@ public class UserRequestAdapter {
             PSAgentContext.get().getLocationManager().getPsIds();
     Map<ParameterServerId, Future> psIdToResultMap =
             new HashMap<>(serverIds.length);
-    MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
+    // MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
+    MatrixTransportInterface matrixClient =
+            PSAgentContext.get().getMatrixTransportClient();
     // Send remove worker request to every ps
     for (int i = 0; i < serverIds.length; i++) {
       LOG.info("Send remove worker request to every ps; serverId = " + serverIds[i]);

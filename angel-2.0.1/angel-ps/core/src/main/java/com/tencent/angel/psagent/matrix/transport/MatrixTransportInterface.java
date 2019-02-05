@@ -90,7 +90,7 @@ public interface MatrixTransportInterface {
    * notify PS to Remove worker from PS
    *
    * @param serverId ps id
-   * @return Future<Map<PartitionKey, Integer>> matrix partition clocks
+   * @return Future<Integer>> number of rest workers
    */
   Future<RemoveWorkerResponse> removeWorker(ParameterServerId serverId, int workerIndex);
   /* code end */
