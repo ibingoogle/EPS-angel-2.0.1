@@ -34,6 +34,8 @@ import com.tencent.angel.worker.storage.DataBlock
 import com.tencent.angel.worker.task.TaskContext
 import org.apache.commons.logging.{Log, LogFactory}
 
+import util.control.Breaks._
+
 class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(ctx) {
   val LOG: Log = LogFactory.getLog(classOf[GraphLearner])
 
@@ -59,9 +61,16 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val ssScheduler: StepSizeScheduler = StepSizeScheduler(SharedConf.getStepSizeScheduler, lr0)
   val decayOnBatch = conf.getBoolean(MLConf.ML_OPT_DECAY_ON_BATCH, MLConf.DEFAULT_ML_OPT_DECAY_ON_BATCH)
 
-  def trainOneEpoch(epoch: Int, iter: Iterator[Array[LabeledData]], numBatch: Int): Double = {
+  /* old code */
+  // def trainOneEpoch(epoch: Int, iter: Iterator[Array[LabeledData]], numBatch: Int): Double = {
+  /* new code */
+  def trainOneEpoch(epoch: Int, iter: Iterator[Array[LabeledData]], numBatch: Int): (Double, Boolean) = {
+  /* code end */
     var batchCount: Int = 0
     var loss: Double = 0.0
+
+    var success: Boolean = true;//////
+    breakable(//////
     while (iter.hasNext) {
       /* old code
       // LOG.info("start to feedData ...")
@@ -137,12 +146,20 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
 
       /* new code */
       if (ctx.getTaskId.getIndex == 1 && epoch == 1){
-        PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex);
+        PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex)
+        LOG.info("break the execution of trainOneEpoch at epoch = " + epoch + ", batch = " + batchCount)
+        success = false;
+        break()
       }
       /* code end */
     }
+    )//////
 
-    loss
+    /* old code */
+    //loss
+    /* new code */
+    (loss, success)
+    /* code end */
   }
 
   /**
@@ -198,6 +215,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     graph.getTrainable.foreach(layer => LOG.info(layer.toString))
     /*code end*/
 
+    breakable(//////
     while (ctx.getEpoch < epochNum) {
       val epoch = ctx.getEpoch
       LOG.info(s"Task[${ctx.getTaskIndex}]: epoch=$epoch start.")
@@ -212,7 +230,13 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (!decayOnBatch) {
         graph.setLR(ssScheduler.next())
       }
-      val loss: Double = trainOneEpoch(epoch, iter, numBatch)
+      /* old code */
+      // val loss: Double = trainOneEpoch(epoch, iter, numBatch)
+      /* new code */
+      val loss: Double = 0.0
+      val success: Boolean = true
+      (loss, success) = trainOneEpoch(epoch, iter, numBatch)
+      /* code end */
       val trainCost = System.currentTimeMillis() - startTrain
       globalMetrics.metric(MLConf.TRAIN_LOSS, loss * trainDataSize)
       LOG.info(s"$epoch-th training finished! the trainCost is $trainCost")
@@ -228,7 +252,15 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         s"validation cost $validCost ms.")
 
       ctx.incEpoch()
+
+      /* new code */
+      if (!success){
+        LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
+        break()
+      }
+      /* code end */
     }
+    )//////
 
     model.graph.timeStats.summary()
     model

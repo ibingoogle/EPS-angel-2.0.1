@@ -46,7 +46,11 @@ public class PartClockVector {
   /**
    * Total task number
    */
-  private final int taskNum;
+  /* old code */
+  // private final int taskNum;
+  /* new code */
+  private int taskNum;
+  /* code end */
 
   /**
    * Create a PartClockVector
@@ -88,6 +92,25 @@ public class PartClockVector {
       lock.writeLock().unlock();
     }
   }
+
+  /* new code */
+  /**
+   * remove the clock for a worker
+   *
+   * @param taskIndex task index/worker index
+   */
+  public void removeWorker(int taskIndex) {
+    try {
+      lock.writeLock().lock();
+      if (taskIndexToClockMap.containsKey(taskIndex)) {
+        taskIndexToClockMap.remove(taskIndex);
+        taskNum--;
+      }
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+  /* code end */
 
   private void refreshMinClock() {
     if (taskIndexToClockMap.size() < taskNum) {

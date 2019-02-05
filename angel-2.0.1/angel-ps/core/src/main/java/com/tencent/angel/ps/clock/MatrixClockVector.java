@@ -37,7 +37,11 @@ public class MatrixClockVector {
   /**
    * Total task number
    */
-  private final int taskNum;
+  /* old code */
+  // private final int taskNum;
+  /* new code */
+  private int taskNum;
+  /* code end*/
 
   /**
    * Create a MatrixClockVector
@@ -73,6 +77,16 @@ public class MatrixClockVector {
   public void updateClock(int partId, int taskId, int clock) {
     partIdToClockVecMap.get(partId).updateClock(taskId, clock);
   }
+
+  /* new code */
+  public void removeWorker(int taskId) {
+    for(Map.Entry<Integer, PartClockVector> entry: partIdToClockVecMap.entrySet()){
+      entry.getValue().removeWorker(taskId);
+    }
+    taskNum--;
+  }
+
+  /* code end */
 
   /**
    * Get partition clock value

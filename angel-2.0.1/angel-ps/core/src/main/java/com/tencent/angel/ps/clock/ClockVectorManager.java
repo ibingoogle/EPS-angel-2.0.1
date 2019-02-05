@@ -50,7 +50,11 @@ public class ClockVectorManager {
   /**
    * Total task number in application
    */
-  private final int taskNum;
+  /* old code */
+  // private final int taskNum;
+  /* new code */
+  private int taskNum;
+  /* code end */
 
   /**
    * Partition key to clock value map
@@ -175,6 +179,20 @@ public class ClockVectorManager {
     }
     matrixClockVector.updateClock(partId, taskId, clock);
   }
+
+  /* new code */
+  /**
+   * remove a worker from all matrix
+   *
+   * @param taskId   task id
+   */
+  public void removeWorker(int taskId) {
+    for(Map.Entry<Integer, MatrixClockVector> entry: matrixIdToClockVecMap.entrySet()){
+      entry.getValue().removeWorker(taskId);
+    }
+    taskNum--;
+  }
+  /* code end */
 
   /**
    * Update clock value for a matrix

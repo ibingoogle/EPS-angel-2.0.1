@@ -1057,6 +1057,7 @@ public class WorkerPool {
    */
   private RemoveWorkerResponse removeWorkers(RemoveWorkerRequest request) {
     int num = 2019 + request.serverIndex;
+    context.getClockVectorManager().removeWorker(request.workerIndex);
     return new RemoveWorkerResponse(ResponseType.SUCCESS, null, num);
   }
 
@@ -1249,6 +1250,7 @@ public class WorkerPool {
         /* new code */
         part.update_with_more(in, request.getOp(),infos);
         /* code end */
+
         if (updateClock) {
           context.getClockVectorManager()
             .updateClock(partKey.getMatrixId(), partKey.getPartitionId(), taskIndex, clock);
