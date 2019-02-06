@@ -104,12 +104,6 @@ public class DataBlockManager {
         new DFSStorageNewAPI(splitClassification.getSplitNewAPI(splitInfos.get(taskId)));
       /* new code */
       LOG.info("InputSplit class = " + storage.getSplit().getClass());
-      if(storage.getSplit().getLocations() != null) {
-        LOG.info("split locations = ");
-        for (String loc : storage.getSplit().getLocations()) {
-          LOG.info(loc);
-        }
-      }
       LOG.info("split length = " + storage.getSplit().getLength());
       LOG.info("split toString = " + storage.getSplit().toString());
       /* code end */

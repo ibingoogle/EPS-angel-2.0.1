@@ -203,7 +203,7 @@ public class SerdeUtils {
   public static org.apache.hadoop.mapreduce.InputSplit deSerilizeNewSplit(String className,
     byte[] data, Configuration conf) throws IOException, ClassNotFoundException {
 
-    LOG.info("deSerilizeNewSplit(String className");
+    LOG.info("deSerilizeNewSplit(String className");//////
     if (factory == null) {
       factory = new SerializationFactory(conf);
     }

@@ -328,6 +328,50 @@ public class MasterClient {
     }
   }
 
+  /* new code */
+  public void getExtraDataSplitsInfo()
+          throws ClassNotFoundException, IOException, ServiceException, InterruptedException {
+    LOG.info("getExtraDataSplitsInfo()");
+    GetWorkerGroupMetaInfoRequest request = GetWorkerGroupMetaInfoRequest.newBuilder()
+            .setWorkerAttemptId(WorkerContext.get().getWorkerAttemptIdProto()).build();
+
+    while (true) {
+      GetWorkerGroupMetaInfoResponse response = master.getWorkerGroupMetaInfo(null, request);
+      assert (response.getWorkerGroupStatus()
+              != GetWorkerGroupMetaInfoResponse.WorkerGroupStatus.WORKERGROUP_EXITED);
+
+      LOG.debug("GetWorkerGroupMetaInfoResponse response=" + response);
+      LOG.info("GetWorkerGroupMetaInfoResponse response=" + response);
+
+      if (response.getWorkerGroupStatus()
+              == GetWorkerGroupMetaInfoResponse.WorkerGroupStatus.WORKERGROUP_OK) {
+        // Deserialize data splits meta
+        LOG.info("Deserialize data splits meta for workergroupId " + response.getWorkerGroupMeta().getWorkerGroupId());//////
+        SplitClassification splits = null;
+        if (response.getWorkerGroupMeta().getSplitsCount() > 0) {
+          splits = ProtobufUtil
+                  .getSplitClassification(response.getWorkerGroupMeta().getSplitsList(),
+                          WorkerContext.get().getConf());
+        }
+        LOG.info("splits = " + splits.toString());
+
+        // Get workers
+        /*WorkerGroup group = new WorkerGroup(WorkerContext.get().getWorkerGroupId(), splits);
+        for (WorkerMetaInfoProto worker : response.getWorkerGroupMeta().getWorkersList()) {
+          WorkerRef workerRef = new WorkerRef(worker.getWorkerLocation().getWorkerAttemptId(),
+                  worker.getWorkerLocation().getLocation(), worker.getTasksList());
+          group.addWorkerRef(workerRef);
+        }
+        return group;*/
+      } else {
+        Thread.sleep(WorkerContext.get().getRequestSleepTimeMS());
+      }
+    }
+  }
+
+
+  /* code end */
+
   /**
    * Register to master, report the listening port
    *
