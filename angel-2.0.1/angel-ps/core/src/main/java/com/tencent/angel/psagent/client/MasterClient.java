@@ -329,7 +329,7 @@ public class MasterClient {
   }
 
   /* new code */
-  public void getExtraDataSplitsInfo()
+  public SplitClassification getExtraDataSplitsInfo()
           throws ClassNotFoundException, IOException, ServiceException, InterruptedException {
     LOG.info("getExtraDataSplitsInfo()");
     GetWorkerGroupMetaInfoRequest request = GetWorkerGroupMetaInfoRequest.newBuilder()
@@ -346,15 +346,15 @@ public class MasterClient {
       if (response.getWorkerGroupStatus()
               == GetWorkerGroupMetaInfoResponse.WorkerGroupStatus.WORKERGROUP_OK) {
         // Deserialize data splits meta
-        LOG.info("Deserialize data splits meta for workergroupId " + response.getWorkerGroupMeta().getWorkerGroupId());//////
+        LOG.info("Deserialize extra data splits meta for workergroupId " + response.getWorkerGroupMeta().getWorkerGroupId());//////
         SplitClassification splits = null;
         if (response.getWorkerGroupMeta().getSplitsCount() > 0) {
           splits = ProtobufUtil
                   .getSplitClassification(response.getWorkerGroupMeta().getSplitsList(),
                           WorkerContext.get().getConf());
         }
-        LOG.info("splits = " + splits.toString());
-        return;
+        LOG.info("ExtraDataSplit = " + splits.toString());
+        return splits;
 
         // Get workers
         /*WorkerGroup group = new WorkerGroup(WorkerContext.get().getWorkerGroupId(), splits);

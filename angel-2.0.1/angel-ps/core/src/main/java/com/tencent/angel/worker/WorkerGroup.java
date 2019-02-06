@@ -31,6 +31,13 @@ public class WorkerGroup {
   private final Map<WorkerId, WorkerRef> workerMap;
   private final SplitClassification splits;
 
+  /* new code */
+  public Boolean IfAppendS = false;
+  public SplitClassification AppendSplits;
+  /* code end */
+
+
+
   /**
    * Instantiates a new worker group.
    *
@@ -42,6 +49,13 @@ public class WorkerGroup {
     this.splits = splits;
     workerMap = new HashMap<WorkerId, WorkerRef>();
   }
+
+  /* new code */
+  public void setAppendSplitsInGroup(SplitClassification extraSplits) {
+    IfAppendS = true;
+    AppendSplits = extraSplits;
+  }
+  /* code end */
 
   /**
    * Gets worker group id.
@@ -106,4 +120,10 @@ public class WorkerGroup {
   public SplitClassification getSplits() {
     return splits;
   }
+
+  /* new code */
+  public SplitClassification getAppendSplits() {
+      return AppendSplits;
+  }
+  /* code end */
 }

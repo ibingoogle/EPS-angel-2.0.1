@@ -28,11 +28,12 @@ import com.tencent.angel.ml.feature.LabeledData
 import com.tencent.angel.ml.math2.vector.{DoubleVector, IntKeyVector, LongKeyVector, Vector}
 import com.tencent.angel.ml.metric.LossMetric
 import com.tencent.angel.ml.model.MLModel
-import com.tencent.angel.ml.core.utils.ValidationUtils
+import com.tencent.angel.ml.core.utils.{DataParser, ValidationUtils}
 import com.tencent.angel.psagent.PSAgentContext
 import com.tencent.angel.worker.storage.DataBlock
 import com.tencent.angel.worker.task.TaskContext
 import org.apache.commons.logging.{Log, LogFactory}
+import org.apache.hadoop.io.{LongWritable, Text}
 
 import util.control.Breaks._
 
@@ -54,6 +55,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val skippedServerEpochEnd: Int = SharedConf.skippedServerEpochEnd
 
   var keepExecution: Boolean = true
+  val dataParser = DataParser(SharedConf.get())
   /*code end*/
 
   // Init Graph Model
@@ -146,7 +148,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       LOG.info(s"epoch $epoch batch $batchCount is finished!")
 
       /* new code */
-      if (ctx.getTaskId.getIndex == 1 && epoch == 1){
+      if (ctx.getTaskId.getIndex == 1 && epoch > 1000000){
         PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex)
         LOG.info("break the execution of trainOneEpoch at epoch = " + epoch + ", batch = " + batchCount)
         keepExecution = false
@@ -174,6 +176,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
             validationData: DataBlock[LabeledData]): MLModel = {
     LOG.info(s"Task[${ctx.getTaskIndex}]: Starting to train ...")
     LOG.info(s"Task[${ctx.getTaskIndex}]: epoch=$epochNum, initLearnRate=$lr0")
+    /* new code */
+    LOG.info("trainData size = " + posTrainData.size());
+    LOG.info("validationData size = " + validationData.size());
+    /* code end */
 
     val trainDataSize = if (negTrainData == null) posTrainData.size() else {
       posTrainData.size() + negTrainData.size()
@@ -222,6 +228,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       } else {
         getBathDataIterator(posTrainData, negTrainData, batchData, numBatch)
       }
+      /* new code */
+      LOG.info("iter.samples.size = " + posTrainData.size())
+      LOG.info("iter.validate.size = " + validationData.size())
+      /* code end */
 
       val startTrain = System.currentTimeMillis()
       if (!decayOnBatch) {
@@ -249,6 +259,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
         break()
       }
+      if (epoch == 2){
+        LOG.info("appendProcess input data at the end of epoch = " + epoch)
+        appendProcess(validationData, posTrainData, negTrainData)
+      }
       /* code end */
     }
     )//////
@@ -256,6 +270,63 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     model.graph.timeStats.summary()
     model
   }
+
+  /* new code */
+  def appendProcess(validDataBlock: DataBlock[LabeledData],posDataBlock: DataBlock[LabeledData],
+                             negDataBlock: DataBlock[LabeledData]) {
+    if (!ctx.ExistAppendSplits()){
+      return
+    }
+    LOG.info("appendProcess input data")
+    val start = System.currentTimeMillis()
+
+    var count = 0
+    val valiRat = SharedConf.validateRatio
+    val posnegRatio: Double = SharedConf.posnegRatio()
+    val vali = Math.ceil(1.0 / valiRat).toInt
+
+    val reader = ctx.getReaderForAppendSplits
+    var i: Int = 0
+    while (reader.nextKeyValue) {
+      i = i + 1
+      val out = parse(reader.getCurrentKey, reader.getCurrentValue)
+      if (out != null) {
+        if (count % vali == 0)
+          validDataBlock.put(out)
+        else if (posnegRatio != -1) {
+          if (out.getY > 0) {
+            posDataBlock.put(out)
+          } else {
+            negDataBlock.put(out)
+          }
+        } else {
+          posDataBlock.put(out)
+        }
+        count += 1
+      }
+
+      null.asInstanceOf[Vector]
+    }
+    LOG.info("i =" + i)
+
+    posDataBlock.flush()
+    negDataBlock.flush()
+    validDataBlock.flush()
+
+    val cost = System.currentTimeMillis() - start
+    LOG.info(s"Task[${ctx.getTaskIndex}] appendprocessed ${
+      posDataBlock.size + validDataBlock.size
+    } samples, ${posDataBlock.size} for train, " +
+      s"${validDataBlock.size} for validation." +
+      s" processing time is $cost"
+    )
+  }
+
+
+  def parse(key: LongWritable, value: Text): LabeledData = {
+    dataParser.parse(value.toString)
+  }
+  /* code end */
 
   private def getBathDataIterator(trainData: DataBlock[LabeledData],
                                   batchData: Array[LabeledData], numBatch: Int) = {

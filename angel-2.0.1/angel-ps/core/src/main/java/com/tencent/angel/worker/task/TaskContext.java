@@ -58,6 +58,10 @@ public class TaskContext {
   @SuppressWarnings("rawtypes") private Reader reader;
   private final com.tencent.angel.psagent.task.TaskContext context;
 
+  /* new code */
+  @SuppressWarnings("rawtypes") private Reader readerForAppendSplits;
+  /* code end */
+
   /**
    * Instantiates context with task id.
    *
@@ -105,6 +109,34 @@ public class TaskContext {
     }
     return reader;
   }
+
+  /* new code */
+  /**
+   * Gets reader for append splits
+   *
+   * @param <K> key type
+   * @param <V> value type
+   * @return the reader
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws InterruptedException
+   */
+  @SuppressWarnings("unchecked") public <K, V> Reader<K, V> getReaderForAppendSplits()
+          throws ClassNotFoundException, IOException, InterruptedException {
+    LOG.info("getReaderForAppendSplits() for taskId = " + taskId); //////
+    if (readerForAppendSplits == null) {
+      DataBlockManager dataBlockManager = WorkerContext.get().getDataBlockManager();
+      readerForAppendSplits = dataBlockManager.getReaderForAppendSplits(taskId);
+    }
+    return readerForAppendSplits;
+  }
+
+
+  public Boolean ExistAppendSplits(){
+    DataBlockManager dataBlockManager = WorkerContext.get().getDataBlockManager();
+   return dataBlockManager.IfAppendSC;
+  }
+  /* code end */
 
   /**
    * Create matrix.

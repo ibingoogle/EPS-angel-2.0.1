@@ -96,5 +96,12 @@ public abstract class BaseTask<KEY_IN, VALUE_IN, VALUE_OUT>
     }
   }
 
+
+  /* new code */
+  @Override public void appendProcess(TaskContext taskContext) {
+
+  }
+  /* code end */
+
   @Override public abstract void run(TaskContext taskContext) throws AngelException;
 }

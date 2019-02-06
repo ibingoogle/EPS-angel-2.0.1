@@ -41,6 +41,11 @@ public class DataBlockManager {
   private final Map<TaskId, Integer> splitInfos;
   private SplitClassification splitClassification;
 
+  /* new code */
+  public Boolean IfAppendSC = false;
+  public SplitClassification AppendSplitClassification;
+  /* code end */
+
   public DataBlockManager() {
     this.splitInfos = new ConcurrentHashMap<TaskId, Integer>();
   }
@@ -57,6 +62,13 @@ public class DataBlockManager {
   public void setSplitClassification(SplitClassification splitClassification) {
     this.splitClassification = splitClassification;
   }
+
+  /* new code */
+  public void setAppendSplitClassification(SplitClassification AppendSplitClassification) {
+    this.AppendSplitClassification = AppendSplitClassification;
+    this.IfAppendSC = true;
+  }
+  /* code end */
 
   /**
    * Assign split to tasks
@@ -116,6 +128,41 @@ public class DataBlockManager {
       return storage.getReader();
     }
   }
+
+
+  /* new code */
+  /**
+   * Get the reader of append data for given task
+   *
+   * @param <K>    the type parameter
+   * @param <V>    the type parameter
+   * @param taskId the task id
+   * @return the reader
+   * @throws IOException            the io exception
+   * @throws InterruptedException   the interrupted exception
+   * @throws ClassNotFoundException the class not found exception
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"}) public <K, V> Reader<K, V> getReaderForAppendSplits(TaskId taskId)
+          throws IOException, InterruptedException, ClassNotFoundException {
+    LOG.info("in getReaderForAppendSplits: useNewAPI = " + useNewAPI);
+
+    if (useNewAPI) {
+      DFSStorageNewAPI storage =
+              new DFSStorageNewAPI(AppendSplitClassification.getSplitNewAPI(splitInfos.get(taskId)));
+      LOG.info("InputSplit class = " + storage.getSplit().getClass());
+      LOG.info("split length = " + storage.getSplit().getLength());
+      LOG.info("split toString = " + storage.getSplit().toString());
+      storage.initReader();
+      return storage.getReader();
+    } else {
+      DFSStorageOldAPI storage =
+              new DFSStorageOldAPI(AppendSplitClassification.getSplitOldAPI(splitInfos.get(taskId)));
+      storage.initReader();
+      return storage.getReader();
+    }
+  }
+
+  /* code end */
 
   public void stop() {
     // TODO Auto-generated method stub

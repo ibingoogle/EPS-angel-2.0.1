@@ -44,6 +44,11 @@ public interface BaseTaskInterface<KEYIN, VALUEIN, VALUEOUT> {
    */
   void preProcess(TaskContext taskContext);
 
+
+  /* new code */
+  void appendProcess(TaskContext taskContext);
+  /* code end */
+
   /**
    * Run.
    *

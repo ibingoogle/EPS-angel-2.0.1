@@ -267,7 +267,13 @@ public class Worker implements Executor {
     dataBlockManager.setSplitClassification(workerGroup.getSplits());
 
     LOG.info("Init and start task manager and all task");
-    masterClient.getExtraDataSplitsInfo();//////
+
+    /* new code */
+    workerGroup.setAppendSplitsInGroup(masterClient.getExtraDataSplitsInfo());
+    if (workerGroup.IfAppendS) {
+      dataBlockManager.setAppendSplitClassification(workerGroup.getAppendSplits());
+    }
+    /* code end */
 
     taskManager.init();
     taskManager.startAllTasks(

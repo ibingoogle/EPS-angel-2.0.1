@@ -146,6 +146,9 @@ public class MemoryDataBlock<VALUE> extends DataBlock<VALUE> {
     vList.ensureCapacity(maxStoreNum);
     LOG.debug("estimate sample number=" + vList.size() + ", estimatedSize=" + estimatedSize
       + ", maxStoreNum=" + maxStoreNum + ", maxUseMemroy=" + maxUseMemroy);
+
+    LOG.info("estimate sample number=" + vList.size() + ", estimatedSize=" + estimatedSize
+            + ", maxStoreNum=" + maxStoreNum + ", maxUseMemroy=" + maxUseMemroy);//////
   }
 
   public boolean checkIsOverMaxMemoryUsed() {
