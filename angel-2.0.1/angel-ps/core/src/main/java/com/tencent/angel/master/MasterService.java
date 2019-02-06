@@ -111,8 +111,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
   private final int yarnNMWebPort;
 
   /* new code */
-
-  public int requestNum_getWorkerGroupMetaInfo = 0;
+  public Map<String, Integer> requestNum_getWorkerGroupMetaInfo = new HashMap<String, Integer>();
   /* code end */
 
 
@@ -885,7 +884,14 @@ public class MasterService extends AbstractService implements MasterProtocol {
         //return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
         //  context.getDataSpliter().getSplits(group.getSplitIndex()), context.getConf());
         /* new code */
-        requestNum_getWorkerGroupMetaInfo++;
+        String groupId = group.getId().toString();
+        if (requestNum_getWorkerGroupMetaInfo.containsKey(groupId)){
+          int num = requestNum_getWorkerGroupMetaInfo.get(groupId);
+          num++;
+          requestNum_getWorkerGroupMetaInfo.replace(groupId, num);
+        }else {
+          requestNum_getWorkerGroupMetaInfo.put(groupId, 1);
+        }
         LOG.info("receive get workergroup info when workergroup is OK, request=" + request);
 
         int splitNum = context.getDataSpliter().getSplitNum();
@@ -899,7 +905,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
           newsplitIndex = 0;
         }
         SplitClassification newsplits = context.getDataSpliter().getSplits(newsplitIndex);
-        if(requestNum_getWorkerGroupMetaInfo <= 1) {
+        if(requestNum_getWorkerGroupMetaInfo.get(groupId) <= 1) {
           LOG.info("newsplitsIndex = " + newsplitIndex);
           LOG.info("newsplits = " + newsplits.toString());
           return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
