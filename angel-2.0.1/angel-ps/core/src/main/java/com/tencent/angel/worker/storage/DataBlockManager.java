@@ -94,12 +94,16 @@ public class DataBlockManager {
       DFSStorageNewAPI storage =
         new DFSStorageNewAPI(splitClassification.getSplitNewAPI(splitInfos.get(taskId)));
       /* new code */
-      LOG.info("split locations = ");
-      for (String loc: storage.getSplit().getLocations()){
-        LOG.info(loc);
+      if(storage.getSplit().getLocations() != null) {
+        LOG.info("InputSplit class = " + storage.getSplit().getClass());
+        LOG.info("split locations = ");
+        for (String loc : storage.getSplit().getLocations()) {
+          LOG.info(loc);
+        }
+        LOG.info("split length = " + storage.getSplit().getLength());
+        LOG.info("split toString = " + storage.getSplit().toString());
       }
-      LOG.info("split length = " + storage.getSplit().getLength());
-      LOG.info("split toString = " + storage.getSplit().toString());
+
       /* code end */
       storage.initReader();
       return storage.getReader();
