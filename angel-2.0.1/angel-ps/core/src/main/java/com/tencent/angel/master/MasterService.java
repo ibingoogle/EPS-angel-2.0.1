@@ -852,6 +852,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
     if (LOG.isDebugEnabled()) {
       LOG.debug("receive get workergroup info, request=" + request);
     }
+    LOG.info("receive get workergroup info, request=" + request);//////
     WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
 
     //find workergroup in worker manager

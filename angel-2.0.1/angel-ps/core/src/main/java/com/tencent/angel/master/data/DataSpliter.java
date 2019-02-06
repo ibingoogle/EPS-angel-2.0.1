@@ -157,6 +157,7 @@ public class DataSpliter {
     LOG.debug("inputFormatClassName=" + inputFormatClassName);
 
     // split data
+    LOG.info("input class = " + input.getClass());//////
     return input.getSplits(jobConf);
   }
 
@@ -186,6 +187,7 @@ public class DataSpliter {
 
   private void dispatchSplitsUseLocation(List<org.apache.hadoop.mapreduce.InputSplit> splitsNewAPI,
     int groupNumber, int groupItemNumber) throws IOException, InterruptedException {
+    LOG.info("private void dispatchSplitsUseLocation~~~");//////
     splitNum = splitsNewAPI.size();
 
     // Since the actual split size is sometimes not exactly equal to the expected split size, we
@@ -267,6 +269,7 @@ public class DataSpliter {
   public void serialize(FSDataOutputStream outputStream) throws IOException {
     outputStream.writeInt(splitNum);
     outputStream.writeInt(splitClassifications.size());
+    LOG.info("this is to serialize splitClassifications!!!!!");//////
     for (Entry<Integer, SplitClassification> entry : splitClassifications.entrySet()) {
       outputStream.writeInt(entry.getKey());
       entry.getValue().serialize(outputStream);
@@ -283,7 +286,7 @@ public class DataSpliter {
     throws IOException, ClassNotFoundException {
     splitNum = inputStream.readInt();
     int size = inputStream.readInt();
-
+    LOG.info("this is to deserialize splitClassifications!!!!!");//////
     for (int i = 0; i < size; i++) {
       int index = inputStream.readInt();
       SplitClassification split = new SplitClassification();

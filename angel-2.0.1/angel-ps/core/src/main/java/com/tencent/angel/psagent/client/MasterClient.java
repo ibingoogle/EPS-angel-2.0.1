@@ -292,6 +292,7 @@ public class MasterClient {
    */
   public WorkerGroup getWorkerGroupMetaInfo()
     throws ClassNotFoundException, IOException, ServiceException, InterruptedException {
+    LOG.info("getWorkerGroupMetaInfo()");//////
     GetWorkerGroupMetaInfoRequest request = GetWorkerGroupMetaInfoRequest.newBuilder()
       .setWorkerAttemptId(WorkerContext.get().getWorkerAttemptIdProto()).build();
 
@@ -305,6 +306,7 @@ public class MasterClient {
       if (response.getWorkerGroupStatus()
         == GetWorkerGroupMetaInfoResponse.WorkerGroupStatus.WORKERGROUP_OK) {
         // Deserialize data splits meta
+        LOG.info("Deserialize data splits meta for workergroupId " + response.getWorkerGroupMeta().getWorkerGroupId());//////
         SplitClassification splits = null;
         if (response.getWorkerGroupMeta().getSplitsCount() > 0) {
           splits = ProtobufUtil

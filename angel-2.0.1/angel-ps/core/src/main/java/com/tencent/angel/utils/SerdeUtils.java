@@ -21,6 +21,8 @@ package com.tencent.angel.utils;
 import com.tencent.angel.protobuf.generated.WorkerMasterServiceProtos.SplitInfoProto;
 import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.split.SplitInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.serializer.Deserializer;
@@ -38,8 +40,11 @@ import java.util.List;
 public class SerdeUtils {
   private static SerializationFactory factory;
 
+  private static final Log LOG = LogFactory.getLog(SerdeUtils.class);//////
+
   public static SplitClassification deSerilizeSplitProtos(List<SplitInfoProto> splitInfoList,
     Configuration conf) throws ClassNotFoundException, IOException {
+    LOG.info("deSerilizeSplitProtos(List<SplitInfoProto> splitInfoList");//////
     boolean isUseNewAPI = conf.getBoolean("mapred.mapper.new-api", false);
     if (isUseNewAPI) {
       List<org.apache.hadoop.mapreduce.InputSplit> splitList =
@@ -106,6 +111,7 @@ public class SerdeUtils {
   public static List<SplitInfo> serilizeSplits(SplitClassification splits, Configuration conf)
     throws IOException {
 
+    LOG.info("serilizeSplits(SplitClassification splits, Configuration conf)");//////
     List<SplitInfo> splitInfoList = new ArrayList<SplitInfo>();
     if (splits.isUseNewAPI()) {
       List<org.apache.hadoop.mapreduce.InputSplit> splitList = splits.getSplitsNewAPI();
@@ -196,6 +202,8 @@ public class SerdeUtils {
   @SuppressWarnings("unchecked")
   public static org.apache.hadoop.mapreduce.InputSplit deSerilizeNewSplit(String className,
     byte[] data, Configuration conf) throws IOException, ClassNotFoundException {
+
+    LOG.info("deSerilizeNewSplit(String className");
     if (factory == null) {
       factory = new SerializationFactory(conf);
     }
