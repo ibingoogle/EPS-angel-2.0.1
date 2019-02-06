@@ -148,6 +148,10 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
    */
   private final List<String> diagnostics;
 
+  /* new code */
+  public Boolean WorkerGroupDone = false;
+  /* code end */
+
   /**
    * training data block index assgined to this worker group
    */
@@ -359,6 +363,11 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
    * @return the minimal iteration value of the tasks running in this worker group
    */
   public int getMinIteration() {
+    /* new code */
+    if (WorkerGroupDone) {
+      return Integer.MIN_VALUE;
+    }
+    /* code end */
     int minIteration = Integer.MAX_VALUE;
     for (AMWorker worker : workerMap.values()) {
       int workerMinIteration = worker.getMinIteration();
@@ -469,6 +478,7 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
       group.successWorkerSet.add(workerEvent.getWorkerId());
 
       if (group.successWorkerSet.size() == group.getWorkerMap().size()) {
+        group.WorkerGroupDone = true;//////
         group.getContext().getEventHandler()
           .handle(new AMWorkerGroupEvent(AMWorkerGroupEventType.DONE, group.getId()));
       }

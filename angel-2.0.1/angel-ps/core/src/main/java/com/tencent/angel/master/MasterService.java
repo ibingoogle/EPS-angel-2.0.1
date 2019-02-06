@@ -994,7 +994,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
   @Override public TaskIterationResponse taskIteration(RpcController controller,
     TaskIterationRequest request) throws ServiceException {
     LOG.debug("task iteration, " + request);
-    LOG.info("task iteration, " + request);//////
+    // LOG.info("task iteration, " + request);//////
     TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
 
     //get Task meta from task manager, if can not find, just new a AMTask object and put it to task manager
