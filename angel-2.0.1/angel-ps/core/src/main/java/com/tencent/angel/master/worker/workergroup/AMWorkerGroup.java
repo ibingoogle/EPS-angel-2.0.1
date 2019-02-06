@@ -365,7 +365,7 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
   public int getMinIteration() {
     /* new code */
     if (WorkerGroupDone) {
-      return Integer.MIN_VALUE;
+      return Integer.MAX_VALUE;
     }
     /* code end */
     int minIteration = Integer.MAX_VALUE;
@@ -478,7 +478,6 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
       group.successWorkerSet.add(workerEvent.getWorkerId());
 
       if (group.successWorkerSet.size() == group.getWorkerMap().size()) {
-        group.WorkerGroupDone = true;//////
         group.getContext().getEventHandler()
           .handle(new AMWorkerGroupEvent(AMWorkerGroupEventType.DONE, group.getId()));
       }
@@ -491,6 +490,11 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
 
     @SuppressWarnings("unchecked") @Override
     public void transition(AMWorkerGroup group, AMWorkerGroupEvent event) {
+      /* new code */
+      String groupId = group.groupId.toString();
+      group.WorkerGroupDone = true;
+      LOG.info("set group.WorkerGroupDone = true, groupId = " + groupId);
+      /* code end */
       group.getContext().getEventHandler().handle(
         new WorkerGroupManagerEvent(WorkerManagerEventType.WORKERGROUP_DONE, group.getId()));
       if (group.getLaunchTime() != 0) {

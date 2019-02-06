@@ -149,8 +149,8 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
 
               case TASK_ITERATION_UPDATE: {
                 int minIter = context.getWorkerManager().getMinIteration();
-                // LOG.info("minIter = " + minIter);//////
-                // LOG.info("currentIter = " + currentIter);//////
+                LOG.info("minIter = " + minIter);//////
+                LOG.info("currentIter = " + currentIter);//////
                 if (minIter > currentIter) {
                   calAlgoMetrics(minIter);
                   currentIter = minIter;
