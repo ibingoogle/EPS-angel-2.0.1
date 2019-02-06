@@ -354,6 +354,7 @@ public class MasterClient {
                           WorkerContext.get().getConf());
         }
         LOG.info("splits = " + splits.toString());
+        return;
 
         // Get workers
         /*WorkerGroup group = new WorkerGroup(WorkerContext.get().getWorkerGroupId(), splits);
