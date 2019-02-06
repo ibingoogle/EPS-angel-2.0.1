@@ -89,7 +89,16 @@ public class DataBlockManager {
    */
   @SuppressWarnings({"rawtypes", "unchecked"}) public <K, V> Reader<K, V> getReader(TaskId taskId)
     throws IOException, InterruptedException, ClassNotFoundException {
-    LOG.info("useNewAPI = " + useNewAPI);//////
+    /* new code */
+    LOG.info("useNewAPI = " + useNewAPI);
+    if (splitInfos.size() > 0){
+      for(Map.Entry<TaskId, Integer> entry: splitInfos.entrySet()){
+        LOG.info("taskId = " + entry.getKey());
+        LOG.info("index = " + entry.getValue());
+      }
+    }
+    /* code end */
+
     if (useNewAPI) {
       DFSStorageNewAPI storage =
         new DFSStorageNewAPI(splitClassification.getSplitNewAPI(splitInfos.get(taskId)));
