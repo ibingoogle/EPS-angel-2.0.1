@@ -310,7 +310,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     LOG.info("i =" + i)
 
     posDataBlock.flush()
-    negDataBlock.flush()
+    if (negDataBlock != null){negDataBlock.flush()}
     validDataBlock.flush()
 
     val cost = System.currentTimeMillis() - start
