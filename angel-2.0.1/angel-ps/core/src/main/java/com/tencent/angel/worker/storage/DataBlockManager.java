@@ -21,6 +21,8 @@ package com.tencent.angel.worker.storage;
 import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.worker.WorkerContext;
 import com.tencent.angel.worker.task.TaskId;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
@@ -32,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * class for data block manager
  */
 public class DataBlockManager {
+
+  private static final Log LOG = LogFactory.getLog(DataBlockManager.class);//////
 
   private boolean useNewAPI;
   private final Map<TaskId, Integer> splitInfos;
@@ -73,7 +77,7 @@ public class DataBlockManager {
   }
 
   /**
-   * Get the reade for given task
+   * Get the reader for given task
    *
    * @param <K>    the type parameter
    * @param <V>    the type parameter
@@ -85,6 +89,7 @@ public class DataBlockManager {
    */
   @SuppressWarnings({"rawtypes", "unchecked"}) public <K, V> Reader<K, V> getReader(TaskId taskId)
     throws IOException, InterruptedException, ClassNotFoundException {
+    LOG.info("useNewAPI = " + useNewAPI);//////
     if (useNewAPI) {
       DFSStorageNewAPI storage =
         new DFSStorageNewAPI(splitClassification.getSplitNewAPI(splitInfos.get(taskId)));

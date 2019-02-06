@@ -35,6 +35,8 @@ import com.tencent.angel.psagent.matrix.MatrixClient;
 import com.tencent.angel.worker.WorkerContext;
 import com.tencent.angel.worker.storage.DataBlockManager;
 import com.tencent.angel.worker.storage.Reader;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
@@ -50,6 +52,8 @@ public class TaskContext {
   private final TaskId taskId;
   private final TaskIdProto taskIdProto;
 
+
+  private static final Log LOG = LogFactory.getLog(TaskContext.class);//////
 
   @SuppressWarnings("rawtypes") private Reader reader;
   private final com.tencent.angel.psagent.task.TaskContext context;
@@ -94,6 +98,7 @@ public class TaskContext {
    */
   @SuppressWarnings("unchecked") public <K, V> Reader<K, V> getReader()
     throws ClassNotFoundException, IOException, InterruptedException {
+    LOG.info("getReader() for taskId = " + taskId); //////
     if (reader == null) {
       DataBlockManager dataBlockManager = WorkerContext.get().getDataBlockManager();
       reader = dataBlockManager.getReader(taskId);

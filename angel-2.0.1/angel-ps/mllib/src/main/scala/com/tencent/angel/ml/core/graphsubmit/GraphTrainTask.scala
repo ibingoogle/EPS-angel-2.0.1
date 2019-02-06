@@ -58,7 +58,6 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
   }
 
   override def parse(key: LongWritable, value: Text): LabeledData = {
-    LOG.info("value.toString = " + value.toString);//////
     dataParser.parse(value.toString)
   }
 
