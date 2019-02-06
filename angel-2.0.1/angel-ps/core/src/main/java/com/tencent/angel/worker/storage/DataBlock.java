@@ -206,6 +206,26 @@ public abstract class DataBlock<VALUE> {
       throw new AngelException("Train data storage is empty or corrupted.");
   }
 
+  /* new code */
+  /**
+   * Read LabeledData from DataBlock Looping with end read index. If it reach the end, start from the beginning again.
+   *
+   * @return
+   */
+  public VALUE loopingReadWithEnd(int endIndex) throws IOException {
+    VALUE data = this.read();
+    if (readIndex > endIndex) {
+      resetReadIndex();
+      data = read();
+    }
+
+    if (data != null)
+      return data;
+    else
+      throw new AngelException("Train data storage is empty or corrupted.");
+  }
+  /* code end */
+
   @Override public String toString() {
     return "DataBlock [valueClass=" + valueClass + ", readIndex=" + readIndex + ", writeIndex="
       + writeIndex + "]";

@@ -110,7 +110,9 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         graph.pushGradient_null() // this worker does not work, just skipped this epoch and push null
       }else{
         LOG.info("start to feedData ...")
-        graph.feedData(iter.next())
+        val data: Array[LabeledData] = iter.next()
+        LOG.info("feedData size = " + data.length)
+        graph.feedData(data)
 
         LOG.info("start to pullParams ...")
         graph.pullParams(epoch)
@@ -209,6 +211,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     /* old code */
     // val batchSize: Int = (trainDataSize + numBatch - 1) / numBatch
     // val batchData = new Array[LabeledData](batchSize)
+    /* new code */
+    val defaultBatchSize: Int = (trainDataSize + numBatch - 1) / numBatch
+    var actualBatchSize: Int = defaultBatchSize
+    val defaultBatchEndIndex = posTrainData.size()
+    var actualBatchEndIndex = defaultBatchEndIndex
     /* code end */
 
     if (SharedConf.useShuffle) {
@@ -223,7 +230,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     LOG.info(s"skipped epoch end at $skippedWorkerEpochEnd epoch.")
 
     LOG.info(s"num of batches within one epoch = $numBatch.")
-
+    LOG.info(s"defaultBatchSize = $defaultBatchSize.")
+    LOG.info(s"defaultBatchEndIndex = $defaultBatchEndIndex.")
     LOG.info(s"Trainable layers in the graph are:")
     graph.getTrainable.foreach(layer => LOG.info(layer.toString))
     /*code end*/
@@ -236,16 +244,25 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       /* new code */
       LOG.info("iter.samples.size = " + posTrainData.size())
       LOG.info("iter.validate.size = " + validationData.size())
-      val batchSize: Int = (trainDataSize + numBatch - 1) / numBatch
-      val batchData = new Array[LabeledData](batchSize)
-      LOG.info(s"batchSize = $batchSize.")
+      LOG.info(s"actualBatchSize = $actualBatchSize.")
+      LOG.info(s"actualBatchEndIndex = $actualBatchEndIndex.")
+      val batchData = new Array[LabeledData](actualBatchSize)
       /* code end */
 
+      /* old code
       val iter = if (negTrainData == null) {
         getBathDataIterator(posTrainData, batchData, numBatch)
       } else {
         getBathDataIterator(posTrainData, negTrainData, batchData, numBatch)
       }
+      code end */
+      /* new code */
+      val iter = if (negTrainData == null) {
+        getBathDataIteratorWithEnd(posTrainData, batchData, numBatch, actualBatchEndIndex)
+      } else {
+        getBathDataIterator(posTrainData, negTrainData, batchData, numBatch)
+      }
+      /* code end */
 
 
       val startTrain = System.currentTimeMillis()
@@ -277,13 +294,15 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (epoch == 2){
         LOG.info("appendProcess input data at the end of epoch = " + epoch)
         appendProcess(validationData, posTrainData, negTrainData)
+        actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
+        actualBatchEndIndex = posTrainData.size()
       }
 
-      /*if (epoch == 5){
+      if (epoch == 5){
         LOG.info("it is time to recover")
-        val TrainSlice: DataBlock[LabeledData] = posTrainData.slice(0, Train_defaultLength)
-        val ValidateSlice = validationData.slice(0, Validete_defaultLength)
-      }*/
+        actualBatchEndIndex = defaultBatchEndIndex
+        actualBatchSize = defaultBatchSize
+      }
       /* code end */
     }
     )//////
@@ -371,6 +390,27 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       }
     }
   }
+
+  /* new code */
+  private def getBathDataIteratorWithEnd(trainData: DataBlock[LabeledData],
+                                  batchData: Array[LabeledData], numBatch: Int, endIndex: Int) = {
+    trainData.resetReadIndex()
+    assert(batchData.length > 1)
+
+    new Iterator[Array[LabeledData]] {
+      private var count = 0
+
+      override def hasNext: Boolean = count < numBatch
+
+      override def next(): Array[LabeledData] = {
+        batchData.indices.foreach { i => batchData(i) = trainData.loopingReadWithEnd(endIndex) }
+        count += 1
+        batchData
+      }
+    }
+  }
+
+  /* code end */
 
   private def getBathDataIterator(posData: DataBlock[LabeledData],
                                   negData: DataBlock[LabeledData],
