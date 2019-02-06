@@ -206,8 +206,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     PSAgentContext.get().barrier(ctx.getTaskId.getIndex)
 
     val numBatch = SharedConf.numUpdatePerEpoch
-    val batchSize: Int = (trainDataSize + numBatch - 1) / numBatch
-    val batchData = new Array[LabeledData](batchSize)
+    /* old code */
+    // val batchSize: Int = (trainDataSize + numBatch - 1) / numBatch
+    // val batchData = new Array[LabeledData](batchSize)
+    /* code end */
 
     if (SharedConf.useShuffle) {
       posTrainData.shuffle()
@@ -221,7 +223,6 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     LOG.info(s"skipped epoch end at $skippedWorkerEpochEnd epoch.")
 
     LOG.info(s"num of batches within one epoch = $numBatch.")
-    LOG.info(s"batchSize = $batchSize.")
 
     LOG.info(s"Trainable layers in the graph are:")
     graph.getTrainable.foreach(layer => LOG.info(layer.toString))
@@ -232,15 +233,20 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       val epoch = ctx.getEpoch
       LOG.info(s"Task[${ctx.getTaskIndex}]: epoch=$epoch start.")
 
+      /* new code */
+      LOG.info("iter.samples.size = " + posTrainData.size())
+      LOG.info("iter.validate.size = " + validationData.size())
+      val batchSize: Int = (trainDataSize + numBatch - 1) / numBatch
+      val batchData = new Array[LabeledData](batchSize)
+      LOG.info(s"batchSize = $batchSize.")
+      /* code end */
+
       val iter = if (negTrainData == null) {
         getBathDataIterator(posTrainData, batchData, numBatch)
       } else {
         getBathDataIterator(posTrainData, negTrainData, batchData, numBatch)
       }
-      /* new code */
-      LOG.info("iter.samples.size = " + posTrainData.size())
-      LOG.info("iter.validate.size = " + validationData.size())
-      /* code end */
+
 
       val startTrain = System.currentTimeMillis()
       if (!decayOnBatch) {
