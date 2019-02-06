@@ -51,7 +51,11 @@ public abstract class BaseTask<KEY_IN, VALUE_IN, VALUE_OUT>
   /**
    * The Train data storage.
    */
-  protected final DataBlock<VALUE_OUT> taskDataBlock;
+  /* old code */
+  // protected final DataBlock<VALUE_OUT> taskDataBlock;
+  /* new code */
+  protected DataBlock<VALUE_OUT> taskDataBlock;
+  /* code end */
 
   public BaseTask(TaskContext taskContext) {
     String storageLevel = taskContext.getConf().get(AngelConf.ANGEL_TASK_DATA_STORAGE_LEVEL,

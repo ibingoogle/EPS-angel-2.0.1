@@ -39,9 +39,15 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
   private val posnegRatio: Double = SharedConf.posnegRatio()
 
   // validation data storage
-  val validDataBlock: DataBlock[LabeledData] = getDataBlock("memory")
-  val posDataBlock: DataBlock[LabeledData] = taskDataBlock
-  val negDataBlock: DataBlock[LabeledData] = getDataBlock()
+  /* old code */
+  // val validDataBlock: DataBlock[LabeledData] = getDataBlock("memory")
+  // val posDataBlock: DataBlock[LabeledData] = taskDataBlock
+  // val negDataBlock: DataBlock[LabeledData] = getDataBlock()
+  /* new code */
+  var validDataBlock: DataBlock[LabeledData] = getDataBlock("memory")
+  var posDataBlock: DataBlock[LabeledData] = taskDataBlock
+  var negDataBlock: DataBlock[LabeledData] = getDataBlock()
+  /* code end */
 
   // data format of training data, libsvm or dummy
   override val dataParser = DataParser(SharedConf.get())

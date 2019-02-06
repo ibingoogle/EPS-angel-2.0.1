@@ -55,7 +55,14 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val skippedServerEpochEnd: Int = SharedConf.skippedServerEpochEnd
 
   var keepExecution: Boolean = true
+
   val dataParser = DataParser(SharedConf.get())
+  var Train_appendStartIndex: Int = -1
+  var Train_appendLength: Int = 0
+  var Train_defaultLength: Int = 0
+  var Validate_appendStartIndex: Int = -1
+  var Validate_appendLength: Int = 0
+  var Validete_defaultLength: Int = 0
   /*code end*/
 
   // Init Graph Model
@@ -177,8 +184,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     LOG.info(s"Task[${ctx.getTaskIndex}]: Starting to train ...")
     LOG.info(s"Task[${ctx.getTaskIndex}]: epoch=$epochNum, initLearnRate=$lr0")
     /* new code */
-    LOG.info("trainData size = " + posTrainData.size());
-    LOG.info("validationData size = " + validationData.size());
+    Train_defaultLength = posTrainData.size()
+    Validete_defaultLength = validationData.size()
+    LOG.info("default trainData size = " + Train_defaultLength)
+    LOG.info("default validationData size = " + Validete_defaultLength)
     /* code end */
 
     val trainDataSize = if (negTrainData == null) posTrainData.size() else {
@@ -263,6 +272,12 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("appendProcess input data at the end of epoch = " + epoch)
         appendProcess(validationData, posTrainData, negTrainData)
       }
+
+      /*if (epoch == 5){
+        LOG.info("it is time to recover")
+        val TrainSlice: DataBlock[LabeledData] = posTrainData.slice(0, Train_defaultLength)
+        val ValidateSlice = validationData.slice(0, Validete_defaultLength)
+      }*/
       /* code end */
     }
     )//////
@@ -278,6 +293,9 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       return
     }
     LOG.info("appendProcess input data")
+    Train_appendStartIndex = posDataBlock.size()
+    Validate_appendStartIndex = validDataBlock.size()
+
     val start = System.currentTimeMillis()
 
     var count = 0
@@ -291,8 +309,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       i = i + 1
       val out = parse(reader.getCurrentKey, reader.getCurrentValue)
       if (out != null) {
-        if (count % vali == 0)
+        if (count % vali == 0) {
           validDataBlock.put(out)
+          Validate_appendLength = Validate_appendLength + 1
+        }
         else if (posnegRatio != -1) {
           if (out.getY > 0) {
             posDataBlock.put(out)
@@ -301,10 +321,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
           }
         } else {
           posDataBlock.put(out)
+          Train_appendLength = Train_appendLength + 1
         }
         count += 1
       }
-
       null.asInstanceOf[Vector]
     }
     LOG.info("i =" + i)
