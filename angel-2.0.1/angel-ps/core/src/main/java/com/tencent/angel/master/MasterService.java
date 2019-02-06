@@ -75,6 +75,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+import com.tencent.angel.split.SplitClassification;
 /**
  * the RPC server for angel application master. it respond to requests from clients, worker and ps
  */
@@ -107,6 +109,11 @@ public class MasterService extends AbstractService implements MasterProtocol {
    * Yarn web port
    */
   private final int yarnNMWebPort;
+
+  /* new code */
+
+  public int requestNum_getWorkerGroupMetaInfo = 0;
+  /* code end */
 
 
   public MasterService(AMContext context) {
@@ -852,7 +859,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
     if (LOG.isDebugEnabled()) {
       LOG.debug("receive get workergroup info, request=" + request);
     }
-    LOG.info("receive get workergroup info, request=" + request);//////
+    /* new code */
+    requestNum_getWorkerGroupMetaInfo++;
+    LOG.info("receive get workergroup info, request=" + request);
+    /* code end */
     WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
 
     //find workergroup in worker manager
@@ -875,8 +885,33 @@ public class MasterService extends AbstractService implements MasterProtocol {
     } else {
       //if this worker group is running now, return tasks, workers, data splits for it
       try {
-        return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-          context.getDataSpliter().getSplits(group.getSplitIndex()), context.getConf());
+        /* old code */
+        //return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+        //  context.getDataSpliter().getSplits(group.getSplitIndex()), context.getConf());
+        /* new code */
+        int splitNum = context.getDataSpliter().getSplitNum();
+        LOG.info("splits num = " + splitNum);
+
+        int defaultsplitIndex = group.getSplitIndex();
+        SplitClassification defaultsplits  = context.getDataSpliter().getSplits(defaultsplitIndex);
+
+        int newsplitIndex = defaultsplitIndex++;
+        if (newsplitIndex == splitNum){
+          newsplitIndex = 0;
+        }
+        SplitClassification newsplits = context.getDataSpliter().getSplits(newsplitIndex);
+        if(requestNum_getWorkerGroupMetaInfo <= 1) {
+          ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+                  newsplits, context.getConf());
+          LOG.info("newsplitsIndex = " + newsplitIndex);
+          LOG.info("newsplits = " + newsplits.toString());
+        }else {
+          ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+                  defaultsplits, context.getConf());
+          LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
+          LOG.info("defaultsplits = " + defaultsplits.toString());
+        }
+        /* code end */
       } catch (Exception e) {
         LOG.error("build workergroup information error", e);
         throw new ServiceException(e);

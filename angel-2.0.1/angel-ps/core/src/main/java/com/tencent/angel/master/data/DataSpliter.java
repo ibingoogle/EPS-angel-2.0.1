@@ -256,6 +256,13 @@ public class DataSpliter {
     return splitClassifications.get(index);
   }
 
+  /* new code */
+  public Map<Integer, SplitClassification> getSplitClassifications(){
+    return splitClassifications;
+  }
+
+  /* code end */
+
   public int getSplitNum() {
     return splitNum;
   }

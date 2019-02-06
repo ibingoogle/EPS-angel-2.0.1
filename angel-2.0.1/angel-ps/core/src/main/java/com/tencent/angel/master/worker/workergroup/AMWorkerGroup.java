@@ -156,6 +156,8 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
    * training data block index assgined to this worker group
    */
   private final int splitIndex;
+
+  public int extraSplitIndex;//////
   private final StateMachine<AMWorkerGroupState, AMWorkerGroupEventType, AMWorkerGroupEvent>
     stateMachine;
   private long launchTime;
