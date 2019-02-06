@@ -859,10 +859,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
     if (LOG.isDebugEnabled()) {
       LOG.debug("receive get workergroup info, request=" + request);
     }
-    /* new code */
-    requestNum_getWorkerGroupMetaInfo++;
-    LOG.info("receive get workergroup info, request=" + request);
-    /* code end */
     WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
 
     //find workergroup in worker manager
@@ -889,13 +885,16 @@ public class MasterService extends AbstractService implements MasterProtocol {
         //return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
         //  context.getDataSpliter().getSplits(group.getSplitIndex()), context.getConf());
         /* new code */
+        requestNum_getWorkerGroupMetaInfo++;
+        LOG.info("receive get workergroup info when workergroup is OK, request=" + request);
+
         int splitNum = context.getDataSpliter().getSplitNum();
         LOG.info("splits num = " + splitNum);
 
         int defaultsplitIndex = group.getSplitIndex();
         SplitClassification defaultsplits  = context.getDataSpliter().getSplits(defaultsplitIndex);
 
-        int newsplitIndex = defaultsplitIndex++;
+        int newsplitIndex = defaultsplitIndex + 1;
         if (newsplitIndex == splitNum){
           newsplitIndex = 0;
         }
