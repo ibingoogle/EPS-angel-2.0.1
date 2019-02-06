@@ -493,7 +493,7 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
       /* new code */
       String groupId = group.groupId.toString();
       group.WorkerGroupDone = true;
-      LOG.info("set group.WorkerGroupDone = true, groupId = " + groupId);
+      // LOG.info("set group.WorkerGroupDone = true, groupId = " + groupId);
       /* code end */
       group.getContext().getEventHandler().handle(
         new WorkerGroupManagerEvent(WorkerManagerEventType.WORKERGROUP_DONE, group.getId()));
