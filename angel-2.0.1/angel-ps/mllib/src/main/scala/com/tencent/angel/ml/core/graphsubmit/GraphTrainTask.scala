@@ -62,6 +62,7 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
   }
 
   override def preProcess(taskContext: TaskContext) {
+    LOG.info("preProcess input data")//////
     val start = System.currentTimeMillis()
 
     var count = 0

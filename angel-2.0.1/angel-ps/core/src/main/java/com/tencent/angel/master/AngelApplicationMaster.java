@@ -921,6 +921,7 @@ public class AngelApplicationMaster extends CompositeService {
     // load data splits information from app state storage first if attempt index great than 1(the
     // master is not the first retry)
     if (appAttemptId.getAttemptId() > 1) {
+      LOG.info("appAttemptId.getAttemptId() > 1");//////
       try {
         dataSpliter = appStateStorage.loadDataSplits();
       } catch (Exception e) {
@@ -931,6 +932,7 @@ public class AngelApplicationMaster extends CompositeService {
     // if load failed, we need to recalculate the data splits
     if (dataSpliter == null) {
       try {
+        LOG.info("dataSpliter.generateSplits()");//////
         dataSpliter = new DataSpliter(appContext);
         dataSpliter.generateSplits();
         appStateStorage.writeDataSplits(dataSpliter);
