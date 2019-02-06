@@ -901,16 +901,16 @@ public class MasterService extends AbstractService implements MasterProtocol {
         }
         SplitClassification newsplits = context.getDataSpliter().getSplits(newsplitIndex);
         if(requestNum_getWorkerGroupMetaInfo <= 1) {
-          ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-                  newsplits, context.getConf());
           LOG.info("newsplitsIndex = " + newsplitIndex);
           LOG.info("newsplits = " + newsplits.toString());
-        }else {
-          ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-                  defaultsplits, context.getConf());
-          LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
-          LOG.info("defaultsplits = " + defaultsplits.toString());
+          return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+                  newsplits, context.getConf());
+
         }
+        LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
+        LOG.info("defaultsplits = " + defaultsplits.toString());
+        return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+                  defaultsplits, context.getConf());
         /* code end */
       } catch (Exception e) {
         LOG.error("build workergroup information error", e);
