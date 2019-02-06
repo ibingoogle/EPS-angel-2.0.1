@@ -18,6 +18,8 @@
 
 package com.tencent.angel.split;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.serializer.Deserializer;
 import org.apache.hadoop.io.serializer.SerializationFactory;
@@ -58,6 +60,8 @@ public class SplitClassification {
     this.splitsNewAPI = splitsNewAPI;
     this.useNewAPI = useNewAPI;
   }
+
+  private static final Log LOG = LogFactory.getLog(SplitClassification.class);//////
 
   public String[] getLocations() {
     return locations;
@@ -135,6 +139,7 @@ public class SplitClassification {
         SerializationFactory factory = new SerializationFactory(new Configuration());
         Serializer serializer = factory.getSerializer(splitsNewAPI.get(0).getClass());
         serializer.open(output);
+        LOG.info("now serialize!!!!");//////
         for (int i = 0; i < size; i++) {
           serializer.serialize(splitsNewAPI.get(i));
         }
@@ -178,6 +183,7 @@ public class SplitClassification {
             (Class<? extends org.apache.hadoop.mapreduce.InputSplit>) Class.forName(splitClass));
 
         deSerializer.open(input);
+        LOG.info("now deserialize!!!!");//////
         for (int i = 0; i < size; i++) {
           splitsNewAPI.add(deSerializer.deserialize(null));
         }
