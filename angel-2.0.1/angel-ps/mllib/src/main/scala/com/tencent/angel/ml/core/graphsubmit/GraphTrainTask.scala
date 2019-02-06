@@ -69,7 +69,9 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
     val vali = Math.ceil(1.0 / valiRat).toInt
 
     val reader = taskContext.getReader
+    var i: Int = 0//////
     while (reader.nextKeyValue) {
+      i = i + 1//////
       val out = parse(reader.getCurrentKey, reader.getCurrentValue)
       if (out != null) {
         if (count % vali == 0)
@@ -88,6 +90,7 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
 
       null.asInstanceOf[Vector]
     }
+    LOG.info("i =" + i)//////
 
     posDataBlock.flush()
     negDataBlock.flush()
