@@ -901,12 +901,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
         SplitClassification defaultsplits  = context.getDataSpliter().getSplits(defaultsplitIndex);
 
         // round robin to get newsplitIndex
-        int newsplitIndex = defaultsplitIndex + 1;
-        if (newsplitIndex == splitNum){
-          newsplitIndex = 0;
-        }
 
-        SplitClassification newsplits = context.getDataSpliter().getSplits(newsplitIndex);
+        SplitClassification newsplits = context.getDataSpliter().extraSplitClassification;
         if(requestNum_getWorkerGroupMetaInfo.get(groupId) <= 1) {
           LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
           LOG.info("defaultsplits = " + defaultsplits.toString());
@@ -914,7 +910,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
                   defaultsplits, context.getConf());
 
         }
-        LOG.info("newsplitsIndex = " + newsplitIndex);
         LOG.info("newsplits = " + newsplits.toString());
         return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
                   newsplits, context.getConf());

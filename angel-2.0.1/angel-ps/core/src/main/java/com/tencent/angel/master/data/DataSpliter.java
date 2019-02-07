@@ -27,7 +27,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.ReflectionUtils;
 
@@ -50,6 +53,10 @@ public class DataSpliter {
    * index to SplitClassification map
    */
   private final Map<Integer, SplitClassification> splitClassifications;
+
+  /* new code */
+  public SplitClassification extraSplitClassification;
+  /* code end */
 
   /**
    * use new version MapReduce API
@@ -202,20 +209,68 @@ public class DataSpliter {
       List<org.apache.hadoop.mapreduce.InputSplit> splitList =
         new ArrayList<org.apache.hadoop.mapreduce.InputSplit>();
 
+      Map<Integer, String[]> splitIdtoLocs = new HashMap<Integer, String[]>();//////
+
       base = i * groupItemNumber;
       for (int j = 0; j < groupItemNumber && (base < splitNum); j++, base++) {
         splitList.add(splitsNewAPI.get(base));
         String[] locations = splitsNewAPI.get(base).getLocations();
+        splitIdtoLocs.put(j, locations);//////
         for (int k = 0; k < locations.length && locationList.size() < maxLocationLimit; k++) {
           locationList.add(locations[k]);
         }
       }
+
+      /* new code */
+      CombineFileSplit idleInputList = (CombineFileSplit) splitList.get(0);
+      if (idleInputList.getNumPaths() > 2){
+        LOG.info("num of Paths = " + idleInputList.getNumPaths());
+        dispatchExtraSplits(splitList, splitIdtoLocs);
+      }
+      /* code end */
 
       SplitClassification splitClassification = new SplitClassification(null, splitList,
         locationList.toArray(new String[locationList.size()]), true);
       splitClassifications.put(i, splitClassification);
     }
   }
+
+  /* new code */
+  private void dispatchExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
+                                   Map<Integer, String[]> splitIdtoLocs) throws IOException, InterruptedException {
+    LOG.info("private void dispatchExtraSplits!!!");//////
+
+    CombineFileSplit idleInputList = (CombineFileSplit) idleSplitList.get(0);
+    LOG.info("idleInputList = " + idleInputList.toString());
+    Path[] paths = new Path[1];
+    long[] startoffset = new long[1];
+    long[] lengths = new long[1];
+    String[] locations = null;
+    for (int i = 0; i < 1; i++){
+      paths[i] = idleInputList.getPath(i);
+      startoffset[i] = idleInputList.getOffset(i);
+      lengths[i] = idleInputList.getLength(i);
+      if (idleInputList.getLocations() != null){
+        locations = new String[1];
+        locations[i] = idleInputList.getLocations()[i];
+      }
+    }
+    CombineFileSplit newInputList = new CombineFileSplit(paths, startoffset, lengths, locations);
+    List<org.apache.hadoop.mapreduce.InputSplit> newSplitList =
+            new ArrayList<org.apache.hadoop.mapreduce.InputSplit>();
+    newSplitList.add(newInputList);
+    LOG.info("newInputList = " + newInputList.toString());
+
+    List<String> locationList = new ArrayList<String>(maxLocationLimit);
+    locationList.add(splitIdtoLocs.get(0)[0]);
+
+    SplitClassification newSplitClassification = new SplitClassification(null, newSplitList,
+              locationList.toArray(new String[locationList.size()]), true);
+
+    extraSplitClassification = newSplitClassification;
+    LOG.info("extraSplits = " + extraSplitClassification.toString());
+  }
+  /* code end */
 
   private void dispatchSplitsUseLocation(InputSplit[] splitArray, int groupNumber,
     int groupItemNumber) throws IOException {

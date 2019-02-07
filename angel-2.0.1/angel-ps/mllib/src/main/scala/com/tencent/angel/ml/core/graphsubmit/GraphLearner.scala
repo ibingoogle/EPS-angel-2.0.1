@@ -291,14 +291,14 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
         break()
       }
-      if (epoch == 2){
+      if (epoch == 1000000){
         LOG.info("appendProcess input data at the end of epoch = " + epoch)
         appendProcess(validationData, posTrainData, negTrainData)
         actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
         actualBatchEndIndex = posTrainData.size()
       }
 
-      if (epoch == 5){
+      if (epoch == 1000000){
         LOG.info("it is time to recover")
         actualBatchEndIndex = defaultBatchEndIndex
         actualBatchSize = defaultBatchSize
