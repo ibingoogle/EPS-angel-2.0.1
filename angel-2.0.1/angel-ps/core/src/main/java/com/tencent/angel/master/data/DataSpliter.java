@@ -248,14 +248,14 @@ public class DataSpliter {
 
   /* new code */
 
-  private void dispatchExtraSplitsUseLocation() throws IOException, InterruptedException {
+  public void dispatchExtraSplitsUseLocation(){
     LOG.info("private void dispatchExtraSplitsUseLocation~~~");
     if (extraSplitClassification != null && splitClassifications.size() < actualSplitNum){
       splitClassifications.put(actualSplitNum-1, extraSplitClassification);
     }
   }
 
-  private void AssignExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
+  public void AssignExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
                                    Map<Integer, String[]> splitIdtoLocs) throws IOException, InterruptedException {
     LOG.info("private void AssignExtraSplits!!!");//////
 

@@ -324,6 +324,8 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
 
   /* new code */
   public void incrementOneWorker() {
+    LOG.info("dispatch datasplit for new worker");
+    context.getDataSpliter().dispatchExtraSplitsUseLocation();
     LOG.info("to increment a new worker......");
     incrementWorkerGroupNumber();
     try {

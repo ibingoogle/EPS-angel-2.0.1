@@ -156,7 +156,7 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
                   currentIter = minIter;
                   context.getModelSaver().epochUpdate(currentIter);
                   /* new code */
-                  if (currentIter == 2){
+                  if (currentIter == 1){
                     LOG.info("add one workergroup at the end of iteration = " + currentIter);
                     context.getWorkerManager().incrementOneWorker();
                   }
