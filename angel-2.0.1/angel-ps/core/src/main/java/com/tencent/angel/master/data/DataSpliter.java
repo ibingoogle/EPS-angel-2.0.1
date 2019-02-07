@@ -247,9 +247,17 @@ public class DataSpliter {
   }
 
   /* new code */
-  private void dispatchExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
+
+  private void dispatchExtraSplitsUseLocation() throws IOException, InterruptedException {
+    LOG.info("private void dispatchExtraSplitsUseLocation~~~");
+    if (extraSplitClassification != null && splitClassifications.size() < actualSplitNum){
+      splitClassifications.put(actualSplitNum-1, extraSplitClassification);
+    }
+  }
+
+  private void AssignExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
                                    Map<Integer, String[]> splitIdtoLocs) throws IOException, InterruptedException {
-    LOG.info("private void dispatchExtraSplits!!!");//////
+    LOG.info("private void AssignExtraSplits!!!");//////
 
     CombineFileSplit idleInputList = (CombineFileSplit) idleSplitList.get(0);
     LOG.info("idleInputList = " + idleInputList.toString());
