@@ -221,7 +221,7 @@ public class DataSpliter {
         }
       }
 
-      /* new code */
+      /* new code
       CombineFileSplit idleInputList = (CombineFileSplit) splitList.get(0);
       if (idleInputList.getNumPaths() > 2){
         LOG.info("num of Paths = " + idleInputList.getNumPaths());
