@@ -60,6 +60,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.tencent.angel.split.SplitClassification;
 
 /**
  * A running attempt for a worker.
@@ -269,6 +270,20 @@ public class WorkerAttempt implements EventHandler<WorkerAttemptEvent> {
       // get data splits location for data locality
       AMWorkerGroup workerGroup =
         attempt.context.getWorkerManager().getWorkerGroup(attempt.getId().getWorkerId());
+
+      /* new code */
+      LOG.info("workergroupId = " + workerGroup.getId());
+      LOG.info("splitindex for workergroup = " + workerGroup.getSplitIndex());
+      LOG.info("actualSplitNum = " + attempt.context.getDataSpliter().actualSplitNum);
+      LOG.info("splitClassifications.size = " + attempt.context.getDataSpliter().getSplitClassifications().size());
+      for(Map.Entry<Integer, SplitClassification> entry: attempt.context.getDataSpliter().getSplitClassifications().entrySet()){
+        LOG.info("index = " + entry.getKey());
+        SplitClassification SC = entry.getValue();
+        LOG.info("toString = " + SC.toString());
+        LOG.info("locations = " + SC.getLocations());
+      }
+      /* code end */
+
       String[] hosts =
         attempt.context.getDataSpliter().getSplitLocations(workerGroup.getSplitIndex());
 
