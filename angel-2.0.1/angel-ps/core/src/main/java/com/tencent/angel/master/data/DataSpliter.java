@@ -66,6 +66,8 @@ public class DataSpliter {
   private final static int maxLocationLimit = 10;
   private int splitNum;
 
+  public int actualSplitNum;//////
+
   public DataSpliter(AMContext context) {
     this(context, new HashMap<Integer, SplitClassification>());
   }
@@ -196,6 +198,7 @@ public class DataSpliter {
     int groupNumber, int groupItemNumber) throws IOException, InterruptedException {
     LOG.info("private void dispatchSplitsUseLocation~~~");//////
     splitNum = splitsNewAPI.size();
+    actualSplitNum = splitNum;//////
 
     // Since the actual split size is sometimes not exactly equal to the expected split size, we
     // need to fine tune the number of workergroup and task based on the actual split number
@@ -232,6 +235,14 @@ public class DataSpliter {
       SplitClassification splitClassification = new SplitClassification(null, splitList,
         locationList.toArray(new String[locationList.size()]), true);
       splitClassifications.put(i, splitClassification);
+
+      /* new code */
+      if (i == estimatedGroupNum - 1){
+        SplitClassification lastSplitClassification = new SplitClassification(null, splitList,
+                locationList.toArray(new String[locationList.size()]), true);
+        extraSplitClassification = lastSplitClassification;
+      }
+      /* code end */
     }
   }
 
@@ -315,7 +326,9 @@ public class DataSpliter {
   public Map<Integer, SplitClassification> getSplitClassifications(){
     return splitClassifications;
   }
-
+  public void  incrementActualSplitNum(){
+    actualSplitNum++;
+  }
   /* code end */
 
   public int getSplitNum() {

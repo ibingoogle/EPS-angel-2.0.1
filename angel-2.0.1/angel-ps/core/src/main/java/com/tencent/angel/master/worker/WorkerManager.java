@@ -92,6 +92,11 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
    */
   private volatile int workergroupNumber;
 
+  /* new code */
+  public int defaultWorkergroupNumber;
+  public int defaultTotalTaskNumber;
+  /* code end */
+
   /**
    * actual total task number in application
    */
@@ -317,6 +322,26 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     }
   }
 
+  /* new code */
+  public void incrementOneWorker() {
+    LOG.info("to increment a new worker......");
+    incrementWorkerGroupNumber();
+    try {
+      writeLock.lock();
+      initOneWorker();
+      int i = workerGroupMap.size() - 1;
+      AMWorkerGroup group = workerGroupMap.get(new WorkerGroupId(i));
+      for (AMWorker worker : group.getWorkerSet()) {
+        worker.handle(new AMWorkerEvent(AMWorkerEventType.SCHEDULE, worker.getId()));
+      }
+      isInited = true;
+    } finally {
+      writeLock.unlock();
+    }
+  }
+
+  /* code end */
+
   public void adjustTaskNumber(int splitNum) {
     //calculate the actual number of worker groups and the total number of tasks based on the number of data split
     int estimatedGroupNum = (splitNum + taskNumberInEachWorker - 1) / taskNumberInEachWorker;
@@ -326,7 +351,20 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     totalTaskNumber = estimatedTaskNum;
     context.getConf().setInt(AngelConf.ANGEL_TASK_ACTUAL_NUM, totalTaskNumber);
     context.getConf().setInt(AngelConf.ANGEL_WORKERGROUP_ACTUAL_NUM, workergroupNumber);
+
+    defaultWorkergroupNumber = workergroupNumber;//////
+    defaultTotalTaskNumber = totalTaskNumber;//////
   }
+
+  /* new code */
+  public void incrementWorkerGroupNumber() {
+    workergroupNumber++;
+    totalTaskNumber++;
+    context.getConf().setInt(AngelConf.ANGEL_TASK_ACTUAL_NUM, totalTaskNumber);
+    context.getConf().setInt(AngelConf.ANGEL_WORKERGROUP_ACTUAL_NUM, workergroupNumber);
+    context.getDataSpliter().incrementActualSplitNum();
+  }
+  /* code end */
 
   private void initWorkers() {
     int base = 0;
@@ -366,6 +404,46 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     }
     LOG.info("to init taskClockManager!");
   }
+
+  /* new code */
+  private void initOneWorker() {
+    int base = 0;
+    //init the tasks in the new workergroup and put them to the corresponding maps
+    int i = workergroupNumber - 1; // the latest worker group
+    Map<WorkerId, AMWorker> workers = new HashMap<WorkerId, AMWorker>();
+    WorkerId leader = null;
+    WorkerGroupId groupId = new WorkerGroupId(i); // the latest worker group
+
+    for (int j = 0; j < workersInGroup; j++) {
+      base = (i * workersInGroup + j) * taskNumberInEachWorker; // the latest task Id
+      List<TaskId> taskIds = new ArrayList<TaskId>(taskNumberInEachWorker);
+      for (int k = 0; k < taskNumberInEachWorker && (base < totalTaskNumber); k++, base++) {
+        taskIds.add(new TaskId(base));
+      }
+
+      WorkerId workerId = new WorkerId(groupId, i * workersInGroup + j);
+      AMWorker worker = new AMWorker(workerId, context, taskIds);
+      workersMap.put(workerId, worker);
+      workers.put(workerId, worker);
+
+      if (j == 0) {
+          leader = workerId;
+      }
+    }
+
+    AMWorkerGroup group = new AMWorkerGroup(groupId, context, workers, leader, i);
+    for (WorkerId id : workers.keySet()) {
+      findWorkerGroupMap.put(id, group);
+      for (TaskId taskId : workers.get(id).getTaskIds()) {
+        taskIdToWorkerMap.put(taskId, workers.get(id));
+      }
+    }
+
+    workerGroupMap.put(groupId, group);
+    group.handle(new AMWorkerGroupEvent(AMWorkerGroupEventType.INIT, groupId));
+    LOG.info("finish initOneWorker!");
+  }
+  /* code end */
 
   private boolean checkISOverTolerate() {
     return tolerateFailedGroup

@@ -895,22 +895,23 @@ public class MasterService extends AbstractService implements MasterProtocol {
         LOG.info("receive get workergroup info when workergroup is OK, request=" + request);
 
         int splitNum = context.getDataSpliter().getSplitNum();
-        // LOG.info("splits num = " + splitNum);
+        int actualsplitNum = context.getDataSpliter().actualSplitNum;
+        LOG.info("splits num = " + splitNum);
+        LOG.info("actual splits num = " + actualsplitNum);
 
         int defaultsplitIndex = group.getSplitIndex();
-        SplitClassification defaultsplits  = context.getDataSpliter().getSplits(defaultsplitIndex);
-
-        //SplitClassification newsplits = context.getDataSpliter().extraSplitClassification;
-        //if(requestNum_getWorkerGroupMetaInfo.get(groupId) <= 1) {
-          LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
+        LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
+        if (defaultsplitIndex < splitNum) {
+          SplitClassification defaultsplits = context.getDataSpliter().getSplits(defaultsplitIndex);
           LOG.info("defaultsplits = " + defaultsplits.toString());
           return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
                   defaultsplits, context.getConf());
-
-        //}
-        /*LOG.info("newsplits = " + newsplits.toString());
-        return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-                  newsplits, context.getConf());*/
+        }else {
+          SplitClassification extrasplits = context.getDataSpliter().extraSplitClassification;
+          LOG.info("extrasplits = " + extrasplits.toString());
+          return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+                  extrasplits, context.getConf());
+        }
         /* code end */
       } catch (Exception e) {
         LOG.error("build workergroup information error", e);

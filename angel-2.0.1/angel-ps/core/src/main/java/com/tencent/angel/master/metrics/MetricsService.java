@@ -155,6 +155,12 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
                   calAlgoMetrics(minIter);
                   currentIter = minIter;
                   context.getModelSaver().epochUpdate(currentIter);
+                  /* new code */
+                  if (currentIter == 2){
+                    LOG.info("add one workergroup at the end of iteration = " + currentIter);
+                    context.getWorkerManager().incrementOneWorker();
+                  }
+                  /* code end */
                 }
                 break;
               }
