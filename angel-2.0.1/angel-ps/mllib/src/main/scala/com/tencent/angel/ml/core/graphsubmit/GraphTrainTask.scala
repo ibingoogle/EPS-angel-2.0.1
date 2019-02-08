@@ -56,13 +56,13 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
 
   override def train(ctx: TaskContext) {
     /* new code */
-    if (super.NewTask) {
+    if (NewTask) {
       LOG.info("this is a new task, taskindex = " + ctx.getTaskIndex);
     }
     /* code end */
     val trainer = new GraphLearner(modelClassName, ctx)
 
-    trainer.NewLearner = super.NewTask;//////
+    trainer.NewLearner = NewTask;//////
     if (posnegRatio == -1) {
       trainer.train(taskDataBlock, validDataBlock)
     } else {

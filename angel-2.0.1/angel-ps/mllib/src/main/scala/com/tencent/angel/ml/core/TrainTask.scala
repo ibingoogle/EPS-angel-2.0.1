@@ -48,7 +48,7 @@ abstract class TrainTask[KEYIN, VALUEIN](taskContext: TaskContext) extends BaseT
   }
 
   /* new code */
-  var NewTask: Boolean = false;
+  var NewTask: Boolean = false
   /* code end */
 
   final def run(taskContext: TaskContext) = {
