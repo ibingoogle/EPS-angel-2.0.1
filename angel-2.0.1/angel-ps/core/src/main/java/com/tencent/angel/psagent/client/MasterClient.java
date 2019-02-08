@@ -476,6 +476,7 @@ public class MasterClient {
     TaskIterationRequest request = TaskIterationRequest.newBuilder()
       .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
       .build();
+    LOG.info("send taskIteration RPC, iteration = " + iteration);//////
     master.taskIteration(null, request);
   }
 

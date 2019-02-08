@@ -143,8 +143,8 @@ public class ClockCache {
                 int ClockValue = entry.getValue();
                 int MatrixId = entry.getKey().getMatrixId();
                 int PartId = PK.getPartitionId();
-                // print log every 10 times
-                if(syncNum%100 == 0) {
+                // print log every 50 times
+                if(syncNum%50 == 0) {
                   LOG.info("Update clock cache");
                   LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
                 }

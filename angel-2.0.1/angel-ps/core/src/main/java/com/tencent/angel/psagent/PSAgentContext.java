@@ -360,11 +360,31 @@ public class PSAgentContext {
   }
 
   /* new code */
-  public void removeWorker(int taskId) throws InvalidParameterException, InterruptedException {
+  public void removeWorker(int taskIndex) throws InvalidParameterException, InterruptedException {
     LOG.info("try remove worker!");
-    PSAgentContext.get().getUserRequestAdapter().removeWorker(taskId);
+    PSAgentContext.get().getUserRequestAdapter().removeWorker(taskIndex);
   }
   /* code end */
+
+
+  public int clockCatchUp(int taskIndex) throws InvalidParameterException{
+    int matrixId = 0;
+    LOG.info("clockCatchUp......");
+    MatrixClient client = MatrixClientFactory.get(matrixId, taskIndex);
+    LOG.info("local Clock = " +  client.getTaskContext().getMatrixClock(matrixId));
+    List<PartitionKey> pkeys = PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
+
+    ClockCache cache = PSAgentContext.get().getClockCache();
+    int newClock =  cache.getClock(matrixId, pkeys.get(0));
+    LOG.info("remote latest clock = " + newClock);
+    if (newClock % 2 == 0){
+      newClock++;
+    }
+    client.getTaskContext().setMatrixClock(matrixId, newClock);
+    LOG.info("after catch up, local clock = " + client.getTaskContext().getMatrixClock(matrixId));
+
+    return newClock/2 - 1;
+  }
 
   /**
    * Global barrier synchronization method
@@ -401,6 +421,7 @@ public class PSAgentContext {
       }
       /*code end*/
       if (cache.getClock(matrixId, pkeys.get(0)) < clock) {
+        LOG.info("sync = false");//////
         sync = false;
       }
 

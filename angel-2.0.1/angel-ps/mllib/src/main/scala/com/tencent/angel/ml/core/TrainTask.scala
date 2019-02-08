@@ -30,6 +30,7 @@ import com.tencent.angel.ml.core.utils.{DataParser, NetUtils}
 import com.tencent.angel.worker.task.{BaseTask, TaskContext}
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
+import org.apache.commons.logging.{Log, LogFactory}
 
 import scala.util.Sorting.quickSort
 
@@ -46,7 +47,16 @@ abstract class TrainTask[KEYIN, VALUEIN](taskContext: TaskContext) extends BaseT
     SharedConf.get(conf)
   }
 
+  /* new code */
+  var NewTask: Boolean = false;
+  /* code end */
+
   final def run(taskContext: TaskContext) = {
+    /* new code */
+    if (taskContext.getTaskIndex >= Integer.valueOf(conf.get(AngelConf.ANGEL_TASK_ACTUAL_NUM))){
+      NewTask = true
+    }
+    /* code end */
     this.train(taskContext)
   }
 

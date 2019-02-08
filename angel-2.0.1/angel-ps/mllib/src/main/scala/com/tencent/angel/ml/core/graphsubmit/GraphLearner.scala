@@ -63,6 +63,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   var Validate_appendStartIndex: Int = -1
   var Validate_appendLength: Int = 0
   var Validete_defaultLength: Int = 0
+
+  var NewLearner: Boolean = false
   /*code end*/
 
   // Init Graph Model
@@ -162,6 +164,12 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("break the execution of trainOneEpoch at epoch = " + epoch + ", batch = " + batchCount)
         keepExecution = false
         break()
+      }
+
+      if(NewLearner){
+        LOG.info("this is an new learner......")
+        ctx.getContext.setEpoch(PSAgentContext.get().clockCatchUp(ctx.getTaskId.getIndex))
+        NewLearner = false
       }
       /* code end */
     }
@@ -297,7 +305,6 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
         actualBatchEndIndex = posTrainData.size()
       }
-
       if (epoch == 50000000){
         LOG.info("it is time to recover")
         actualBatchEndIndex = defaultBatchEndIndex

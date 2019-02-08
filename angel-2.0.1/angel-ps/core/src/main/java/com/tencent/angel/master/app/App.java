@@ -256,6 +256,12 @@ public class App extends AbstractService implements EventHandler<AppEvent> {
         }
       }
     }
+    /* new code */
+    if (context.getAlgoMetricsService().previousIter < curIteration) {
+      LOG.info("curIteartion = " + curIteration);
+      context.getAlgoMetricsService().previousIter = curIteration;
+    }
+    /* code end */
     report.setCurIteration(curIteration);
 
     getJobReportResBuilder.setJobReport(report);
