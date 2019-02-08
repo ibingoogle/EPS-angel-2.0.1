@@ -74,18 +74,24 @@ public class PartClockVector {
    * @param clock     clock value
    */
   public void updateClock(int taskIndex, int clock) {
+    LOG.info("miniClock = " + minClock);
+    LOG.info("updateClock for taskIndex = " + taskIndex + ", clock = " + clock);//////
     try {
       lock.writeLock().lock();
       if (!taskIndexToClockMap.containsKey(taskIndex)) {
+        LOG.info("taskIndexToClockMap does not contain taskIndex = " + taskIndex);//////
         taskIndexToClockMap.put(taskIndex, clock);
       } else {
         int oldClock = taskIndexToClockMap.get(taskIndex);
         if (oldClock < clock) {
           taskIndexToClockMap.put(taskIndex, clock);
         }
+        LOG.info("oldclock = " + oldClock);//////
+        LOG.info("newclock = " + clock);//////
       }
 
       if (minClock < clock) {
+        LOG.info("update minClock = "+ minClock + " with clock = " + clock);
         refreshMinClock();
       }
     } finally {
@@ -123,10 +129,14 @@ public class PartClockVector {
       if (entry.getIntValue() < min) {
         min = entry.getIntValue();
       }
+      LOG.info("taskIndex = " + entry.getIntKey() + " clock = " + entry.getIntValue());//////
     }
+
+    LOG.info("min = " + min);//////
 
     if (minClock < min) {
       minClock = min;
+      LOG.info("Update minClock = min = " + min);//////
     }
   }
 
