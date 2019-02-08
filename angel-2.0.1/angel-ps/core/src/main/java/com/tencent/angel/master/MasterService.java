@@ -1034,8 +1034,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
 
     TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
 
-    LOG.info("task iteration, " + request);//////
-    LOG.info("taskId = " + taskId);//////
+    /* new code */
+    LOG.info("task iteration, " + request);
+    LOG.info("taskId = " + taskId);
+    /* code end */
 
     //get Task meta from task manager, if can not find, just new a AMTask object and put it to task manager
     //in ANGEL_PS mode, task id may can not know advance
@@ -1047,6 +1049,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
 
     //update task iteration
     task.iteration(request.getIteration());
+    context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).UpdateIteartionEver = true;//////
     context.getEventHandler().handle(new MetricsEvent(MetricsEventType.TASK_ITERATION_UPDATE));
     return TaskIterationResponse.newBuilder().build();
   }

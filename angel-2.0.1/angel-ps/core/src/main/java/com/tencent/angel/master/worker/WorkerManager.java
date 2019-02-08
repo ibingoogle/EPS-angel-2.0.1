@@ -634,8 +634,13 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
 
       for (AMWorkerGroup group : workerGroupMap.values()) {
         int groupMinIteration = group.getMinIteration();
-        LOG.info("groupId = " + group.getId());//////
-        LOG.info("iteration = " + groupMinIteration);//////
+        /* new code */
+        if (!group.UpdateIteartionEver){
+          groupMinIteration = Integer.MAX_VALUE;
+        }
+        LOG.info("groupId = " + group.getId());
+        LOG.info("iteration = " + groupMinIteration);
+        /* code end */
 
         if (groupMinIteration < minIteration) {
           minIteration = groupMinIteration;
