@@ -333,6 +333,8 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
       initOneWorker();
       int i = workerGroupMap.size() - 1;
       AMWorkerGroup group = workerGroupMap.get(new WorkerGroupId(i));
+      LOG.info("set this is extra worker");
+      group.IsExtraWorker = true;
       for (AMWorker worker : group.getWorkerSet()) {
         worker.handle(new AMWorkerEvent(AMWorkerEventType.SCHEDULE, worker.getId()));
       }
@@ -635,7 +637,7 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
       for (AMWorkerGroup group : workerGroupMap.values()) {
         int groupMinIteration = group.getMinIteration();
         /* new code */
-        if (!group.UpdateIteartionEver){
+        if (!group.UpdateIteartionEver && group.IsExtraWorker){
           groupMinIteration = Integer.MAX_VALUE;
         }
         LOG.info("groupId = " + group.getId());

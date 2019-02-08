@@ -151,6 +151,7 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
   /* new code */
   public Boolean WorkerGroupDone = false;
   public Boolean UpdateIteartionEver = false;
+  public Boolean IsExtraWorker = false;
   /* code end */
 
   /**
