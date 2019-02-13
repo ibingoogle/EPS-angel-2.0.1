@@ -55,6 +55,10 @@ public class DataSpliter {
   private final Map<Integer, SplitClassification> splitClassifications;
 
   /* new code */
+  /*
+   * workerGroup index to SplitClassifications map
+   */
+  public Map<Integer, List<SplitClassification>> realSplitClassifications;
   public SplitClassification extraSplitClassification;
   /* code end */
 

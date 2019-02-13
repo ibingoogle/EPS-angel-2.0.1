@@ -86,6 +86,12 @@ object MLConf {
   val DEFAULT_ML_SKIPPED_SERVER_EPOCH_START = -1
   val ML_SKIPPED_SERVER_EPOCH_END = "ml.skipped.server.epoch.end"
   val DEFAULT_ML_SKIPPED_SERVER_EPOCH_END = -1
+
+  val ML_RM_EXE_TASK_ID = "ml.rm.exe.task.id"
+  val DEFAULT_ML_RM_EXE_TASK_ID = -1 // default does not remove the execution of any task
+
+  val ML_RM_EXE_EPOCH = "ml.rm.exe.epoch"
+  val DEFAULT_ML_RM_EXE_EPOCH = -1 // default does not remove the execution of any task
   /*code end*/
 
   val ML_EPOCH_NUM = "ml.epoch.num"

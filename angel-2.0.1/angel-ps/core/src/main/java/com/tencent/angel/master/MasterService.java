@@ -1037,6 +1037,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
     /* new code */
     LOG.info("task iteration, " + request);
     LOG.info("taskId = " + taskId);
+
     /* code end */
 
     //get Task meta from task manager, if can not find, just new a AMTask object and put it to task manager

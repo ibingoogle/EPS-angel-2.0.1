@@ -55,6 +55,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val skippedServerEpochEnd: Int = SharedConf.skippedServerEpochEnd
 
   var keepExecution: Boolean = true
+  val rmExeTaskId: Int = SharedConf.rmExeTaskId
+  val rmExeEpoch: Int = SharedConf.rmExeEpoch
 
   val dataParser = DataParser(SharedConf.get())
   var Train_appendStartIndex: Int = -1
@@ -159,7 +161,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       LOG.info(s"epoch $epoch batch $batchCount is finished!")
 
       /* new code */
-      if (ctx.getTaskId.getIndex == 1 && epoch > 1000000){
+      // decide whether to remove the execution at the end of each epoch
+      if (ctx.getTaskId.getIndex == rmExeTaskId && epoch == rmExeEpoch){
         PSAgentContext.get().removeWorker(ctx.getTaskId.getIndex)
         LOG.info("break the execution of trainOneEpoch at epoch = " + epoch + ", batch = " + batchCount)
         keepExecution = false
