@@ -59,6 +59,7 @@ public class DataSpliter {
    * workerGroup index to SplitClassifications map
    */
   public Map<Integer, List<SplitClassification>> realSplitClassifications;
+  public Map<Integer, List<Integer>> realSCsStatus;
   public SplitClassification extraSplitClassification;
   /* code end */
 
@@ -79,6 +80,10 @@ public class DataSpliter {
   public DataSpliter(AMContext context, Map<Integer, SplitClassification> splits) {
     this.context = context;
     this.splitClassifications = splits;
+    /* new code */
+    this.realSplitClassifications = new HashMap<Integer, List<SplitClassification>>();
+    this.realSCsStatus = new HashMap<Integer, List<Integer>>();
+    /* code end */
     useNewAPI = context.getConf().getBoolean("mapred.mapper.new-api", false);
   }
 
@@ -241,11 +246,19 @@ public class DataSpliter {
       splitClassifications.put(i, splitClassification);
 
       /* new code */
+      List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
+      SCsList.add(splitClassification);
+      realSplitClassifications.put(i, SCsList);
+      List<Integer> SCsStatus = new ArrayList<Integer>();
+      SCsStatus.add(1);
+      realSCsStatus.put(i, SCsStatus);
+      /*
       if (i == estimatedGroupNum - 1){
         SplitClassification lastSplitClassification = new SplitClassification(null, splitList,
                 locationList.toArray(new String[locationList.size()]), true);
         extraSplitClassification = lastSplitClassification;
       }
+      */
       /* code end */
     }
   }

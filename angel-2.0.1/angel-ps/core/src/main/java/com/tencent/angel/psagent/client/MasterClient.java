@@ -477,7 +477,12 @@ public class MasterClient {
       .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
       .build();
     LOG.info("send taskIteration RPC, iteration = " + iteration);//////
-    master.taskIteration(null, request);
+    /* old code */
+    // master.taskIteration(null, request);
+    /* new code */
+    TaskIterationResponse response = master.taskIteration(null, request);
+    LOG.info("TaskIterationResponse, ifNewSplit = " + response.getIfNewSplit());
+    /* code end */
   }
 
   /**

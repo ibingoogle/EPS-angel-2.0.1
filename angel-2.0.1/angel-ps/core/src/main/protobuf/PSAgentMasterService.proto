@@ -120,7 +120,7 @@ message TaskIterationRequest {
 }
 
 message TaskIterationResponse {
-
+  required bool ifNewSplit = 1;//////
 }
 
 message TaskCounterUpdateRequest {

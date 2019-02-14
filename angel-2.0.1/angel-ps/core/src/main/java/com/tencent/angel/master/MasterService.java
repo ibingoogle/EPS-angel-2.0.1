@@ -1052,7 +1052,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
     task.iteration(request.getIteration());
     context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).UpdateIteartionEver = true;//////
     context.getEventHandler().handle(new MetricsEvent(MetricsEventType.TASK_ITERATION_UPDATE));
+    /* old code
     return TaskIterationResponse.newBuilder().build();
+     */
+    /* new code */
+    return TaskIterationResponse.newBuilder().setIfNewSplit(true).build();
+    /* code end */
   }
 
   @Override public PSAgentMasterServiceProtos.TaskCountersUpdateResponse taskCountersUpdate(
