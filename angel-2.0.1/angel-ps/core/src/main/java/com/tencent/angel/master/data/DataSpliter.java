@@ -263,8 +263,8 @@ public class DataSpliter {
   public void assignRealSplits(List<org.apache.hadoop.mapreduce.InputSplit> splitList, int workergroupIndex)
           throws IOException, InterruptedException{
     LOG.info("original splitList = " + splitList.toString());
-    for (org.apache.hadoop.mapreduce.InputSplit split : splitList){
-      CombineFileSplit inputList = (CombineFileSplit) split;
+    for (int k = 0; k < splitList.size(); k++){
+      CombineFileSplit inputList = (CombineFileSplit) splitList.get(k);
       for (int i = 0; i < inputList.getPaths().length; i++){
         // build CombineFileSplit for data in each path
         Path[] paths = new Path[1];
@@ -295,12 +295,13 @@ public class DataSpliter {
         }
       }
 
-      LOG.info("realSplitClassifications, index = " + workergroupIndex);
+      LOG.info("realSplitClassifications = ");
       for (int i = 0; i < realSplitClassifications.get(workergroupIndex).size(); i++){
         LOG.info("realSC = " + realSplitClassifications.get(workergroupIndex).get(i).toString());
       }
     }
   }
+
   /* code end */
 
   private void dispatchSplitsUseLocation(InputSplit[] splitArray, int groupNumber,
