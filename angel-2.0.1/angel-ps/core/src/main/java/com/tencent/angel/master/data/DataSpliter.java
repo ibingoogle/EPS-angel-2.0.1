@@ -226,13 +226,11 @@ public class DataSpliter {
       List<org.apache.hadoop.mapreduce.InputSplit> splitList =
         new ArrayList<org.apache.hadoop.mapreduce.InputSplit>();
 
-      Map<Integer, String[]> splitIdtoLocs = new HashMap<Integer, String[]>();//////
 
       base = i * groupItemNumber;
       for (int j = 0; j < groupItemNumber && (base < splitNum); j++, base++) {
         splitList.add(splitsNewAPI.get(base));
         String[] locations = splitsNewAPI.get(base).getLocations();
-        splitIdtoLocs.put(j, locations);//////
         for (int k = 0; k < locations.length && locationList.size() < maxLocationLimit; k++) {
           locationList.add(locations[k]);
         }
@@ -244,7 +242,11 @@ public class DataSpliter {
       splitClassifications.put(i, splitClassification);
 
       /* new code */
-      assignRealSplits(splitList, i);
+      LOG.info("locations = ");
+      for (String lc:  splitClassification.getLocations()){
+        LOG.info("location = " + lc);
+      }
+      // assignRealSplits(splitList, i);
       /* code end */
     }
   }
