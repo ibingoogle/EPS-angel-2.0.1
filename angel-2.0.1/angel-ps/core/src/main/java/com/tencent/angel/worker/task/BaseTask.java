@@ -54,7 +54,7 @@ public abstract class BaseTask<KEY_IN, VALUE_IN, VALUE_OUT>
   /* old code */
   // protected final DataBlock<VALUE_OUT> taskDataBlock;
   /* new code */
-  public DataBlock<VALUE_OUT> taskDataBlock;
+  protected DataBlock<VALUE_OUT> taskDataBlock;
   /* code end */
 
   public BaseTask(TaskContext taskContext) {
