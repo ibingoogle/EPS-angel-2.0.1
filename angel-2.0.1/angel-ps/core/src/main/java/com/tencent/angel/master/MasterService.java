@@ -897,7 +897,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
    * @throws IOException
    */
   public GetAppendedSCsInfoResponse getAppendedSCsInfo(RpcController controller,
-                                                                         GetAppendedSCsInfoRequest request) throws IOException {
+                                                                         GetAppendedSCsInfoRequest request) throws IOException, ServiceException {
     WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
     AMWorkerGroup group =
             context.getWorkerManager().getWorkerGroup(workerAttemptId.getWorkerId().getWorkerGroupId());
@@ -924,12 +924,22 @@ public class MasterService extends AbstractService implements MasterProtocol {
                     .setSplit(ByteString.copyFrom(split.getSplit())).build());
           }
         }
-        return builder.build();
+        try {
+          return builder.build();
+        } catch (Exception e) {
+          LOG.error("build appended SCs information error", e);
+          throw new ServiceException(e);
+        }
       }
     }
-    return GetAppendedSCsInfoResponse.newBuilder()
+    try {
+      return GetAppendedSCsInfoResponse.newBuilder()
               .setContinue(false)
               .build();
+    } catch (Exception e) {
+      LOG.error("build appended SCs information error", e);
+      throw new ServiceException(e);
+    }
   }
 
 
