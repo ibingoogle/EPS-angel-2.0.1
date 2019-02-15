@@ -232,7 +232,8 @@ public class DataSpliter {
         splitList.add(splitsNewAPI.get(base));
         String[] locations = splitsNewAPI.get(base).getLocations();
         for (int k = 0; k < locations.length && locationList.size() < maxLocationLimit; k++) {
-          locationList.add(locations[k]);
+          // locationList.add(locations[k]);
+          LOG.info("...");
         }
       }
 
