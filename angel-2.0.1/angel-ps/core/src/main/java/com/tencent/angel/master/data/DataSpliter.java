@@ -55,11 +55,13 @@ public class DataSpliter {
   private final Map<Integer, SplitClassification> splitClassifications;
 
   /* new code */
-  /*
-   * workerGroup index to SplitClassifications map
-   */
+  // workerGroup index to SplitClassifications map
   public Map<Integer, List<SplitClassification>> realSplitClassifications;
-  public Map<Integer, List<Integer>> realSCsStatus;
+  public Map<Integer, List<Boolean>> realSCsStatus;
+  public Map<Integer, List<Long>> realSCsLength;
+  public Map<Integer, Long> realSCsTotalLength;
+  public Map<Integer, Long> realActiveSCsTotalLength;
+
   public SplitClassification extraSplitClassification;
   /* code end */
 
@@ -82,7 +84,7 @@ public class DataSpliter {
     this.splitClassifications = splits;
     /* new code */
     this.realSplitClassifications = new HashMap<Integer, List<SplitClassification>>();
-    this.realSCsStatus = new HashMap<Integer, List<Integer>>();
+    this.realSCsStatus = new HashMap<Integer, List<Boolean>>();
     /* code end */
     useNewAPI = context.getConf().getBoolean("mapred.mapper.new-api", false);
   }
@@ -240,19 +242,11 @@ public class DataSpliter {
 
       /* new code */
       assignRealSplits(splitList, i);
-
-      List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
-      SCsList.add(splitClassification);
-      realSplitClassifications.put(i, SCsList);
-      List<Integer> SCsStatus = new ArrayList<Integer>();
-      SCsStatus.add(1);
-      realSCsStatus.put(i, SCsStatus);
       /* code end */
     }
   }
 
   /* new code */
-
   public void dispatchExtraSplitsUseLocation(){
     LOG.info("private void dispatchExtraSplitsUseLocation~~~");
     if (extraSplitClassification != null && splitClassifications.size() < actualSplitNum){
@@ -263,10 +257,12 @@ public class DataSpliter {
   public void assignRealSplits(List<org.apache.hadoop.mapreduce.InputSplit> splitList, int workergroupIndex)
           throws IOException, InterruptedException{
     LOG.info("original splitList = " + splitList.toString());
-    
+
     for (int k = 0; k < splitList.size(); k++){
+      LOG.info("k = " + k);
       CombineFileSplit inputList = (CombineFileSplit) splitList.get(k);
       for (int i = 0; i < inputList.getPaths().length; i++){
+        LOG.info("i = " + i);
         // build CombineFileSplit for data in each path
         Path[] paths = new Path[1];
         long[] startoffset = new long[1];
@@ -293,6 +289,18 @@ public class DataSpliter {
           List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
           SCsList.add(newSplitClassification);
           realSplitClassifications.put(workergroupIndex, SCsList);
+        }
+        // put into realSCsStatus
+        if (realSCsStatus.containsKey(workergroupIndex)){
+          realSCsStatus.get(workergroupIndex).add(true);
+          realSCsLength.get(workergroupIndex).add(lengths[0]);
+        }else {
+          List<Boolean> SCsStatus = new ArrayList<Boolean>();
+          SCsStatus.add(true);
+          realSCsStatus.put(workergroupIndex, SCsStatus);
+          List<Long> SCsLength = new ArrayList<Long>();
+          SCsLength.add(lengths[0]);
+          realSCsLength.put(workergroupIndex, SCsLength);
         }
       }
     }
