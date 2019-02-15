@@ -907,8 +907,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
       int size = context.getDataSpliter().appendedSCs.get(workergroupIndex).size();
       if (size > 0){
         boolean cont = size > 1 ? true : false;
-        GetAppendedSCsInfoResponse builder = GetAppendedSCsInfoReponse.newBuilder();
-        Builder.setContinue(cont);
+        GetAppendedSCsInfoResponse.Builder builder = GetAppendedSCsInfoReponse.newBuilder();
+        builder.setContinue(cont);
         SplitClassification splits = context.getDataSpliter().appendedSCs.get(workergroupIndex).remove(size - 1);
         LOG.info("wgindex = " + workergroupIndex + ", SC = " + splits.toString());
         if (splits != null) {
@@ -919,6 +919,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
                     .setSplit(ByteString.copyFrom(split.getSplit())).build());
           }
         }
+        return builder.build();
       }
     }
     return GetAppendedSCsInfoResponse.newBuilder()
