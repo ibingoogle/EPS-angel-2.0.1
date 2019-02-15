@@ -907,7 +907,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
       int size = context.getDataSpliter().appendedSCs.get(workergroupIndex).size();
       if (size > 0){
         boolean cont = size > 1 ? true : false;
-        GetAppendedSCsInfoResponse.Builder builder = GetAppendedSCsInfoReponse.newBuilder();
+        GetAppendedSCsInfoResponse.Builder builder = GetAppendedSCsInfoResponse.newBuilder();
         builder.setContinue(cont);
         SplitClassification splits = context.getDataSpliter().appendedSCs.get(workergroupIndex).remove(size - 1);
         LOG.info("wgindex = " + workergroupIndex + ", SC = " + splits.toString());
