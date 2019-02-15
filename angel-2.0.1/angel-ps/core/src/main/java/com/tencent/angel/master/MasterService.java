@@ -896,7 +896,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
    * @param request    contains workergroupIndex
    * @throws IOException
    */
-  public GetAppendedSCsInfoResponse getAppendedSCsInfo(RpcController controller,
+  @SuppressWarnings("unchecked") @Override public GetAppendedSCsInfoResponse getAppendedSCsInfo(RpcController controller,
                                                                          GetAppendedSCsInfoRequest request) throws IOException, ServiceException {
     WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
     AMWorkerGroup group =
