@@ -261,6 +261,7 @@ public class DataSpliter {
     for (int k = 0; k < splitList.size(); k++){
       LOG.info("k = " + k);
       CombineFileSplit inputList = (CombineFileSplit) splitList.get(k);
+      LOG.info("inputList = " + inputList.toString());
       for (int i = 0; i < inputList.getPaths().length; i++){
         LOG.info("i = " + i);
         // build CombineFileSplit for data in each path
@@ -270,9 +271,13 @@ public class DataSpliter {
         String[] locations = new String[1];
         // get info from original inputList
         paths[0] = inputList.getPath(i);
+        LOG.info("i = " + i);
         startoffset[0] = inputList.getOffset(i);
+        LOG.info("i = " + i);
         lengths[0] = inputList.getLength(i);
+        LOG.info("i = " + i);
         locations[0] = inputList.getLocations()[i];
+        LOG.info("i = " + i);
         // initialize
         CombineFileSplit newInputList = new CombineFileSplit(paths, startoffset, lengths, locations);
         List<org.apache.hadoop.mapreduce.InputSplit> newSplitList =
