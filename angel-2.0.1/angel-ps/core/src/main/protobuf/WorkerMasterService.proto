@@ -154,6 +154,13 @@ message WorkerGroupMetaInfoProto{
   repeated SplitInfoProto splits = 4;
 }
 
+// new code
+// message GetAppendedSplitInfoRequest{
+//  repeated SplitInfoProto splits = 1;
+//}
+
+// code end
+
 message GetWorkerGroupMetaInfoRequest {
   required WorkerAttemptIdProto workerAttemptId = 1;
 }

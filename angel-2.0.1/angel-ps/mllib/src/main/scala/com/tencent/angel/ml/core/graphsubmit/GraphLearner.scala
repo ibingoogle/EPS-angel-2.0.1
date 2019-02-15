@@ -305,6 +305,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (epoch == 10000000){
         LOG.info("appendProcess input data at the end of epoch = " + epoch)
         appendProcess(validationData, posTrainData, negTrainData)
+        var newposTrainData = posTrainData
+        posTrainData = newposTrainData
         actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
         actualBatchEndIndex = posTrainData.size()
       }
