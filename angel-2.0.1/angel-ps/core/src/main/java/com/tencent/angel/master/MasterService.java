@@ -1037,7 +1037,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
     /* new code */
     LOG.info("task iteration, " + request);
     LOG.info("taskId = " + taskId);
-
     /* code end */
 
     //get Task meta from task manager, if can not find, just new a AMTask object and put it to task manager
@@ -1060,6 +1059,24 @@ public class MasterService extends AbstractService implements MasterProtocol {
     return TaskIterationResponse.newBuilder().setTrainDataStatus(TrainDataStatus).build();
     /* code end */
   }
+
+  /* new code */
+  /**
+   * notify that task execution is removed
+   *
+   * @param controller rpc controller of protobuf
+   * @param request    contains task id
+   * @throws ServiceException
+   */
+  @Override public TaskRemoveExecutionResponse taskRemoveExecution(RpcController controller,
+                                                       TaskRemoveExecutionRequest request) throws ServiceException {
+    TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
+    LOG.info("taskId = " + taskId);
+    LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
+
+    return TaskRemoveExecutionResponse.newBuilder().build();
+  }
+  /* code end */
 
   @Override public PSAgentMasterServiceProtos.TaskCountersUpdateResponse taskCountersUpdate(
     RpcController controller, PSAgentMasterServiceProtos.TaskCounterUpdateRequest request)

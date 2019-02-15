@@ -123,6 +123,15 @@ message TaskIterationResponse {
   required int32 trainDataStatus = 1;//////
 }
 
+// new code
+message TaskRemoveExecutionRequest {
+  required TaskIdProto taskId = 1;
+}
+
+message TaskRemoveExecutionResponse {
+}
+// code end
+
 message TaskCounterUpdateRequest {
   required TaskIdProto taskId = 1;
   repeated Pair counters = 2;
@@ -183,6 +192,7 @@ service PSAgentMasterService {
 
   rpc taskClock(TaskClockRequest) returns (TaskClockResponse);
   rpc taskIteration(TaskIterationRequest) returns(TaskIterationResponse);
+  rpc taskRemoveExecution(TaskRemoveExecutionRequest) returns(TaskRemoveExecutionResponse);//
   rpc taskCountersUpdate(TaskCounterUpdateRequest) returns (TaskCountersUpdateResponse);
   rpc setAlgoMetrics(SetAlgoMetricsRequest) returns (SetAlgoMetricsResponse);
 

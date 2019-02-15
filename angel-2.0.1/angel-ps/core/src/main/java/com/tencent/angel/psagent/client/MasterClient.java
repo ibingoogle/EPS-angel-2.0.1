@@ -493,12 +493,17 @@ public class MasterClient {
             .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
             .build();
     LOG.info("send taskIteration RPC, iteration = " + iteration);//////
-    /* old code */
-    // master.taskIteration(null, request);
-    /* new code */
     TaskIterationResponse response = master.taskIteration(null, request);
     return response.getTrainDataStatus();
-    /* code end */
+  }
+
+
+  public void taskRemoveExecution(int taskIndex) throws ServiceException {
+    TaskRemoveExecutionRequest request = TaskRemoveExecutionRequest.newBuilder()
+            .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build())
+            .build();
+    LOG.info("send taskRemoveExecution RPC, taskIndex = " + taskIndex);
+    master.taskRemoveExecution(null, request);
   }
   /* code end */
 

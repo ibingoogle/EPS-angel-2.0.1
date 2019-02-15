@@ -304,6 +304,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       /* new code */
       if (!keepExecution){
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
+        PSAgentContext.get().getMasterClient.taskRemoveExecution(ctx.getTaskIndex)
         break()
       }
       if (epoch == 10000000){
