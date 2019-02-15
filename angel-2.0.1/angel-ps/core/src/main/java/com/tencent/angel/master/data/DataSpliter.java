@@ -62,6 +62,7 @@ public class DataSpliter {
   public Map<Integer, Long> realSCsTotalLength_all;
   public Map<Integer, Long> realSCsTotalLength_active;
 
+  public Map<Integer, List<SplitClassification>> appendedSCs;
   public SplitClassification extraSplitClassification;
   /* code end */
 
@@ -88,6 +89,8 @@ public class DataSpliter {
     this.realSCsLength = new HashMap<Integer, List<Long>>();
     this.realSCsTotalLength_all = new HashMap<Integer, Long>();
     this.realSCsTotalLength_active = new HashMap<Integer, Long>();
+
+    this.appendedSCs = new HashMap<Integer, List<SplitClassification>>();
     /* code end */
     useNewAPI = context.getConf().getBoolean("mapred.mapper.new-api", false);
   }
@@ -243,15 +246,15 @@ public class DataSpliter {
 
       /* new code */
       assignRealSplits(splitList, i);
-      for (int k  = 0; k < realSplitClassifications.get(i).size(); k++){
+      /*for (int k  = 0; k < realSplitClassifications.get(i).size(); k++){
         LOG.info("SC = " + realSplitClassifications.get(i).get(k).toString());
         LOG.info("Length = " + realSCsLength.get(i).get(k));
         LOG.info("Status = " + realSCsStatus.get(i).get(k));
-      }
+      }*/
       updateWG_realSCsTotalLength_all(i);
       updateWG_realSCsTotalLength_active(i);
-      LOG.info("totalLength_all = " + realSCsTotalLength_all.get(i));
-      LOG.info("totalLength_active = " + realSCsTotalLength_active.get(i));
+      //LOG.info("totalLength_all = " + realSCsTotalLength_all.get(i));
+      //LOG.info("totalLength_active = " + realSCsTotalLength_active.get(i));
       /* code end */
     }
   }
@@ -298,10 +301,12 @@ public class DataSpliter {
         // put into realSplitClassifications
         if (realSplitClassifications.containsKey(workergroupIndex)){
           realSplitClassifications.get(workergroupIndex).add(newSplitClassification);
+          appendedSCs.get(workergroupIndex).add(newSplitClassification);
         }else {
           List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
           SCsList.add(newSplitClassification);
           realSplitClassifications.put(workergroupIndex, SCsList);
+          appendedSCs.put(workergroupIndex, SCsList);
         }
         // put into realSCsStatus
         if (realSCsStatus.containsKey(workergroupIndex)){
@@ -353,7 +358,7 @@ public class DataSpliter {
   }
   /* code end */
 
-  
+
   private void dispatchSplitsUseLocation(InputSplit[] splitArray, int groupNumber,
     int groupItemNumber) throws IOException {
     splitNum = splitArray.length;

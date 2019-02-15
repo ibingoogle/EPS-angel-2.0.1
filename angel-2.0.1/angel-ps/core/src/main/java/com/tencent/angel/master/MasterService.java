@@ -18,6 +18,7 @@
 
 package com.tencent.angel.master;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.ServiceException;
 import com.tencent.angel.common.location.Location;
@@ -56,8 +57,10 @@ import com.tencent.angel.ps.PSAttemptId;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.ha.RecoverPartKey;
 import com.tencent.angel.ps.server.data.PSLocation;
+import com.tencent.angel.split.SplitInfo;
 import com.tencent.angel.utils.KryoUtils;
 import com.tencent.angel.utils.NetUtils;
+import com.tencent.angel.utils.SerdeUtils;
 import com.tencent.angel.worker.WorkerAttemptId;
 import com.tencent.angel.worker.WorkerId;
 import com.tencent.angel.worker.task.TaskId;
@@ -109,11 +112,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
    * Yarn web port
    */
   private final int yarnNMWebPort;
-
-  /* new code */
-  public Map<String, Integer> requestNum_getWorkerGroupMetaInfo = new HashMap<String, Integer>();
-  /* code end */
-
 
   public MasterService(AMContext context) {
     super(MasterService.class.getName());
@@ -880,45 +878,56 @@ public class MasterService extends AbstractService implements MasterProtocol {
     } else {
       //if this worker group is running now, return tasks, workers, data splits for it
       try {
-        /* old code */
-        //return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-        //  context.getDataSpliter().getSplits(group.getSplitIndex()), context.getConf());
-        /* new code */
-        String groupId = group.getId().toString();
-        if (requestNum_getWorkerGroupMetaInfo.containsKey(groupId)){
-          int num = requestNum_getWorkerGroupMetaInfo.get(groupId);
-          num++;
-          requestNum_getWorkerGroupMetaInfo.replace(groupId, num);
-        }else {
-          requestNum_getWorkerGroupMetaInfo.put(groupId, 1);
-        }
-        LOG.info("receive get workergroup info when workergroup is OK, request=" + request);
-
-        int splitNum = context.getDataSpliter().getSplitNum();
-        int actualsplitNum = context.getDataSpliter().actualSplitNum;
-        LOG.info("splits num = " + splitNum);
-        LOG.info("actual splits num = " + actualsplitNum);
-
-        int defaultsplitIndex = group.getSplitIndex();
-        LOG.info("defaultsplitsIndex = " + defaultsplitIndex);
-        if (defaultsplitIndex < splitNum) {
-          SplitClassification defaultsplits = context.getDataSpliter().getSplits(defaultsplitIndex);
-          LOG.info("defaultsplits = " + defaultsplits.toString());
-          return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-                  defaultsplits, context.getConf());
-        }else {
-          SplitClassification extrasplits = context.getDataSpliter().extraSplitClassification;
-          LOG.info("extrasplits = " + extrasplits.toString());
-          return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
-                  extrasplits, context.getConf());
-        }
-        /* code end */
+        return ProtobufUtil.buildGetWorkerGroupMetaResponse(group,
+          context.getDataSpliter().getSplits(group.getSplitIndex()), context.getConf());
       } catch (Exception e) {
         LOG.error("build workergroup information error", e);
         throw new ServiceException(e);
       }
     }
   }
+
+
+  /* new code */
+  /**
+   * get appended SCs information
+   *
+   * @param controller rpc controller of protobuf
+   * @param request    contains workergroupIndex
+   * @throws ServiceException
+   */
+  @Override public GetAppendedSCsInfoResponse getAppendedSCsInfo(RpcController controller,
+                                                                         GetAppendedSCsInfoRequest request) throws IOException, ServiceException {
+    WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
+    AMWorkerGroup group =
+            context.getWorkerManager().getWorkerGroup(workerAttemptId.getWorkerId().getWorkerGroupId());
+    int workergroupIndex = group.getSplitIndex();
+    LOG.info("getAppendedSCsInfo, workergroupIndex = " + workergroupIndex);
+    if (context.getDataSpliter().appendedSCs.containsKey(workergroupIndex)){
+      int size = context.getDataSpliter().appendedSCs.get(workergroupIndex).size();
+      if (size > 0){
+        boolean cont = size > 1 ? true : false;
+        GetAppendedSCsInfoResponse builder = GetAppendedSCsInfoReponse.newBuilder();
+        Builder.setContinue(cont);
+        SplitClassification splits = context.getDataSpliter().appendedSCs.get(workergroupIndex).remove(size - 1);
+        LOG.info("wgindex = " + workergroupIndex + ", SC = " + splits.toString());
+        if (splits != null) {
+          List<SplitInfo> splitInfoList = SerdeUtils.serilizeSplits(splits, context.getConf());
+          SplitInfoProto.Builder splitBuilder = SplitInfoProto.newBuilder();
+          for (SplitInfo split : splitInfoList) {
+            builder.addSplits(splitBuilder.setSplitClass(split.getSplitClass())
+                    .setSplit(ByteString.copyFrom(split.getSplit())).build());
+          }
+        }
+      }
+    }
+    return GetAppendedSCsInfoResponse.newBuilder()
+              .setContinue(false)
+              .build();
+  }
+
+
+  /* code end */
 
   /**
    * worker run over successfully

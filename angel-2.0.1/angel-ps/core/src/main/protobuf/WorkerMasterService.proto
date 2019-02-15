@@ -155,10 +155,14 @@ message WorkerGroupMetaInfoProto{
 }
 
 // new code
-// message GetAppendedSplitInfoRequest{
-//  repeated SplitInfoProto splits = 1;
-//}
+message GetAppendedSCsInfoRequest{
+  required WorkerAttemptIdProto workerAttemptId = 1;
+}
 
+message GetAppendedSCsInfoResponse{
+  required bool continue = 1;
+  repeated SplitInfoProto splits = 2;
+}
 // code end
 
 message GetWorkerGroupMetaInfoRequest {
@@ -186,6 +190,7 @@ service WorkerMasterService {
   rpc workerReport(WorkerReportRequest) returns (WorkerReportResponse);
   rpc workerRegister(WorkerRegisterRequest) returns (WorkerRegisterResponse);
   rpc getWorkerGroupMetaInfo(GetWorkerGroupMetaInfoRequest) returns (GetWorkerGroupMetaInfoResponse);
+  rpc getAppendedSCsInfo(GetAppendedSCsInfoRequest) returns (GetAppendedSCsInfoResponse); //////
   rpc workerDone(WorkerDoneRequest) returns (WorkerDoneResponse);
   rpc workerError(WorkerErrorRequest) returns (WorkerErrorResponse);
   rpc getWorkerGroupSuccessNum(GetWorkerGroupSuccessNumRequest) returns (GetWorkerGroupSuccessNumResponse);

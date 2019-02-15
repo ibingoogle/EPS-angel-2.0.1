@@ -159,7 +159,6 @@ public class AMWorkerGroup implements EventHandler<AMWorkerGroupEvent> {
    */
   private final int splitIndex;
 
-  public int extraSplitIndex;//////
   private final StateMachine<AMWorkerGroupState, AMWorkerGroupEventType, AMWorkerGroupEvent>
     stateMachine;
   private long launchTime;

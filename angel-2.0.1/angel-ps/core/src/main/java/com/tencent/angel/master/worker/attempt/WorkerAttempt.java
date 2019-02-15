@@ -271,7 +271,7 @@ public class WorkerAttempt implements EventHandler<WorkerAttemptEvent> {
       AMWorkerGroup workerGroup =
         attempt.context.getWorkerManager().getWorkerGroup(attempt.getId().getWorkerId());
 
-      /* new code */
+      /* new code
       LOG.info("workergroupId = " + workerGroup.getId());
       LOG.info("splitindex for workergroup = " + workerGroup.getSplitIndex());
       LOG.info("actualSplitNum = " + attempt.context.getDataSpliter().actualSplitNum);

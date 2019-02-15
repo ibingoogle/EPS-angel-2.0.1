@@ -329,48 +329,42 @@ public class MasterClient {
   }
 
   /* new code */
-  public SplitClassification getExtraDataSplitsInfo()
+  /**
+   * Get appended splits info
+   *
+   * @return appended splits info
+   * @throws ClassNotFoundException split class not found
+   * @throws IOException            deserialize data splits meta failed
+   * @throws ServiceException       rpc failed
+   * @throws InterruptedException   interrupted when wait for next try
+   */
+  public void getAppendedSCsInfo()
           throws ClassNotFoundException, IOException, ServiceException, InterruptedException {
-    LOG.info("getExtraDataSplitsInfo()");
-    GetWorkerGroupMetaInfoRequest request = GetWorkerGroupMetaInfoRequest.newBuilder()
+    LOG.info("getAppendedSCsInfo()");
+    GetAppendedSCsInfoRequest request = GetAppendedSCsInfoRequest.newBuilder()
             .setWorkerAttemptId(WorkerContext.get().getWorkerAttemptIdProto()).build();
 
-    while (true) {
-      GetWorkerGroupMetaInfoResponse response = master.getWorkerGroupMetaInfo(null, request);
-      assert (response.getWorkerGroupStatus()
-              != GetWorkerGroupMetaInfoResponse.WorkerGroupStatus.WORKERGROUP_EXITED);
-
-      LOG.debug("GetWorkerGroupMetaInfoResponse response=" + response);
-      LOG.info("GetWorkerGroupMetaInfoResponse response=" + response);
-
-      if (response.getWorkerGroupStatus()
-              == GetWorkerGroupMetaInfoResponse.WorkerGroupStatus.WORKERGROUP_OK) {
-        // Deserialize data splits meta
-        LOG.info("Deserialize extra data splits meta for workergroupId " + response.getWorkerGroupMeta().getWorkerGroupId());//////
-        SplitClassification splits = null;
-        if (response.getWorkerGroupMeta().getSplitsCount() > 0) {
-          splits = ProtobufUtil
-                  .getSplitClassification(response.getWorkerGroupMeta().getSplitsList(),
-                          WorkerContext.get().getConf());
-        }
-        LOG.info("ExtraDataSplit = " + splits.toString());
-        return splits;
-
-        // Get workers
-        /*WorkerGroup group = new WorkerGroup(WorkerContext.get().getWorkerGroupId(), splits);
-        for (WorkerMetaInfoProto worker : response.getWorkerGroupMeta().getWorkersList()) {
-          WorkerRef workerRef = new WorkerRef(worker.getWorkerLocation().getWorkerAttemptId(),
-                  worker.getWorkerLocation().getLocation(), worker.getTasksList());
-          group.addWorkerRef(workerRef);
-        }
-        return group;*/
-      } else {
-        Thread.sleep(WorkerContext.get().getRequestSleepTimeMS());
+    GetAppendedSCsInfoResponse response = master.getAppendedSCsInfo(null, request);
+    SplitClassification splits = null;
+    if (response.getSplitsCount() > 0) {
+      splits = ProtobufUtil
+              .getSplitClassification(response.getSplitsList(),
+                      WorkerContext.get().getConf());
+    }
+    LOG.info("SC = " + splits.toString());
+    int i = 0;
+    while (response.getContinue() && i < 10){
+      response = master.getAppendedSCsInfo(null, request);
+      splits = null;
+      if (response.getSplitsCount() > 0) {
+        splits = ProtobufUtil
+                .getSplitClassification(response.getSplitsList(),
+                        WorkerContext.get().getConf());
       }
+      i++;
+      LOG.info("SC = " + splits.toString());
     }
   }
-
-
   /* code end */
 
   /**
