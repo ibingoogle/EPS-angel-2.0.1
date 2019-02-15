@@ -233,31 +233,14 @@ public class DataSpliter {
         }
       }
 
-      /* new code
-      CombineFileSplit idleInputList = (CombineFileSplit) splitList.get(0);
-      if (idleInputList.getNumPaths() > 2){
-        LOG.info("num of Paths = " + idleInputList.getNumPaths());
-        dispatchExtraSplits(splitList, splitIdtoLocs);
-      }
-      /* code end */
-
 
       SplitClassification splitClassification = new SplitClassification(null, splitList,
         locationList.toArray(new String[locationList.size()]), true);
       splitClassifications.put(i, splitClassification);
 
       /* new code */
-      LOG.info("splitList = " + splitList.toString());
-      for (org.apache.hadoop.mapreduce.InputSplit split : splitList){
-        LOG.info("split = " + split.toString());
-        for (String lc : split.getLocations()){
-          LOG.info("location = " + lc);
-        }
-      }
-      LOG.info("splitList Locations = ");
-      for (String location: locationList){
-        LOG.info("location = " + location);
-      }
+      assignRealSplits(splitList, i);
+
       List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
       SCsList.add(splitClassification);
       realSplitClassifications.put(i, SCsList);
@@ -277,40 +260,46 @@ public class DataSpliter {
     }
   }
 
+  public void assignRealSplits(List<org.apache.hadoop.mapreduce.InputSplit> splitList, int workergroupIndex)
+          throws IOException, InterruptedException{
+    LOG.info("original splitList = " + splitList.toString());
+    for (org.apache.hadoop.mapreduce.InputSplit split : splitList){
+      CombineFileSplit inputList = (CombineFileSplit) split;
+      for (int i = 0; i < inputList.getPaths().length; i++){
+        // build CombineFileSplit for data in each path
+        Path[] paths = new Path[1];
+        long[] startoffset = new long[1];
+        long[] lengths = new long[1];
+        String[] locations = new String[1];
+        // get info from original inputList
+        paths[0] = inputList.getPath(i);
+        startoffset[0] = inputList.getOffset(i);
+        lengths[0] = inputList.getLength(i);
+        locations[0] = inputList.getLocations()[i];
+        // initialize
+        CombineFileSplit newInputList = new CombineFileSplit(paths, startoffset, lengths, locations);
+        List<org.apache.hadoop.mapreduce.InputSplit> newSplitList =
+                new ArrayList<org.apache.hadoop.mapreduce.InputSplit>();
+        newSplitList.add(newInputList);
+        List<String> locationList = new ArrayList<String>(maxLocationLimit);
+        locationList.add(locations[0]);
+        SplitClassification newSplitClassification = new SplitClassification(null, newSplitList,
+                locationList.toArray(new String[locationList.size()]), true);
+        // put into realSplitClassifications
+        if (realSplitClassifications.containsKey(workergroupIndex)){
+          realSplitClassifications.get(workergroupIndex).add(newSplitClassification);
+        }else {
+          List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
+          SCsList.add(newSplitClassification);
+          realSplitClassifications.put(workergroupIndex, SCsList);
+        }
+      }
 
-  public void AssignExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
-                                   Map<Integer, String[]> splitIdtoLocs) throws IOException, InterruptedException {
-    LOG.info("private void AssignExtraSplits!!!");//////
-
-    CombineFileSplit idleInputList = (CombineFileSplit) idleSplitList.get(0);
-    LOG.info("idleInputList = " + idleInputList.toString());
-    Path[] paths = new Path[1];
-    long[] startoffset = new long[1];
-    long[] lengths = new long[1];
-    String[] locations = null;
-    for (int i = 0; i < 1; i++){
-      paths[i] = idleInputList.getPath(i);
-      startoffset[i] = idleInputList.getOffset(i);
-      lengths[i] = idleInputList.getLength(i);
-      if (idleInputList.getLocations() != null){
-        locations = new String[1];
-        locations[i] = idleInputList.getLocations()[i];
+      LOG.info("realSplitClassifications, index = " + workergroupIndex);
+      for (int i = 0; i < realSplitClassifications.get(workergroupIndex).size(); i++){
+        LOG.info("realSC = " + realSplitClassifications.get(workergroupIndex).get(i).toString());
       }
     }
-    CombineFileSplit newInputList = new CombineFileSplit(paths, startoffset, lengths, locations);
-    List<org.apache.hadoop.mapreduce.InputSplit> newSplitList =
-            new ArrayList<org.apache.hadoop.mapreduce.InputSplit>();
-    newSplitList.add(newInputList);
-    LOG.info("newInputList = " + newInputList.toString());
-
-    List<String> locationList = new ArrayList<String>(maxLocationLimit);
-    locationList.add(splitIdtoLocs.get(0)[0]);
-
-    SplitClassification newSplitClassification = new SplitClassification(null, newSplitList,
-              locationList.toArray(new String[locationList.size()]), true);
-
-    extraSplitClassification = newSplitClassification;
-    LOG.info("extraSplits = " + extraSplitClassification.toString());
   }
   /* code end */
 
