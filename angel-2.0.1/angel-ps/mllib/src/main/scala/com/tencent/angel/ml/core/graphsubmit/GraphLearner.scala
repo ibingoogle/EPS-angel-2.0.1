@@ -295,7 +295,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         s"train cost $trainCost ms. " +
         s"validation cost $validCost ms.")
 
-      ctx.incEpoch()
+      /* old code */
+      // ctx.incEpoch()
+      /* new code */
+      val trainDataStatus: Int = ctx.incEpochWithStatus()
+      LOG.info("TrainDataStatus = " + trainDataStatus);
 
       /* new code */
       if (!keepExecution){
@@ -305,7 +309,6 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (epoch == 10000000){
         LOG.info("appendProcess input data at the end of epoch = " + epoch)
         appendProcess(validationData, posTrainData, negTrainData)
-        var newposTrainData = posTrainData
         actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
         actualBatchEndIndex = posTrainData.size()
       }

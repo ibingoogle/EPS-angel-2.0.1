@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,6 +45,10 @@ public class DataBlockManager {
   /* new code */
   public Boolean IfAppendSC = false;
   public SplitClassification AppendSplitClassification;
+
+  public Boolean ifNewAppendedSC = false;
+  public List<Boolean> activeAppendedSCs;
+  public List<SplitClassification> appendedSplitClassifications;
   /* code end */
 
   public DataBlockManager() {
@@ -63,12 +68,6 @@ public class DataBlockManager {
     this.splitClassification = splitClassification;
   }
 
-  /* new code */
-  public void setAppendSplitClassification(SplitClassification AppendSplitClassification) {
-    this.AppendSplitClassification = AppendSplitClassification;
-    this.IfAppendSC = true;
-  }
-  /* code end */
 
   /**
    * Assign split to tasks

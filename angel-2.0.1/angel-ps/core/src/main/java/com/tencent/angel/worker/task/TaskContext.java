@@ -290,6 +290,17 @@ public class TaskContext {
     context.increaseEpoch();
   }
 
+  /* new code */
+  /**
+   * Increase iteration count and return train data status
+   *
+   * @throws ServiceException the service exception
+   */
+  public int incEpochWithStatus() throws ServiceException {
+    return context.increaseEpochWithStatus();
+  }
+  /* code end */
+
   /**
    * Gets all matrix clocks.
    *

@@ -243,6 +243,22 @@ public class TaskContext {
     }
   }
 
+  /* new code */
+  /**
+   * Increase epoch number and return train data status
+   *
+   * @throws ServiceException
+   */
+  public int increaseEpochWithStatus() throws ServiceException {
+    int iterationValue = epoch.incrementAndGet();
+    if (syncClockEnable) {
+      PSAgentContext.get().getMasterClient().setAlgoMetrics(index, algoMetrics);
+      return PSAgentContext.get().getMasterClient().taskIterationWithStatus(index, iterationValue);
+    }
+    return 0;
+  }
+  /* code end */
+
   /**
    * Set the epoch number
    *

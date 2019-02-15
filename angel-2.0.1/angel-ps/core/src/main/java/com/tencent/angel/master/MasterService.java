@@ -1056,7 +1056,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
     return TaskIterationResponse.newBuilder().build();
      */
     /* new code */
-    return TaskIterationResponse.newBuilder().setIfNewSplit(true).build();
+    int TrainDataStatus = 0;
+    return TaskIterationResponse.newBuilder().setTrainDataStatus(TrainDataStatus).build();
     /* code end */
   }
 

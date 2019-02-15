@@ -477,13 +477,30 @@ public class MasterClient {
       .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
       .build();
     LOG.info("send taskIteration RPC, iteration = " + iteration);//////
+    master.taskIteration(null, request);
+  }
+
+  /* new code */
+  /**
+   * Task update iteration number and return train data status
+   *
+   * @param taskIndex task index
+   * @param iteration iteration number
+   * @throws ServiceException rpc failed
+   */
+  public int taskIterationWithStatus(int taskIndex, int iteration) throws ServiceException {
+    TaskIterationRequest request = TaskIterationRequest.newBuilder()
+            .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
+            .build();
+    LOG.info("send taskIteration RPC, iteration = " + iteration);//////
     /* old code */
     // master.taskIteration(null, request);
     /* new code */
     TaskIterationResponse response = master.taskIteration(null, request);
-    LOG.info("TaskIterationResponse, ifNewSplit = " + response.getIfNewSplit());
+    return response.getTrainDataStatus();
     /* code end */
   }
+  /* code end */
 
   /**
    * Task update iteration number
