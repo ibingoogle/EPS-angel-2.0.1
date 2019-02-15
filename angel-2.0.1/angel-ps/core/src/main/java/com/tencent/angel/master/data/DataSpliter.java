@@ -241,24 +241,29 @@ public class DataSpliter {
       }
       /* code end */
 
+
       SplitClassification splitClassification = new SplitClassification(null, splitList,
         locationList.toArray(new String[locationList.size()]), true);
       splitClassifications.put(i, splitClassification);
 
       /* new code */
+      LOG.info("splitList = " + splitList.toString());
+      for (org.apache.hadoop.mapreduce.InputSplit split : splitList){
+        LOG.info("split = " + split.toString());
+        for (String lc : split.getLocations()){
+          LOG.info("location = " + lc);
+        }
+      }
+      LOG.info("splitList Locations = ");
+      for (String location: locationList){
+        LOG.info("location = " + location);
+      }
       List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
       SCsList.add(splitClassification);
       realSplitClassifications.put(i, SCsList);
       List<Integer> SCsStatus = new ArrayList<Integer>();
       SCsStatus.add(1);
       realSCsStatus.put(i, SCsStatus);
-      /*
-      if (i == estimatedGroupNum - 1){
-        SplitClassification lastSplitClassification = new SplitClassification(null, splitList,
-                locationList.toArray(new String[locationList.size()]), true);
-        extraSplitClassification = lastSplitClassification;
-      }
-      */
       /* code end */
     }
   }
@@ -271,6 +276,7 @@ public class DataSpliter {
       splitClassifications.put(actualSplitNum-1, extraSplitClassification);
     }
   }
+
 
   public void AssignExtraSplits(List<org.apache.hadoop.mapreduce.InputSplit> idleSplitList,
                                    Map<Integer, String[]> splitIdtoLocs) throws IOException, InterruptedException {
