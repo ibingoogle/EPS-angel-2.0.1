@@ -85,6 +85,9 @@ public class DataSpliter {
     /* new code */
     this.realSplitClassifications = new HashMap<Integer, List<SplitClassification>>();
     this.realSCsStatus = new HashMap<Integer, List<Boolean>>();
+    this.realSCsLength = new HashMap<Integer, List<Long>>();
+    this.realSCsTotalLength = new HashMap<Integer, Long>();
+    this.realActiveSCsTotalLength = new HashMap<Integer, Long>();
     /* code end */
     useNewAPI = context.getConf().getBoolean("mapred.mapper.new-api", false);
   }
@@ -301,9 +304,11 @@ public class DataSpliter {
         // put into realSCsStatus
         LOG.info(" put into realSCsStatus");
         if (realSCsStatus.containsKey(workergroupIndex)){
+          LOG.info(" containsKey");
           realSCsStatus.get(workergroupIndex).add(true);
           realSCsLength.get(workergroupIndex).add(lengths[0]);
         }else {
+          LOG.info("no Key");
           List<Boolean> SCsStatus = new ArrayList<Boolean>();
           SCsStatus.add(true);
           realSCsStatus.put(workergroupIndex, SCsStatus);
