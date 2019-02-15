@@ -258,8 +258,10 @@ public class DataSpliter {
           throws IOException, InterruptedException{
     LOG.info("original splitList = " + splitList.toString());
 
+    LOG.info("splitList.size() = " + splitList.size());
     for (int k = 0; k < splitList.size(); k++){
       LOG.info("k = " + k);
+      LOG.info("splitList.size() = " + splitList.size());
       CombineFileSplit inputList = (CombineFileSplit) splitList.get(k);
       LOG.info("inputList = " + inputList.toString());
       for (int i = 0; i < inputList.getPaths().length; i++){
@@ -288,6 +290,7 @@ public class DataSpliter {
         SplitClassification newSplitClassification = new SplitClassification(null, newSplitList,
                 locationList.toArray(new String[locationList.size()]), true);
         // put into realSplitClassifications
+        LOG.info("put into realSplitClassifications");
         if (realSplitClassifications.containsKey(workergroupIndex)){
           realSplitClassifications.get(workergroupIndex).add(newSplitClassification);
         }else {
@@ -296,6 +299,7 @@ public class DataSpliter {
           realSplitClassifications.put(workergroupIndex, SCsList);
         }
         // put into realSCsStatus
+        LOG.info(" put into realSCsStatus");
         if (realSCsStatus.containsKey(workergroupIndex)){
           realSCsStatus.get(workergroupIndex).add(true);
           realSCsLength.get(workergroupIndex).add(lengths[0]);
@@ -307,6 +311,8 @@ public class DataSpliter {
           SCsLength.add(lengths[0]);
           realSCsLength.put(workergroupIndex, SCsLength);
         }
+        LOG.info("i = " + i);
+        LOG.info("splitList.size() = " + splitList.size());
       }
     }
 
