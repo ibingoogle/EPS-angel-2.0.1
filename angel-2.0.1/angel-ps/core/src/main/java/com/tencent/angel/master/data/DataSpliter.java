@@ -232,8 +232,7 @@ public class DataSpliter {
         splitList.add(splitsNewAPI.get(base));
         String[] locations = splitsNewAPI.get(base).getLocations();
         for (int k = 0; k < locations.length && locationList.size() < maxLocationLimit; k++) {
-          // locationList.add(locations[k]);
-          LOG.info("...");
+          locationList.add(locations[k]);
         }
       }
 
@@ -243,11 +242,7 @@ public class DataSpliter {
       splitClassifications.put(i, splitClassification);
 
       /* new code */
-      LOG.info("locations = ");
-      for (String lc:  splitClassification.getLocations()){
-        LOG.info("location = " + lc);
-      }
-      // assignRealSplits(splitList, i);
+      assignRealSplits(splitList, i);
       /* code end */
     }
   }
@@ -276,7 +271,7 @@ public class DataSpliter {
         Path[] paths = new Path[1];
         long[] startoffset = new long[1];
         long[] lengths = new long[1];
-        String[] locations = new String[1];
+        String[] locations = null;
         // get info from original inputList
         paths[0] = inputList.getPath(i);
         LOG.info("i = " + i);
@@ -284,7 +279,10 @@ public class DataSpliter {
         LOG.info("i = " + i);
         lengths[0] = inputList.getLength(i);
         LOG.info("i = " + i);
-        locations[0] = inputList.getLocations()[i];
+        if (inputList.getLocations() != null && i < inputList.getLocations().length) {
+          locations = new String[1];
+          locations[0] = inputList.getLocations()[i];
+        }
         LOG.info("i = " + i);
         // initialize
         CombineFileSplit newInputList = new CombineFileSplit(paths, startoffset, lengths, locations);
@@ -292,7 +290,9 @@ public class DataSpliter {
                 new ArrayList<org.apache.hadoop.mapreduce.InputSplit>();
         newSplitList.add(newInputList);
         List<String> locationList = new ArrayList<String>(maxLocationLimit);
-        locationList.add(locations[0]);
+        if (locations != null) {
+          locationList.add(locations[0]);
+        }
         SplitClassification newSplitClassification = new SplitClassification(null, newSplitList,
                 locationList.toArray(new String[locationList.size()]), true);
         // put into realSplitClassifications
