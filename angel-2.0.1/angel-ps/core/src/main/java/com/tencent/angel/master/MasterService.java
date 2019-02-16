@@ -903,6 +903,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
             context.getWorkerManager().getWorkerGroup(workerAttemptId.getWorkerId().getWorkerGroupId());
     int workergroupIndex = group.getSplitIndex();
     LOG.info("getAppendedSCsInfo, workergroupIndex = " + workergroupIndex);
+    LOG.info("appendedSCs.get(" + workergroupIndex + ").size = " + context.getDataSpliter().appendedSCs.get(workergroupIndex).size());
     if (context.getDataSpliter().appendedSCs.containsKey(workergroupIndex)){
       int size = context.getDataSpliter().appendedSCs.get(workergroupIndex).size();
       if (size > 0){

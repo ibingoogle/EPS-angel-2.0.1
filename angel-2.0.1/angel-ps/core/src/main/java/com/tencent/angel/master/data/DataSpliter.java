@@ -322,6 +322,8 @@ public class DataSpliter {
         }
       }
     }
+
+    LOG.info("appendedSCs.get(" + workergroupIndex + ").size = " + appendedSCs.get(workergroupIndex).size());
   }
 
   public void update_realSCsTotalLength(){
