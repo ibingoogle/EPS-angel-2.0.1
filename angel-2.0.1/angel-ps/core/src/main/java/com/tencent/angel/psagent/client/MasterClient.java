@@ -504,9 +504,6 @@ public class MasterClient {
     LOG.info("send trainDataRemove RPC, taskid = " + taskIndex);//////
     TrainDataRemoveResponse response = master.trainDataRemove(null, request);
     List<Integer> removedSCIndexList = response.getRemovedSCIndexList();
-    for (int value: removedSCIndexList){
-      LOG.info(" value = " + value);
-    }
   }
 
   public void taskRemoveExecution(int taskIndex) throws ServiceException {

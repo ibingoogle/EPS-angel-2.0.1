@@ -1107,10 +1107,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
     LOG.info("taskId = " + taskId);
     LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
     TrainDataRemoveResponse.Builder builder = TrainDataRemoveResponse.newBuilder();
-    builder.addRemovedSCIndex(-1);
-    for (int i = 0; i < taskId.getIndex() + 1; i++){
-      builder.addRemovedSCIndex(i);
-    }
+    builder.addRemovedSCIndex(-1);builder.addRemovedSCIndex(0);
     return builder.build();
   }
   /* code end */
