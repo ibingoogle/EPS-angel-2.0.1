@@ -903,7 +903,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
             context.getWorkerManager().getWorkerGroup(workerAttemptId.getWorkerId().getWorkerGroupId());
     int workergroupIndex = group.getSplitIndex();
     LOG.info("getAppendedSCsInfo, workergroupIndex = " + workergroupIndex);
-    LOG.info("appendedSCs.get(" + workergroupIndex + ").size = " + context.getDataSpliter().appendedSCs.get(workergroupIndex).size());
+
     if (context.getDataSpliter().appendedSCs.containsKey(workergroupIndex)){
       int size = context.getDataSpliter().appendedSCs.get(workergroupIndex).size();
       if (size > 0){
@@ -911,7 +911,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
         GetAppendedSCsInfoResponse.Builder builder = GetAppendedSCsInfoResponse.newBuilder();
         builder.setContinue(cont);
         SplitClassification splits = context.getDataSpliter().appendedSCs.get(workergroupIndex).remove(size - 1);
-        LOG.info("wgindex = " + workergroupIndex + ", SC = " + splits.toString());
         if (splits != null) {
           List<SplitInfo> splitInfoList = null;
             try {
@@ -1092,6 +1091,27 @@ public class MasterService extends AbstractService implements MasterProtocol {
     LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
 
     return TaskRemoveExecutionResponse.newBuilder().build();
+  }
+
+
+  /**
+   * notify the removed SC index list
+   *
+   * @param controller rpc controller of protobuf
+   * @param request    contains task id
+   * @throws ServiceException
+   */
+  @Override public TrainDataRemoveResponse trainDataRemove(RpcController controller,
+                                                           TrainDataRemoveRequest request) throws ServiceException {
+    TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
+    LOG.info("taskId = " + taskId);
+    LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
+    TaskRemoveExecutionResponse.Builder builder = TaskRemoveExecutionResponse.newBuilder();
+    builder.addRemovedSCIndex(-1);
+    for (int i = 0; i < taskId.getIndex() + 1; i++){
+      builder.addRemovedSCIndex(i);
+    }
+    return builder.build();
   }
   /* code end */
 

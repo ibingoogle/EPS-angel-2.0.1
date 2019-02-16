@@ -272,13 +272,9 @@ public class DataSpliter {
     LOG.info("workergroupIndex= " + workergroupIndex);
     LOG.info("original splitList = " + splitList.toString());
 
-    LOG.info("splitList.size() = " + splitList.size());
     for (int k = 0; k < splitList.size(); k++){
-      LOG.info("k = " + k);
       CombineFileSplit inputList = (CombineFileSplit) splitList.get(k);
-      LOG.info("inputList.getPaths().length = " + inputList.getPaths().length);
       for (int i = 0; i < inputList.getPaths().length; i++){
-        LOG.info("i = " + i);
         // build CombineFileSplit for data in each path
         Path[] paths = new Path[1];
         long[] startoffset = new long[1];
@@ -307,8 +303,6 @@ public class DataSpliter {
         if (realSplitClassifications.containsKey(workergroupIndex)){
           realSplitClassifications.get(workergroupIndex).add(newSplitClassification);
           appendedSCs.get(workergroupIndex).add(newSplitClassification);
-          LOG.info("i = " + i + ", k = " + k);
-          LOG.info("appendedSCs.get(workergroupIndex).size = " + appendedSCs.get(workergroupIndex).size());
         }else {
           List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
           SCsList.add(newSplitClassification);
@@ -316,8 +310,6 @@ public class DataSpliter {
           List<SplitClassification> appendedSCsList = new ArrayList<SplitClassification>();
           appendedSCsList.add(newSplitClassification);
           appendedSCs.put(workergroupIndex, appendedSCsList);
-          LOG.info("i = " + i + ", k = " + k);
-          LOG.info("appendedSCs.get(workergroupIndex).size = " + appendedSCs.get(workergroupIndex).size());
         }
         // put into realSCsStatus
         if (realSCsStatus.containsKey(workergroupIndex)){
@@ -333,8 +325,6 @@ public class DataSpliter {
         }
       }
     }
-
-    LOG.info("appendedSCs.get(" + workergroupIndex + ").size = " + appendedSCs.get(workergroupIndex).size());
   }
 
   public void update_realSCsTotalLength(){

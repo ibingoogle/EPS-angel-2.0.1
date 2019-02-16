@@ -124,6 +124,15 @@ message TaskIterationResponse {
 }
 
 // new code
+message TrainDataRemoveRequest {
+  required TaskIdProto taskId = 1;
+}
+
+message TrainDataRemoveResponse {
+  repeated int32 removedSCIndex = 1;
+}
+
+
 message TaskRemoveExecutionRequest {
   required TaskIdProto taskId = 1;
 }
@@ -192,7 +201,8 @@ service PSAgentMasterService {
 
   rpc taskClock(TaskClockRequest) returns (TaskClockResponse);
   rpc taskIteration(TaskIterationRequest) returns(TaskIterationResponse);
-  rpc taskRemoveExecution(TaskRemoveExecutionRequest) returns(TaskRemoveExecutionResponse);//
+  rpc taskRemoveExecution(TaskRemoveExecutionRequest) returns(TaskRemoveExecutionResponse);//////
+  rpc trainDataRemove(TrainDataRemoveRequest) returns(TrainDataRemoveResponse);//////
   rpc taskCountersUpdate(TaskCounterUpdateRequest) returns (TaskCountersUpdateResponse);
   rpc setAlgoMetrics(SetAlgoMetricsRequest) returns (SetAlgoMetricsResponse);
 

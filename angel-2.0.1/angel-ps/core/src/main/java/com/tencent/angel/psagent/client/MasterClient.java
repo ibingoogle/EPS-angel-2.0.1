@@ -352,9 +352,7 @@ public class MasterClient {
                       WorkerContext.get().getConf());
     }
     LOG.info("SC = " + splits.toString());
-    int i = 0;
-    while (response.getContinue() && i < 10){
-      LOG.info(" i = " + i);
+    while (response.getContinue()){
       response = master.getAppendedSCsInfo(null, request);
       splits = null;
       if (response.getSplitsCount() > 0) {
@@ -362,7 +360,6 @@ public class MasterClient {
                 .getSplitClassification(response.getSplitsList(),
                         WorkerContext.get().getConf());
       }
-      i++;
       LOG.info("SC = " + splits.toString());
     }
   }
@@ -487,11 +484,30 @@ public class MasterClient {
     TaskIterationRequest request = TaskIterationRequest.newBuilder()
             .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
             .build();
-    LOG.info("send taskIteration RPC, iteration = " + iteration);//////
+    LOG.info("send taskIteration RPC, iteration = " + iteration + ", taskid = " + taskIndex);//////
     TaskIterationResponse response = master.taskIteration(null, request);
-    return response.getTrainDataStatus();
+    int trainDataStatus = response.getTrainDataStatus();
+    trainDataRemove(taskIndex);
+    return trainDataStatus;
   }
 
+  /**
+   * get removed train data
+   *
+   * @param taskIndex task index
+   * @throws ServiceException rpc failed
+   */
+  public void trainDataRemove(int taskIndex) throws ServiceException {
+    TrainDataRemoveRequest request = TrainDataRemoveRequest.newBuilder()
+            .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build())
+            .build();
+    LOG.info("send trainDataRemove RPC, taskid = " + taskIndex);//////
+    TrainDataRemoveResponse response = master.trainDataRemove(null, request);
+    List<Integer> removedSCIndexList = response.getRemovedSCIndexList();
+    for (int value: removedSCIndexList){
+      LOG.info(" value = " + value);
+    }
+  }
 
   public void taskRemoveExecution(int taskIndex) throws ServiceException {
     TaskRemoveExecutionRequest request = TaskRemoveExecutionRequest.newBuilder()
