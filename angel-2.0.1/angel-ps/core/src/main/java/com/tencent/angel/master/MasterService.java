@@ -1106,7 +1106,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
     TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
     LOG.info("taskId = " + taskId);
     LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
-    TaskRemoveExecutionResponse.Builder builder = TaskRemoveExecutionResponse.newBuilder();
+    rainDataRemoveResponse.Builder builder = rainDataRemoveResponse.newBuilder();
     builder.addRemovedSCIndex(-1);
     for (int i = 0; i < taskId.getIndex() + 1; i++){
       builder.addRemovedSCIndex(i);
