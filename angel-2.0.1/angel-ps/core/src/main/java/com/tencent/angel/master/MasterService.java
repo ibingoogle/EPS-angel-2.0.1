@@ -894,10 +894,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
    *
    * @param controller rpc controller of protobuf
    * @param request    contains workergroupIndex
-   * @throws IOException
+   * @throws ServiceException
    */
   @SuppressWarnings("unchecked") @Override public GetAppendedSCsInfoResponse getAppendedSCsInfo(RpcController controller,
-                                                                         GetAppendedSCsInfoRequest request) throws IOException, ServiceException {
+                                                                         GetAppendedSCsInfoRequest request) throws ServiceException {
     WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
     AMWorkerGroup group =
             context.getWorkerManager().getWorkerGroup(workerAttemptId.getWorkerId().getWorkerGroupId());
@@ -913,10 +913,11 @@ public class MasterService extends AbstractService implements MasterProtocol {
         LOG.info("wgindex = " + workergroupIndex + ", SC = " + splits.toString());
         if (splits != null) {
           List<SplitInfo> splitInfoList = null;
-          try {
-            splitInfoList = SerdeUtils.serilizeSplits(splits, context.getConf());
-          } catch (Exception e) {
-            throw new IOException(e);
+            try {
+              splitInfoList = ProtobufUtil.buildSplitInfoList(splits, context.getConf());
+            }catch (Exception e){
+              LOG.error("build appended SCs information error", e);
+              throw new ServiceException(e);
           }
           SplitInfoProto.Builder splitBuilder = SplitInfoProto.newBuilder();
           for (SplitInfo split : splitInfoList) {

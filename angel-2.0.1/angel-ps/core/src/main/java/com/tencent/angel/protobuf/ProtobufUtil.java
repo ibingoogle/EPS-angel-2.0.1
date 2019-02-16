@@ -262,6 +262,21 @@ public final class ProtobufUtil {
     return builder.build();
   }
 
+  /*new code */
+  public static List<SplitInfo> buildSplitInfoList(SplitClassification splits, Configuration conf) throws IOException {
+    List<SplitInfo> splitInfoList = null;
+    if (splits != null) {
+      try {
+        splitInfoList = SerdeUtils.serilizeSplits(splits, conf);
+      }catch (Exception e){
+        LOG.error("buildSplitInfoList", e);
+        throw new IOException(e);
+      }
+    }
+    return splitInfoList;
+  }
+  /*code end */
+
   private static WorkerMetaInfoProto buildWorkerMetaProto(AMWorker worker) {
     WorkerMetaInfoProto.Builder builder = WorkerMetaInfoProto.newBuilder();
 
