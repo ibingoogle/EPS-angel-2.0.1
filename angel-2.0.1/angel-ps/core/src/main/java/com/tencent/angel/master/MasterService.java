@@ -925,22 +925,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
                     .setSplit(ByteString.copyFrom(split.getSplit())).build());
           }
         }
-        try {
-          return builder.build();
-        } catch (Exception e) {
-          LOG.error("build appended SCs information error", e);
-          throw new ServiceException(e);
-        }
+        return builder.build();
       }
     }
-    try {
-      return GetAppendedSCsInfoResponse.newBuilder()
-              .setContinue(false)
-              .build();
-    } catch (Exception e) {
-      LOG.error("build appended SCs information error", e);
-      throw new ServiceException(e);
-    }
+    return GetAppendedSCsInfoResponse.newBuilder()
+            .setContinue(false)
+            .build();
   }
 
 

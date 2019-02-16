@@ -266,12 +266,7 @@ public final class ProtobufUtil {
   public static List<SplitInfo> buildSplitInfoList(SplitClassification splits, Configuration conf) throws IOException {
     List<SplitInfo> splitInfoList = null;
     if (splits != null) {
-      try {
         splitInfoList = SerdeUtils.serilizeSplits(splits, conf);
-      }catch (Exception e){
-        LOG.error("buildSplitInfoList", e);
-        throw new IOException(e);
-      }
     }
     return splitInfoList;
   }
