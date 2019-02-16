@@ -354,6 +354,7 @@ public class MasterClient {
     LOG.info("SC = " + splits.toString());
     int i = 0;
     while (response.getContinue() && i < 10){
+      LOG.info(" i = " + i);
       response = master.getAppendedSCsInfo(null, request);
       splits = null;
       if (response.getSplitsCount() > 0) {
