@@ -343,7 +343,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     val posnegRatio: Double = SharedConf.posnegRatio()
     val vali = Math.ceil(1.0 / valiRat).toInt
 
-    val reader = ctx.getReaderForAppendSplits
+    val reader = ctx.getReaderForRealSC(0)
     var i: Int = 0
     while (reader.nextKeyValue) {
       i = i + 1
