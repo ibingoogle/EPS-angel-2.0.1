@@ -338,9 +338,11 @@ public class MasterClient {
    * @throws ServiceException       rpc failed
    * @throws InterruptedException   interrupted when wait for next try
    */
-  public void getAppendedSCsInfo()
+  public List<SplitClassification> getAppendedSCsInfo()
           throws ClassNotFoundException, IOException, ServiceException, InterruptedException {
     LOG.info("getAppendedSCsInfo()");
+    List<SplitClassification> result = new ArrayList<>();
+
     GetAppendedSCsInfoRequest request = GetAppendedSCsInfoRequest.newBuilder()
             .setWorkerAttemptId(WorkerContext.get().getWorkerAttemptIdProto()).build();
 
@@ -351,7 +353,9 @@ public class MasterClient {
               .getSplitClassification(response.getSplitsList(),
                       WorkerContext.get().getConf());
     }
+    result.add(splits);
     LOG.info("SC = " + splits.toString());
+
     while (response.getContinue()){
       response = master.getAppendedSCsInfo(null, request);
       splits = null;
@@ -360,8 +364,11 @@ public class MasterClient {
                 .getSplitClassification(response.getSplitsList(),
                         WorkerContext.get().getConf());
       }
+      result.add(splits);
       LOG.info("SC = " + splits.toString());
     }
+
+    return result;
   }
   /* code end */
 

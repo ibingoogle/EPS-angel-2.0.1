@@ -20,7 +20,9 @@ package com.tencent.angel.worker;
 
 import com.tencent.angel.split.SplitClassification;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,10 +34,12 @@ public class WorkerGroup {
   private final SplitClassification splits;
 
   /* new code */
+  // public List<SplitClassification> realSplitClassifications = new ArrayList<SplitClassification>();
+
   public Boolean IfAppendS = false;
   public SplitClassification AppendSplits;
-  /* code end */
 
+  /* code end */
 
 
   /**

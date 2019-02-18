@@ -26,6 +26,7 @@ import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.ipc.TConnection;
 import com.tencent.angel.ipc.TConnectionManager;
 import com.tencent.angel.plugin.AngelServiceLoader;
+import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.worker.task.Task;
 import com.tencent.angel.protobuf.ProtobufUtil;
 import com.tencent.angel.protobuf.generated.MLProtos.WorkerAttemptIdProto;
@@ -52,6 +53,7 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -266,7 +268,10 @@ public class Worker implements Executor {
     workerGroup = masterClient.getWorkerGroupMetaInfo();
     dataBlockManager.setSplitClassification(workerGroup.getSplits());
 
-    masterClient.getAppendedSCsInfo();//////
+    /* new code */
+    List<SplitClassification> appendedSCs = masterClient.getAppendedSCsInfo();
+    dataBlockManager.appendRealSCs(appendedSCs);
+    /* code end */
 
     LOG.info("Init and start task manager and all task");
 

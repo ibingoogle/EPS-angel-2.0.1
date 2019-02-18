@@ -24,6 +24,7 @@ import com.tencent.angel.ml.feature.LabeledData
 import com.tencent.angel.ml.math2.vector.Vector
 import com.tencent.angel.ml.matrix.RowType
 import com.tencent.angel.ml.core.utils.{DataParser, NetUtils}
+import com.tencent.angel.worker.WorkerContext
 import com.tencent.angel.worker.storage.{DataBlock, DiskDataBlock, MemoryAndDiskDataBlock, MemoryDataBlock}
 import com.tencent.angel.worker.task.TaskContext
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
@@ -78,13 +79,12 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
     LOG.info("preProcess input data")//////
     val start = System.currentTimeMillis()
 
+    /* old code
     var count = 0
     val vali = Math.ceil(1.0 / valiRat).toInt
 
     val reader = taskContext.getReader
-    var i: Int = 0//////
     while (reader.nextKeyValue) {
-      i = i + 1//////
       val out = parse(reader.getCurrentKey, reader.getCurrentValue)
       if (out != null) {
         if (count % vali == 0)
@@ -103,7 +103,50 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
 
       null.asInstanceOf[Vector]
     }
-    LOG.info("i =" + i)//////
+    code end */
+
+    /* new code */
+    var count = 0
+    val vali = Math.ceil(1.0 / valiRat).toInt
+
+    val SCIndex = 0
+    for (SCIndex <- 0 until WorkerContext.get().getDataBlockManager().realSplitClassifications.size()){
+      val reader = taskContext.getReaderForRealSC(SCIndex)
+      var TotalS = 0l
+      var TrainS = 0l
+      var ValidS = 0l
+      while (reader.nextKeyValue) {
+        val out = parse(reader.getCurrentKey, reader.getCurrentValue)
+        if (out != null) {
+          if (count % vali == 0)
+            validDataBlock.put(out)
+          else if (posnegRatio != -1) {
+            if (out.getY > 0) {
+              posDataBlock.put(out)
+            } else {
+              negDataBlock.put(out)
+            }
+          } else {
+            taskDataBlock.put(out)
+          }
+          count += 1
+        }
+
+        null.asInstanceOf[Vector]
+      }
+      TotalS = taskDataBlock.size + validDataBlock.size - TotalS
+      TrainS = taskDataBlock.size - TotalS
+      ValidS = validDataBlock.size - ValidS
+      LOG.info("TotalS = " + TotalS)
+      LOG.info("TrainS = " + TrainS)
+      LOG.info("ValidS = " + ValidS)
+      WorkerContext.get().getDataBlockManager().realSCsTotalSLength.add(TotalS)
+      WorkerContext.get().getDataBlockManager().realSCsTrainSLength.add(TrainS)
+      WorkerContext.get().getDataBlockManager().realSCsValidSLength.add(ValidS)
+    }
+
+    WorkerContext.get().getDataBlockManager().update_realSCsAllSTotalLength()
+    WorkerContext.get().getDataBlockManager().print_realSCs_allSamples()
 
     posDataBlock.flush()
     negDataBlock.flush()

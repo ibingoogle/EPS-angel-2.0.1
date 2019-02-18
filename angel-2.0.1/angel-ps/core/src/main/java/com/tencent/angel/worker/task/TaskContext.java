@@ -59,7 +59,7 @@ public class TaskContext {
   private final com.tencent.angel.psagent.task.TaskContext context;
 
   /* new code */
-  @SuppressWarnings("rawtypes") private Reader readerForAppendSplits;
+  @SuppressWarnings("rawtypes") private Reader readerForRealSC;
   /* code end */
 
   /**
@@ -112,7 +112,7 @@ public class TaskContext {
 
   /* new code */
   /**
-   * Gets reader for append splits
+   * Gets reader for real SC
    *
    * @param <K> key type
    * @param <V> value type
@@ -121,14 +121,12 @@ public class TaskContext {
    * @throws IOException
    * @throws InterruptedException
    */
-  @SuppressWarnings("unchecked") public <K, V> Reader<K, V> getReaderForAppendSplits()
+  @SuppressWarnings("unchecked") public <K, V> Reader<K, V> getReaderForRealSC(int SCIndex)
           throws ClassNotFoundException, IOException, InterruptedException {
-    LOG.info("getReaderForAppendSplits() for taskId = " + taskId); //////
-    if (readerForAppendSplits == null) {
-      DataBlockManager dataBlockManager = WorkerContext.get().getDataBlockManager();
-      readerForAppendSplits = dataBlockManager.getReaderForAppendSplits(taskId);
-    }
-    return readerForAppendSplits;
+    LOG.info("getReaderForRealSC() for taskId = " + taskId + " and SCIndex = " + SCIndex); //////
+    DataBlockManager dataBlockManager = WorkerContext.get().getDataBlockManager();
+    readerForRealSC = dataBlockManager.getReaderForRealSC(taskId, SCIndex);
+    return readerForRealSC;
   }
 
 

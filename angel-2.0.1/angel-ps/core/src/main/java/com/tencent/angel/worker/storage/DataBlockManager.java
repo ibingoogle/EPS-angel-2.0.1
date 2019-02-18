@@ -24,8 +24,10 @@ import com.tencent.angel.worker.task.TaskId;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,8 +41,148 @@ public class DataBlockManager {
   private static final Log LOG = LogFactory.getLog(DataBlockManager.class);//////
 
   private boolean useNewAPI;
-  private final Map<TaskId, Integer> splitInfos;
+  private final Map<TaskId, Integer> splitInfos; // taskId to splitId in SC
   private SplitClassification splitClassification;
+
+  /* new code */
+  public List<SplitClassification> realSplitClassifications = new ArrayList<SplitClassification>();
+  public List<Boolean> realSCsStatus = new ArrayList<Boolean>();
+  public List<Long> realSCsLength = new ArrayList<Long>();
+  public Long realSCsTotalLength_all = 0L;
+  public Long realSCsTotalLength_active = 0L;
+
+  public List<Long> realSCsTotalSLength = new ArrayList<Long>();
+  public Long realSCsTotalSTotalLength_all = 0L;
+  public Long realSCsTotalSTotalLength_active = 0L;
+  public List<Long> realSCsTrainSLength = new ArrayList<Long>();
+  public Long realSCsTrainSTotalLength_all = 0L;
+  public Long realSCsTrainSTotalLength_active = 0L;
+  public List<Long> realSCsValidSLength = new ArrayList<Long>();
+  public Long realSCsValidSTotalLength_all = 0L;
+  public Long realSCsValidSTotalLength_active = 0L;
+
+  public void appendRealSCs(List<SplitClassification> appendedSCs) throws IOException, InterruptedException {
+    for (int i = 0; i < appendedSCs.size(); i++ ){
+      realSplitClassifications.add(appendedSCs.get(i));
+      realSCsStatus.add(true);
+      realSCsLength.add(appendedSCs.get(i).getSplitNewAPI(0).getLength());
+    }
+    update_realSCsTotalLength();
+  }
+
+  public void update_realSCsTotalLength(){
+    update_realSCsTotalLength_all();
+    update_realSCsTotalLength_active();
+  }
+
+  public void update_realSCsTotalLength_all(){
+    long totalLength = 0;
+    for(long length: realSCsLength){
+      totalLength += length;
+    }
+    realSCsTotalLength_all = totalLength;
+  }
+
+  public void update_realSCsTotalLength_active(){
+    long totalLength = 0;
+    for (int i = 0; i < realSCsLength.size(); i++){
+      if (realSCsStatus.get(i)) totalLength += realSCsLength.get(i);
+    }
+    realSCsTotalLength_active = totalLength;
+  }
+
+  public void update_realSCsAllSTotalLength(){
+    update_realSCsTotalSTotalLength();
+    update_realSCsTrainSTotalLength();
+    update_realSCsValidSTotalLength();
+  }
+
+  public void update_realSCsTotalSTotalLength(){
+    update_realSCsTotalSTotalLength_all();
+    update_realSCsTotalSTotalLength_active();
+  }
+
+  public void update_realSCsTotalSTotalLength_all(){
+    long totalLength = 0;
+    for(long length: realSCsTotalSLength){
+      totalLength += length;
+    }
+    realSCsTotalSTotalLength_all = totalLength;
+  }
+
+  public void update_realSCsTotalSTotalLength_active(){
+    long totalLength = 0;
+    for (int i = 0; i < realSCsTotalSLength.size(); i++){
+      if (realSCsStatus.get(i)) totalLength += realSCsTotalSLength.get(i);
+    }
+    realSCsTotalSTotalLength_active = totalLength;
+  }
+
+  public void update_realSCsTrainSTotalLength(){
+    update_realSCsTrainSTotalLength_all();
+    update_realSCsTrainSTotalLength_active();
+  }
+
+  public void update_realSCsTrainSTotalLength_all(){
+    long totalLength = 0;
+    for(long length: realSCsTrainSLength){
+      totalLength += length;
+    }
+    realSCsTrainSTotalLength_all = totalLength;
+  }
+
+  public void update_realSCsTrainSTotalLength_active(){
+    long totalLength = 0;
+    for (int i = 0; i < realSCsTrainSLength.size(); i++){
+      if (realSCsStatus.get(i)) totalLength += realSCsTrainSLength.get(i);
+    }
+    realSCsTrainSTotalLength_active = totalLength;
+  }
+
+  public void update_realSCsValidSTotalLength(){
+    update_realSCsValidSTotalLength_all();
+    update_realSCsValidSTotalLength_active();
+  }
+
+  public void update_realSCsValidSTotalLength_all(){
+    long totalLength = 0;
+    for(long length: realSCsValidSLength){
+      totalLength += length;
+    }
+    realSCsValidSTotalLength_all = totalLength;
+  }
+
+  public void update_realSCsValidSTotalLength_active(){
+    long totalLength = 0;
+    for (int i = 0; i < realSCsValidSLength.size(); i++){
+      if (realSCsStatus.get(i)) totalLength += realSCsValidSLength.get(i);
+    }
+    realSCsValidSTotalLength_active = totalLength;
+  }
+
+  public void print_realSCs_allSamples(){
+    LOG.info("Total Samples = ");
+    for (int i = 0; i < realSCsTotalSLength.size(); i++){
+      LOG.info("      samples in SC["+i+"] = " + realSCsTotalSLength.get(i));
+    }
+    LOG.info("Total Samples size = " + realSCsTotalSTotalLength_all + ", active total samples size = " + realSCsTotalSTotalLength_active);
+    LOG.info("");
+
+    LOG.info("Train Samples = ");
+    for (int i = 0; i < realSCsTrainSLength.size(); i++){
+      LOG.info("      samples in SC["+i+"] = " + realSCsTrainSLength.get(i));
+    }
+    LOG.info("Train Samples size = " + realSCsTrainSTotalLength_all + ", active train samples size = " + realSCsTrainSTotalLength_active);
+    LOG.info("");
+
+    LOG.info("Valid Samples = ");
+    for (int i = 0; i < realSCsValidSLength.size(); i++){
+      LOG.info("      samples in SC["+i+"] = " + realSCsValidSLength.get(i));
+    }
+    LOG.info("Valid Samples size = " + realSCsValidSTotalLength_all + ", active valid samples size = " + realSCsValidSTotalLength_active);
+    LOG.info("");
+  }
+  /* code end */
 
   /* new code */
   public Boolean IfAppendSC = false;
@@ -131,7 +273,7 @@ public class DataBlockManager {
 
   /* new code */
   /**
-   * Get the reader of append data for given task
+   * Get the reader of data in a real SC for given task
    *
    * @param <K>    the type parameter
    * @param <V>    the type parameter
@@ -141,13 +283,13 @@ public class DataBlockManager {
    * @throws InterruptedException   the interrupted exception
    * @throws ClassNotFoundException the class not found exception
    */
-  @SuppressWarnings({"rawtypes", "unchecked"}) public <K, V> Reader<K, V> getReaderForAppendSplits(TaskId taskId)
+  @SuppressWarnings({"rawtypes", "unchecked"}) public <K, V> Reader<K, V> getReaderForRealSC(TaskId taskId, int SCIndex)
           throws IOException, InterruptedException, ClassNotFoundException {
-    LOG.info("in getReaderForAppendSplits: useNewAPI = " + useNewAPI);
+    LOG.info("in getReaderForRealSC: useNewAPI = " + useNewAPI);
 
     if (useNewAPI) {
       DFSStorageNewAPI storage =
-              new DFSStorageNewAPI(AppendSplitClassification.getSplitNewAPI(splitInfos.get(taskId)));
+              new DFSStorageNewAPI(realSplitClassifications.get(SCIndex).getSplitNewAPI(splitInfos.get(taskId)));
       LOG.info("InputSplit class = " + storage.getSplit().getClass());
       LOG.info("split length = " + storage.getSplit().getLength());
       LOG.info("split toString = " + storage.getSplit().toString());
