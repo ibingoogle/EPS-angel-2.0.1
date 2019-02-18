@@ -145,6 +145,7 @@ public class DataSpliter {
 
     this.activeWGIndex = new ArrayList<Boolean>();
     this.trainDataStatus = new HashMap<Integer, Integer>();
+    this.activeSCsNum = new HashMap<Integer, Integer>();
 
     this.appendedSCs = new HashMap<Integer, List<SplitClassification>>();
     /* code end */
