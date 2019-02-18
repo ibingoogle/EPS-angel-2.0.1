@@ -144,6 +144,9 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
       WorkerContext.get().getDataBlockManager().realSCsTotalSLength.add(TotalS)
       WorkerContext.get().getDataBlockManager().realSCsTrainSLength.add(TrainS)
       WorkerContext.get().getDataBlockManager().realSCsValidSLength.add(ValidS)
+      TotalS = taskDataBlock.size + validDataBlock.size
+      TrainS = taskDataBlock.size
+      ValidS = validDataBlock.size
     }
 
     WorkerContext.get().getDataBlockManager().update_realSCsAllSTotalLength()

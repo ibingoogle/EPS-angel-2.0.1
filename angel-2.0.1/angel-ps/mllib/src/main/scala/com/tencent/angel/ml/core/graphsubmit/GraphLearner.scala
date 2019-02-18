@@ -385,6 +385,9 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       LOG.info("TrainS = " + TrainS)
       LOG.info("ValidS = " + ValidS)
       ctx.addSamplesNum(TotalS, TrainS, ValidS)
+      TotalS = posDataBlock.size + validDataBlock.size
+      TrainS = posDataBlock.size
+      ValidS = validDataBlock.size
     }
 
     WorkerContext.get().getDataBlockManager().update_realSCsAllSTotalLength()
