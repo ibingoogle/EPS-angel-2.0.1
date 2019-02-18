@@ -45,6 +45,8 @@ public class DataBlockManager {
   private SplitClassification splitClassification;
 
   /* new code */
+  public List<SplitClassification> appendedSplitClassifications;
+
   public List<SplitClassification> realSplitClassifications = new ArrayList<SplitClassification>();
   public List<Boolean> realSCsStatus = new ArrayList<Boolean>();
   public List<Long> realSCsLength = new ArrayList<Long>();
@@ -61,8 +63,21 @@ public class DataBlockManager {
   public Long realSCsValidSTotalLength_all = 0L;
   public Long realSCsValidSTotalLength_active = 0L;
 
-  public void appendRealSCs(List<SplitClassification> appendedSCs) throws IOException, InterruptedException {
+  public void initialRealSCs(List<SplitClassification> appendedSCs) throws IOException, InterruptedException {
     for (int i = 0; i < appendedSCs.size(); i++ ){
+      realSplitClassifications.add(appendedSCs.get(i));
+      realSCsStatus.add(true);
+      realSCsLength.add(appendedSCs.get(i).getSplitNewAPI(0).getLength());
+    }
+    update_realSCsTotalLength();
+  }
+
+  public void appendSCs(List<SplitClassification> appendedSCs) throws IOException, InterruptedException {
+    for (int i = 0; i < appendedSCs.size(); i++ ){
+      SplitClassification SCCopy = new SplitClassification();
+      SCCopy = appendedSCs.get(i);
+      appendedSplitClassifications.add(SCCopy);
+
       realSplitClassifications.add(appendedSCs.get(i));
       realSCsStatus.add(true);
       realSCsLength.add(appendedSCs.get(i).getSplitNewAPI(0).getLength());
@@ -159,8 +174,33 @@ public class DataBlockManager {
     }
     realSCsValidSTotalLength_active = totalLength;
   }
+  public void print_allSCs(){
+    LOG.info("print_allSCs~~~~~~~~");
+    print_realSCs();
+    print_appendedSCs();
+    print_realSCs_allSamples();
+  }
+
+  public void print_appendedSCs(){
+    LOG.info("print_appendedSCs~~~~~~~~");
+    for (int i = 0; i < appendedSplitClassifications.size(); i++){
+      LOG.info("SC[" + i + "] = " + appendedSplitClassifications.get(i).toString());
+    }
+    LOG.info("##############");
+  }
+
+  public void print_realSCs(){
+    LOG.info("print_realSCs~~~~~~~~");
+    for (int i = 0; i < realSplitClassifications.size(); i++){
+      LOG.info("SC[" + i + "] = " + realSplitClassifications.get(i).toString());
+      LOG.info("status = " + realSCsStatus.get(i));
+      LOG.info("Length = " + realSCsLength.get(i));
+    }
+    LOG.info("##############");
+  }
 
   public void print_realSCs_allSamples(){
+    LOG.info("print samples~~~~~~~~~~~~");
     LOG.info("Total Samples = ");
     for (int i = 0; i < realSCsTotalSLength.size(); i++){
       LOG.info("      samples in SC["+i+"] = " + realSCsTotalSLength.get(i));
@@ -180,17 +220,9 @@ public class DataBlockManager {
       LOG.info("      samples in SC["+i+"] = " + realSCsValidSLength.get(i));
     }
     LOG.info("Valid Samples size = " + realSCsValidSTotalLength_all + ", active valid samples size = " + realSCsValidSTotalLength_active);
+    LOG.info("##############");
     LOG.info("");
   }
-  /* code end */
-
-  /* new code */
-  public Boolean IfAppendSC = false;
-  public SplitClassification AppendSplitClassification;
-
-  public Boolean ifNewAppendedSC = false;
-  public List<Boolean> activeAppendedSCs;
-  public List<SplitClassification> appendedSplitClassifications;
   /* code end */
 
   public DataBlockManager() {
@@ -297,7 +329,38 @@ public class DataBlockManager {
       return storage.getReader();
     } else {
       DFSStorageOldAPI storage =
-              new DFSStorageOldAPI(AppendSplitClassification.getSplitOldAPI(splitInfos.get(taskId)));
+              new DFSStorageOldAPI(realSplitClassifications.get(SCIndex).getSplitOldAPI(splitInfos.get(taskId)));
+      storage.initReader();
+      return storage.getReader();
+    }
+  }
+
+  /**
+   * Get the reader of data in a appended SC for given task
+   *
+   * @param <K>    the type parameter
+   * @param <V>    the type parameter
+   * @param taskId the task id
+   * @return the reader
+   * @throws IOException            the io exception
+   * @throws InterruptedException   the interrupted exception
+   * @throws ClassNotFoundException the class not found exception
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"}) public <K, V> Reader<K, V> getReaderForAppendedSC(TaskId taskId, int SCIndex)
+          throws IOException, InterruptedException, ClassNotFoundException {
+    LOG.info("in getReaderForAppendedSC: useNewAPI = " + useNewAPI);
+
+    if (useNewAPI) {
+      DFSStorageNewAPI storage =
+              new DFSStorageNewAPI(appendedSplitClassifications.get(SCIndex).getSplitNewAPI(splitInfos.get(taskId)));
+      LOG.info("InputSplit class = " + storage.getSplit().getClass());
+      LOG.info("split length = " + storage.getSplit().getLength());
+      LOG.info("split toString = " + storage.getSplit().toString());
+      storage.initReader();
+      return storage.getReader();
+    } else {
+      DFSStorageOldAPI storage =
+              new DFSStorageOldAPI(appendedSplitClassifications.get(SCIndex).getSplitOldAPI(splitInfos.get(taskId)));
       storage.initReader();
       return storage.getReader();
     }

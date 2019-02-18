@@ -32,6 +32,7 @@ import com.tencent.angel.psagent.PSAgent;
 import com.tencent.angel.psagent.PSAgentContext;
 import com.tencent.angel.psagent.client.MasterClient;
 import com.tencent.angel.psagent.matrix.MatrixClient;
+import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.worker.WorkerContext;
 import com.tencent.angel.worker.storage.DataBlockManager;
 import com.tencent.angel.worker.storage.Reader;
@@ -60,6 +61,8 @@ public class TaskContext {
 
   /* new code */
   @SuppressWarnings("rawtypes") private Reader readerForRealSC;
+
+  @SuppressWarnings("rawtypes") private Reader readerForAppendedSC;
   /* code end */
 
   /**
@@ -129,11 +132,46 @@ public class TaskContext {
     return readerForRealSC;
   }
 
-
-  public Boolean ExistAppendSplits(){
+  /**
+   * Gets reader for appended SC
+   *
+   * @param <K> key type
+   * @param <V> value type
+   * @return the reader
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws InterruptedException
+   */
+  @SuppressWarnings("unchecked") public <K, V> Reader<K, V> getReaderForAppendedSC(int SCIndex)
+          throws ClassNotFoundException, IOException, InterruptedException {
+    LOG.info("getReaderForAppendedSC() for taskId = " + taskId + " and SCIndex = " + SCIndex); //////
     DataBlockManager dataBlockManager = WorkerContext.get().getDataBlockManager();
-   return dataBlockManager.IfAppendSC;
+    readerForAppendedSC = dataBlockManager.getReaderForAppendedSC(taskId, SCIndex);
+    return readerForAppendedSC;
   }
+
+  public void setAppendedSCs(List<SplitClassification> appendedSCs) throws IOException, InterruptedException {
+    LOG.info("before appended................");
+    WorkerContext.get().getDataBlockManager().print_allSCs();
+    WorkerContext.get().getDataBlockManager().appendSCs(appendedSCs);
+    LOG.info("after appended...................");
+    WorkerContext.get().getDataBlockManager().print_allSCs();
+  }
+
+  public void clearAppendedSCs() throws IOException, InterruptedException {
+    LOG.info("before clear.....................");
+    WorkerContext.get().getDataBlockManager().print_allSCs();
+    WorkerContext.get().getDataBlockManager().appendedSplitClassifications.clear();
+    LOG.info("after clear.....................");
+    WorkerContext.get().getDataBlockManager().print_allSCs();
+  }
+
+  public void addSamplesNum(long TotalS, long TrainS, long ValidS){
+    WorkerContext.get().getDataBlockManager().realSCsTotalSLength.add(TotalS);
+    WorkerContext.get().getDataBlockManager().realSCsTrainSLength.add(TrainS);
+    WorkerContext.get().getDataBlockManager().realSCsValidSLength.add(ValidS);
+  }
+
   /* code end */
 
   /**

@@ -270,7 +270,7 @@ public class Worker implements Executor {
 
     /* new code */
     List<SplitClassification> appendedSCs = masterClient.getAppendedSCsInfo();
-    dataBlockManager.appendRealSCs(appendedSCs);
+    dataBlockManager.initialRealSCs(appendedSCs);
     /* code end */
 
     LOG.info("Init and start task manager and all task");

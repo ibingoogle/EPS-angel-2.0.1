@@ -18,6 +18,8 @@
 
 package com.tencent.angel.ml.core.graphsubmit
 
+import java.util.List
+
 import com.tencent.angel.conf.AngelConf
 import com.tencent.angel.exception.AngelException
 import com.tencent.angel.ml.core.MLLearner
@@ -30,12 +32,16 @@ import com.tencent.angel.ml.metric.LossMetric
 import com.tencent.angel.ml.model.MLModel
 import com.tencent.angel.ml.core.utils.{DataParser, ValidationUtils}
 import com.tencent.angel.psagent.PSAgentContext
+import com.tencent.angel.split.SplitClassification
 import com.tencent.angel.worker.storage.DataBlock
 import com.tencent.angel.worker.task.TaskContext
 import org.apache.commons.logging.{Log, LogFactory}
 import org.apache.hadoop.io.{LongWritable, Text}
 
 import util.control.Breaks._
+import java.util
+
+import com.tencent.angel.worker.WorkerContext
 
 class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(ctx) {
   val LOG: Log = LogFactory.getLog(classOf[GraphLearner])
@@ -299,19 +305,22 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       // ctx.incEpoch()
       /* new code */
       val trainDataStatus: Int = ctx.incEpochWithStatus()
-      LOG.info("TrainDataStatus = " + trainDataStatus);
+      LOG.info("TrainDataStatus = " + trainDataStatus)
+      if (trainDataStatus == 1){
+        LOG.info("try to get appendedSCs info")
+        val appendedSCs = PSAgentContext.get().getMasterClient.getAppendedSCsInfo()
+        ctx.setAppendedSCs(appendedSCs)
+        appendedSCsProcess(validationData, posTrainData, negTrainData)
+        ctx.clearAppendedSCs()
+        actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
+        actualBatchEndIndex = posTrainData.size()
+      }
 
       /* new code */
       if (!keepExecution){
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
         PSAgentContext.get().getMasterClient.taskRemoveExecution(ctx.getTaskIndex)
         break()
-      }
-      if (epoch == 10000000){
-        LOG.info("appendProcess input data at the end of epoch = " + epoch)
-        appendProcess(validationData, posTrainData, negTrainData)
-        actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
-        actualBatchEndIndex = posTrainData.size()
       }
       if (epoch == 50000000){
         LOG.info("it is time to recover")
@@ -327,47 +336,60 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   }
 
   /* new code */
-  def appendProcess(validDataBlock: DataBlock[LabeledData],posDataBlock: DataBlock[LabeledData],
+  def appendedSCsProcess(validDataBlock: DataBlock[LabeledData],posDataBlock: DataBlock[LabeledData],
                              negDataBlock: DataBlock[LabeledData]) {
-    if (!ctx.ExistAppendSplits()){
-      return
-    }
-    LOG.info("appendProcess input data")
-    Train_appendStartIndex = posDataBlock.size()
-    Validate_appendStartIndex = validDataBlock.size()
 
+    var preTotalS = posDataBlock.size() + validDataBlock.size()
+    var preTrainS = posDataBlock.size()
+    var preValidS = validDataBlock.size()
+
+    LOG.info("appendProcess input data")
     val start = System.currentTimeMillis()
+
 
     var count = 0
     val valiRat = SharedConf.validateRatio
     val posnegRatio: Double = SharedConf.posnegRatio()
     val vali = Math.ceil(1.0 / valiRat).toInt
 
-    val reader = ctx.getReaderForRealSC(0)
-    var i: Int = 0
-    while (reader.nextKeyValue) {
-      i = i + 1
-      val out = parse(reader.getCurrentKey, reader.getCurrentValue)
-      if (out != null) {
-        if (count % vali == 0) {
-          validDataBlock.put(out)
-          Validate_appendLength = Validate_appendLength + 1
-        }
-        else if (posnegRatio != -1) {
-          if (out.getY > 0) {
-            posDataBlock.put(out)
+    val SCIndex = 0
+    var TotalS = posDataBlock.size() + validDataBlock.size()
+    var TrainS = posDataBlock.size()
+    var ValidS = validDataBlock.size()
+
+    for (SCIndex <- 0 until WorkerContext.get().getDataBlockManager().appendedSplitClassifications.size()){
+      val reader = ctx.getReaderForAppendedSC(SCIndex)
+      while (reader.nextKeyValue) {
+        val out = parse(reader.getCurrentKey, reader.getCurrentValue)
+        if (out != null) {
+          if (count % vali == 0)
+            validDataBlock.put(out)
+          else if (posnegRatio != -1) {
+            if (out.getY > 0) {
+              posDataBlock.put(out)
+            } else {
+              negDataBlock.put(out)
+            }
           } else {
-            negDataBlock.put(out)
+            posDataBlock.put(out)
           }
-        } else {
-          posDataBlock.put(out)
-          Train_appendLength = Train_appendLength + 1
+          count += 1
         }
-        count += 1
+
+        null.asInstanceOf[Vector]
       }
-      null.asInstanceOf[Vector]
+      TotalS = posDataBlock.size + validDataBlock.size - TotalS
+      TrainS = posDataBlock.size - TrainS
+      ValidS = validDataBlock.size - ValidS
+      LOG.info("TotalS = " + TotalS)
+      LOG.info("TrainS = " + TrainS)
+      LOG.info("ValidS = " + ValidS)
+      ctx.addSamplesNum(TotalS, TrainS, ValidS)
     }
-    LOG.info("i =" + i)
+
+    WorkerContext.get().getDataBlockManager().update_realSCsAllSTotalLength()
+    WorkerContext.get().getDataBlockManager().print_realSCs_allSamples()
+
 
     posDataBlock.flush()
     if (negDataBlock != null){negDataBlock.flush()}
@@ -375,6 +397,13 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
 
     val cost = System.currentTimeMillis() - start
     LOG.info(s"Task[${ctx.getTaskIndex}] appendprocessed ${
+      posDataBlock.size + validDataBlock.size - preTotalS
+    } samples, ${posDataBlock.size - preTrainS} for train, " +
+      s"${validDataBlock.size - preValidS} for validation." +
+      s" processing time is $cost"
+    )
+
+    LOG.info(s"Task[${ctx.getTaskIndex}] totalprocessed ${
       posDataBlock.size + validDataBlock.size
     } samples, ${posDataBlock.size} for train, " +
       s"${validDataBlock.size} for validation." +

@@ -22,6 +22,7 @@ import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.master.app.AMContext;
 import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.utils.HdfsUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -63,6 +64,9 @@ public class DataSpliter {
   public Map<Integer, Long> realSCsTotalLength_active;
 
   public List<Boolean> activeWGIndex;
+
+  // workergroup Index to trainDataStatus, 1 append, 0 normal, -1 delete
+  public Map<Integer, Integer> trainDataStatus;
 
   public Map<Integer, List<SplitClassification>> appendedSCs;
   public SplitClassification extraSplitClassification;
@@ -128,6 +132,7 @@ public class DataSpliter {
     this.realSCsTotalLength_active = new HashMap<Integer, Long>();
 
     this.activeWGIndex = new ArrayList<Boolean>();
+    this.trainDataStatus = new HashMap<Integer, Integer>();
 
     this.appendedSCs = new HashMap<Integer, List<SplitClassification>>();
     /* code end */
@@ -327,9 +332,20 @@ public class DataSpliter {
       SplitClassification idleSCCopy = new SplitClassification();
       idleSCCopy = idleSCs.get(i);
       appendedSCs.get(wgindex).add(idleSCCopy);
+      wgindex++;
+      if (wgindex == activeWGIndex.size()){
+        wgindex = wgindex%activeWGIndex.size();
+      }
     }
+    update_realSCsTotalLength();
     LOG.info("after dispatch ......");
     print_all_SCs();
+
+    for (Integer wgIndex : appendedSCs.keySet()){
+      if (appendedSCs.get(wgIndex).size() > 0){
+        trainDataStatus.put(wgIndex, 1);
+      }
+    }
   }
 
   public void assignRealSplits(List<org.apache.hadoop.mapreduce.InputSplit> splitList, int workergroupIndex)
@@ -375,7 +391,9 @@ public class DataSpliter {
           List<SplitClassification> appendedSCsList = new ArrayList<SplitClassification>();
           appendedSCsList.add(newSplitClassification);
           appendedSCs.put(workergroupIndex, appendedSCsList);
+
           activeWGIndex.add(true);
+          trainDataStatus.put(workergroupIndex, 0);
         }
         // put into realSCsStatus
         if (realSCsStatus.containsKey(workergroupIndex)){

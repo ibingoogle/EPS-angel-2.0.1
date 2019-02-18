@@ -110,11 +110,12 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
     val vali = Math.ceil(1.0 / valiRat).toInt
 
     val SCIndex = 0
+    var TotalS = 0l
+    var TrainS = 0l
+    var ValidS = 0l
     for (SCIndex <- 0 until WorkerContext.get().getDataBlockManager().realSplitClassifications.size()){
       val reader = taskContext.getReaderForRealSC(SCIndex)
-      var TotalS = 0l
-      var TrainS = 0l
-      var ValidS = 0l
+
       while (reader.nextKeyValue) {
         val out = parse(reader.getCurrentKey, reader.getCurrentValue)
         if (out != null) {

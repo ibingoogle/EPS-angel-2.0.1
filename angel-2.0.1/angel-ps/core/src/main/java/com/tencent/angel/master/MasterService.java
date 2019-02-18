@@ -1051,8 +1051,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
     TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
 
     /* new code */
+    int workergroupId = context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId().getIndex();
     LOG.info("task iteration, " + request);
     LOG.info("taskId = " + taskId);
+    LOG.info("workergroupId = " + workergroupId);
     /* code end */
 
     //get Task meta from task manager, if can not find, just new a AMTask object and put it to task manager
@@ -1071,7 +1073,9 @@ public class MasterService extends AbstractService implements MasterProtocol {
     return TaskIterationResponse.newBuilder().build();
      */
     /* new code */
-    int TrainDataStatus = 0;
+    int TrainDataStatus = context.getDataSpliter().trainDataStatus.get(workergroupId);
+    context.getDataSpliter().trainDataStatus.put(workergroupId, 0);
+    LOG.info("TrainDataStatus = " + TrainDataStatus);
     return TaskIterationResponse.newBuilder().setTrainDataStatus(TrainDataStatus).build();
     /* code end */
   }
