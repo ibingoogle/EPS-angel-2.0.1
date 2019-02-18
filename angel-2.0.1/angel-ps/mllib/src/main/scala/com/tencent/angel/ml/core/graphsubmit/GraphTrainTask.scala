@@ -135,7 +135,7 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
         null.asInstanceOf[Vector]
       }
       TotalS = taskDataBlock.size + validDataBlock.size - TotalS
-      TrainS = taskDataBlock.size - TotalS
+      TrainS = taskDataBlock.size - TrainS
       ValidS = validDataBlock.size - ValidS
       LOG.info("TotalS = " + TotalS)
       LOG.info("TrainS = " + TrainS)

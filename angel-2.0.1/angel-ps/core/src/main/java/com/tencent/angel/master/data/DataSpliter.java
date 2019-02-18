@@ -62,8 +62,45 @@ public class DataSpliter {
   public Map<Integer, Long> realSCsTotalLength_all;
   public Map<Integer, Long> realSCsTotalLength_active;
 
+  public List<Boolean> activeWGIndex;
+
   public Map<Integer, List<SplitClassification>> appendedSCs;
   public SplitClassification extraSplitClassification;
+
+  public void print_all_SCs(){
+    LOG.info("");
+    LOG.info("");
+    for (Integer wgIndex: realSplitClassifications.keySet()){
+      print_wg_SCs(wgIndex);
+    }
+    LOG.info("");
+    LOG.info("");
+  }
+
+  public void print_wg_SCs(int wgIndex) {
+    LOG.info("SCs info of workergroup index = " + wgIndex);
+    LOG.info("wg active status = " + activeWGIndex.get(wgIndex));
+    LOG.info("realSCs size = " + realSplitClassifications.get(wgIndex).size());
+    for (int i = 0; i < realSplitClassifications.get(wgIndex).size(); i++) {
+      LOG.info("    SC = " + realSplitClassifications.get(wgIndex).get(i).toString());
+      LOG.info("    SCstatus = " + realSCsStatus.get(wgIndex).get(i));
+      LOG.info("    SCsLength = " + realSCsStatus.get(wgIndex).get(i));
+      LOG.info("~~~~~~");
+    }
+    LOG.info("totalLength = " + realSCsTotalLength_all.get(wgIndex));
+    LOG.info("totalLength_active = " + realSCsTotalLength_active.get(wgIndex));
+    LOG.info("^^^^^^^^^^^");
+    LOG.info("appendedSCs in this workergroup:");
+    if (appendedSCs != null && appendedSCs.get(wgIndex) != null) {
+      LOG.info("appendedSCs.size = " + appendedSCs.get(wgIndex).size());
+      for (int i = 0; i < appendedSCs.get(wgIndex).size(); i++){
+        LOG.info("SC = " + appendedSCs.get(wgIndex).get(i).toString());
+      }
+    }
+    LOG.info("#############");
+  }
+
+
   /* code end */
 
   /**
@@ -89,6 +126,8 @@ public class DataSpliter {
     this.realSCsLength = new HashMap<Integer, List<Long>>();
     this.realSCsTotalLength_all = new HashMap<Integer, Long>();
     this.realSCsTotalLength_active = new HashMap<Integer, Long>();
+
+    this.activeWGIndex = new ArrayList<Boolean>();
 
     this.appendedSCs = new HashMap<Integer, List<SplitClassification>>();
     /* code end */
@@ -267,6 +306,32 @@ public class DataSpliter {
     }
   }
 
+  public void dispatchIdleSCs(List<SplitClassification> idleSCs) throws IOException, InterruptedException {
+    LOG.info("private void dispatchIdleSCs(List<SplitClassification> idleSCs)~~~~");
+    LOG.info("Before dispatch .......");
+    print_all_SCs();
+
+    // round robin
+    int wgindex = 0;
+    for (int i = 0; i < idleSCs.size(); i++){
+      while (activeWGIndex.get(wgindex) == false){
+        wgindex++;
+        if (wgindex == activeWGIndex.size()){
+          wgindex = wgindex%activeWGIndex.size();
+        }
+      }
+      LOG.info("wgindex = " + wgindex);
+      realSplitClassifications.get(wgindex).add(idleSCs.get(i));
+      realSCsStatus.get(wgindex).add(true);
+      realSCsLength.get(wgindex).add(idleSCs.get(i).getSplitNewAPI(0).getLength());
+      SplitClassification idleSCCopy = new SplitClassification();
+      idleSCCopy = idleSCs.get(i);
+      appendedSCs.get(wgindex).add(idleSCCopy);
+    }
+    LOG.info("after dispatch ......");
+    print_all_SCs();
+  }
+
   public void assignRealSplits(List<org.apache.hadoop.mapreduce.InputSplit> splitList, int workergroupIndex)
           throws IOException, InterruptedException{
     LOG.info("workergroupIndex= " + workergroupIndex);
@@ -310,6 +375,7 @@ public class DataSpliter {
           List<SplitClassification> appendedSCsList = new ArrayList<SplitClassification>();
           appendedSCsList.add(newSplitClassification);
           appendedSCs.put(workergroupIndex, appendedSCsList);
+          activeWGIndex.add(true);
         }
         // put into realSCsStatus
         if (realSCsStatus.containsKey(workergroupIndex)){

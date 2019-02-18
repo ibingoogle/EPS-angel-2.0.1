@@ -1088,7 +1088,25 @@ public class MasterService extends AbstractService implements MasterProtocol {
                                                        TaskRemoveExecutionRequest request) throws ServiceException {
     TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
     LOG.info("taskId = " + taskId);
-    LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
+    int workergroupId = context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId().getIndex();
+    LOG.info("workergroupId = " + workergroupId);
+
+    List<SplitClassification> idleSCs = context.getDataSpliter().realSplitClassifications.get(workergroupId);
+    LOG.info("idle SCs:");
+    for (int i = 0; i<idleSCs.size(); i++){
+      LOG.info("    SC[" + i + "] = " + idleSCs.get(i).toString());
+    }
+    context.getDataSpliter().activeWGIndex.set(workergroupId, false);
+    LOG.info("active workergroup:");
+    for (int i = 0; i<context.getDataSpliter().activeWGIndex.size(); i++){
+      LOG.info("workergroup id = " + i + " => " + context.getDataSpliter().activeWGIndex.get(i));
+    }
+
+    try {
+      context.getDataSpliter().dispatchIdleSCs(idleSCs);
+    }catch (Throwable x) {
+      throw new ServiceException(x);
+    }
 
     return TaskRemoveExecutionResponse.newBuilder().build();
   }
