@@ -45,7 +45,7 @@ public class DataBlockManager {
   private SplitClassification splitClassification;
 
   /* new code */
-  public List<SplitClassification> appendedSplitClassifications;
+  public List<SplitClassification> appendedSplitClassifications = new ArrayList<SplitClassification>();
 
   public List<SplitClassification> realSplitClassifications = new ArrayList<SplitClassification>();
   public List<Boolean> realSCsStatus = new ArrayList<Boolean>();

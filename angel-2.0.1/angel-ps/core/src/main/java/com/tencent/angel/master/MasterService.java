@@ -1101,6 +1101,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
       LOG.info("    SC[" + i + "] = " + idleSCs.get(i).toString());
     }
     context.getDataSpliter().activeWGIndex.set(workergroupId, false);
+    context.getDataSpliter().totalActiveWGNum--;
+    context.getDataSpliter().update_avgSCsNum();
     LOG.info("active workergroup:");
     for (int i = 0; i<context.getDataSpliter().activeWGIndex.size(); i++){
       LOG.info("workergroup id = " + i + " => " + context.getDataSpliter().activeWGIndex.get(i));

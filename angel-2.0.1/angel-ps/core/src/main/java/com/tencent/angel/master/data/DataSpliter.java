@@ -64,9 +64,14 @@ public class DataSpliter {
   public Map<Integer, Long> realSCsTotalLength_active;
 
   public List<Boolean> activeWGIndex;
+  public int totalActiveWGNum = 0;
+  public Map<Integer, Integer> activeSCsNum;
 
   // workergroup Index to trainDataStatus, 1 append, 0 normal, -1 delete
   public Map<Integer, Integer> trainDataStatus;
+
+  public double averageSCsNum = 0.0;
+
 
   public Map<Integer, List<SplitClassification>> appendedSCs;
   public SplitClassification extraSplitClassification;
@@ -74,9 +79,15 @@ public class DataSpliter {
   public void print_all_SCs(){
     LOG.info("");
     LOG.info("");
+    LOG.info("total active WG num = " + totalActiveWGNum);
+    LOG.info("");
+    LOG.info("");
     for (Integer wgIndex: realSplitClassifications.keySet()){
       print_wg_SCs(wgIndex);
     }
+    LOG.info("");
+    LOG.info("");
+    LOG.info("average SCs per worker = " + averageSCsNum);
     LOG.info("");
     LOG.info("");
   }
@@ -85,6 +96,7 @@ public class DataSpliter {
     LOG.info("SCs info of workergroup index = " + wgIndex);
     LOG.info("wg active status = " + activeWGIndex.get(wgIndex));
     LOG.info("realSCs size = " + realSplitClassifications.get(wgIndex).size());
+    LOG.info("activeSCs size = " + activeSCsNum.get(wgIndex));
     for (int i = 0; i < realSplitClassifications.get(wgIndex).size(); i++) {
       LOG.info("    SC = " + realSplitClassifications.get(wgIndex).get(i).toString());
       LOG.info("    SCstatus = " + realSCsStatus.get(wgIndex).get(i));
@@ -301,6 +313,8 @@ public class DataSpliter {
       //LOG.info("totalLength_active = " + realSCsTotalLength_active.get(i));
       /* code end */
     }
+    update_avgSCsNum();//////
+    print_all_SCs();//////
   }
 
   /* new code */
@@ -329,6 +343,8 @@ public class DataSpliter {
       realSplitClassifications.get(wgindex).add(idleSCs.get(i));
       realSCsStatus.get(wgindex).add(true);
       realSCsLength.get(wgindex).add(idleSCs.get(i).getSplitNewAPI(0).getLength());
+      activeSCsNum.put(wgindex, activeSCsNum.get(wgindex) + 1);
+
       SplitClassification idleSCCopy = new SplitClassification();
       idleSCCopy = idleSCs.get(i);
       appendedSCs.get(wgindex).add(idleSCCopy);
@@ -339,6 +355,7 @@ public class DataSpliter {
     }
     update_realSCsTotalLength();
     LOG.info("after dispatch ......");
+    update_avgSCsNum();
     print_all_SCs();
 
     for (Integer wgIndex : appendedSCs.keySet()){
@@ -388,27 +405,53 @@ public class DataSpliter {
           List<SplitClassification> SCsList = new ArrayList<SplitClassification>();
           SCsList.add(newSplitClassification);
           realSplitClassifications.put(workergroupIndex, SCsList);
+
           List<SplitClassification> appendedSCsList = new ArrayList<SplitClassification>();
           appendedSCsList.add(newSplitClassification);
           appendedSCs.put(workergroupIndex, appendedSCsList);
 
           activeWGIndex.add(true);
+          totalActiveWGNum++;
           trainDataStatus.put(workergroupIndex, 0);
         }
         // put into realSCsStatus
         if (realSCsStatus.containsKey(workergroupIndex)){
           realSCsStatus.get(workergroupIndex).add(true);
           realSCsLength.get(workergroupIndex).add(lengths[0]);
+          activeSCsNum.put(workergroupIndex, activeSCsNum.get(workergroupIndex) + 1);
+
         }else {
           List<Boolean> SCsStatus = new ArrayList<Boolean>();
           SCsStatus.add(true);
           realSCsStatus.put(workergroupIndex, SCsStatus);
+          activeSCsNum.put(workergroupIndex, 1);
+
           List<Long> SCsLength = new ArrayList<Long>();
           SCsLength.add(lengths[0]);
           realSCsLength.put(workergroupIndex, SCsLength);
         }
       }
     }
+  }
+
+  public void update_avgSCsNum(){
+    int num = 0;
+    for (int i = 0; i < activeWGIndex.size(); i++){
+      if (activeWGIndex.get(i)) num++;
+    }
+    totalActiveWGNum = num;
+    for (int i = 0; i < realSCsStatus.size(); i++){
+      num = 0;
+      for (int j = 0; j < realSCsStatus.get(i).size(); j++){
+        if (realSCsStatus.get(i).get(j)) num++;
+      }
+      activeSCsNum.put(i, num);
+    }
+    num = 0;
+    for (int k = 0; k<activeSCsNum.size(); k++){
+      if (activeWGIndex.get(k)) num += activeSCsNum.get(k);
+    }
+    averageSCsNum = (double) num/totalActiveWGNum;
   }
 
   public void update_realSCsTotalLength(){
