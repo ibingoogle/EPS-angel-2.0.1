@@ -93,6 +93,19 @@ public class MemoryDataBlock<VALUE> extends DataBlock<VALUE> {
     }
   }
 
+  /* new code */
+  @Override public void removeRest(int startIndex) throws IOException {
+    LOG.info("TODO removeRest in MemoryDataBlock.java");
+  }
+
+  @Override public void removeFromRear(long num) throws IOException{
+    for (long i = 0; i < num; i++){
+      vList.remove(vList.size()-1);
+      writeIndex--;
+    }
+  }
+  /* code end */
+
   @Override public void resetReadIndex() throws IOException {
     readIndex = (startPos > 0) ? startPos : 0;
   }
@@ -146,6 +159,10 @@ public class MemoryDataBlock<VALUE> extends DataBlock<VALUE> {
     vList.ensureCapacity(maxStoreNum);
     LOG.debug("estimate sample number=" + vList.size() + ", estimatedSize=" + estimatedSize
       + ", maxStoreNum=" + maxStoreNum + ", maxUseMemroy=" + maxUseMemroy);
+    /* new code */
+    LOG.info("estimate sample number=" + vList.size() + ", estimatedSize=" + estimatedSize
+            + ", maxStoreNum=" + maxStoreNum + ", maxUseMemroy=" + maxUseMemroy);
+    /* code end */
   }
 
   public boolean checkIsOverMaxMemoryUsed() {

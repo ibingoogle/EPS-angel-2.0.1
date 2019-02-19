@@ -318,14 +318,14 @@ public class DataSpliter {
   }
 
   /* new code */
-  public boolean dispatchExtraSplitsUseLocation() throws IOException, InterruptedException {
+  public boolean dispatchSplitsForNewWorker() throws IOException, InterruptedException {
     LOG.info("private void dispatchExtraSplitsUseLocation~~~");
     LOG.info("before dispatch ~~~~~~~~~~~~~~");
     print_all_SCs();
 
     boolean result = true;
     int dispatchedSCsNum = 0;
-    int maxDispatchNum = (int) ((averageSCsNum * (totalActiveWGNum - 1)) / averageSCsNum);
+    int maxDispatchNum = (int) ((averageSCsNum * (totalActiveWGNum - 1)) / totalActiveWGNum);
     LOG.info("maxDispatchNum = " + maxDispatchNum);
     if (maxDispatchNum < 1) return false;
     List<Integer> statusChanged = new ArrayList<Integer>();

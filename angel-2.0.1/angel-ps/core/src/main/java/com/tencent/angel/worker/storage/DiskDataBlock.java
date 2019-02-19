@@ -182,6 +182,15 @@ public class DiskDataBlock<VALUE> extends DataBlock<VALUE> {
     writeIndex++;
   }
 
+  /* new code */
+  @Override public void removeRest(int startIndex) throws IOException {
+    LOG.info("TODO removeRest in DiskDataBlock.java");
+  }
+  @Override public void removeFromRear(long num) throws IOException{
+    LOG.info("TODO removeFromRear in DiskDataBlock.java");
+  }
+  /* code end */
+
   private void switchNextFile() throws AngelException {
     OutputStream curOutputStream = null;
     if (kryoOutput != null) {

@@ -97,6 +97,25 @@ public abstract class DataBlock<VALUE> {
    */
   public abstract void put(VALUE value) throws IOException;
 
+  /* new code */
+  /**
+   * remove values after(includes) startIndex
+   *
+   * @param startIndex remove values from startIndex to the last index
+   * @throws IOException
+   */
+  public abstract void removeRest(int startIndex) throws IOException;
+
+  /**
+   * remove values from rear of list
+   *
+   * @param num num of removed values
+   * @throws IOException
+   */
+  public abstract void removeFromRear(long num) throws IOException;
+
+  /* code end */
+
   /**
    * Reset read index at start position
    *

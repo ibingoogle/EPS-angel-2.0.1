@@ -110,6 +110,15 @@ public class MemoryAndDiskDataBlock<VALUE> extends DataBlock<VALUE> {
     }
   }
 
+  /* new code */
+  @Override public void removeRest(int startIndex) throws IOException {
+    LOG.info("TODO removeRest in MemoryAndDiskDataBlock.java");
+  }
+  @Override public void removeFromRear(long num) throws IOException{
+    LOG.info("TODO removeFromRear in MemoryAndDiskDataBlock.java");
+  }
+  /* code end */
+
   @Override public void resetReadIndex() throws IOException {
     readIndex = 0;
     if (memoryReadInUse) {

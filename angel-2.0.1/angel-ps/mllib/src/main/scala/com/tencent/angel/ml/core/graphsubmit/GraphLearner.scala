@@ -308,33 +308,33 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       LOG.info("TrainDataStatus = " + trainDataStatus)
       if (trainDataStatus == 1){
         LOG.info("try to get appendedSCs info")
+        LOG.info("before => actualBatchEndIndex = " +  actualBatchEndIndex)
         val appendedSCs = PSAgentContext.get().getMasterClient.getAppendedSCsInfo()
         ctx.setAppendedSCs(appendedSCs)
         appendedSCsProcess(validationData, posTrainData, negTrainData)
         ctx.clearAppendedSCs()
         actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
         actualBatchEndIndex = posTrainData.size()
+        LOG.info("after => actualBatchEndIndex = " +  actualBatchEndIndex)
       }
       if (trainDataStatus == -1){
         LOG.info("try to remove inactive SCs")
+        LOG.info("before => actualBatchEndIndex = " +  actualBatchEndIndex)
         val allSCsStatus = PSAgentContext.get().getMasterClient.trainDataRemove(ctx.getTaskIndex)
         val removedInfo = ctx.handleAllSCsStatus(allSCsStatus);
         val removedTrainSize = removedInfo.apply(0)
         val removedValidSize = removedInfo.apply(1)
         LOG.info("removedTrainSize = " + removedTrainSize)
         LOG.info("removedValidSize = " + removedValidSize)
+        removeSamplesProcess(validationData, posTrainData, removedTrainSize, removedValidSize)
+        actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
+        actualBatchEndIndex = posTrainData.size()
+        LOG.info("after => actualBatchEndIndex = " +  actualBatchEndIndex)
       }
-
-      /* new code */
       if (!keepExecution){
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
         PSAgentContext.get().getMasterClient.taskRemoveExecution(ctx.getTaskIndex)
         break()
-      }
-      if (epoch == 50000000){
-        LOG.info("it is time to recover")
-        actualBatchEndIndex = defaultBatchEndIndex
-        actualBatchSize = defaultBatchSize
       }
       /* code end */
     }
@@ -423,6 +423,12 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     )
   }
 
+
+  def removeSamplesProcess(validDataBlock: DataBlock[LabeledData],posDataBlock: DataBlock[LabeledData],
+                         removedTrainSize: Long, removedValidSize: Long): Unit = {
+    posDataBlock.removeFromRear(removedTrainSize);
+    validDataBlock.removeFromRear(removedValidSize);
+  }
 
   def parse(key: LongWritable, value: Text): LabeledData = {
     dataParser.parse(value.toString)
