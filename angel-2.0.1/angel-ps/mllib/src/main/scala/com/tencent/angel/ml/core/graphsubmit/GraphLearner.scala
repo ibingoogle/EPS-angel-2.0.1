@@ -315,6 +315,15 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         actualBatchSize = (posTrainData.size() + numBatch - 1) / numBatch
         actualBatchEndIndex = posTrainData.size()
       }
+      if (trainDataStatus == -1){
+        LOG.info("try to remove inactive SCs")
+        val allSCsStatus = PSAgentContext.get().getMasterClient.trainDataRemove(ctx.getTaskIndex)
+        val removedInfo = ctx.handleAllSCsStatus(allSCsStatus);
+        val removedTrainSize = removedInfo.apply(0)
+        val removedValidSize = removedInfo.apply(1)
+        LOG.info("removedTrainSize = " + removedTrainSize)
+        LOG.info("removedValidSize = " + removedValidSize)
+      }
 
       /* new code */
       if (!keepExecution){

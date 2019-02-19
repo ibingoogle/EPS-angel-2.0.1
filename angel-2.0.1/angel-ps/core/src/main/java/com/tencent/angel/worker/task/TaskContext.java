@@ -172,6 +172,18 @@ public class TaskContext {
     WorkerContext.get().getDataBlockManager().realSCsValidSLength.add(ValidS);
   }
 
+  public long[] handleAllSCsStatus(List<Boolean> allSCsStatus){
+    assert (allSCsStatus.size() == WorkerContext.get().getDataBlockManager().realSCsStatus.size());
+    LOG.info("before handling allSCsStatus");
+    WorkerContext.get().getDataBlockManager().print_allSCs();
+    long[] result = WorkerContext.get().getDataBlockManager().handleAllSCsStatus(allSCsStatus);
+    LOG.info("after handling allSCsStatus");
+    WorkerContext.get().getDataBlockManager().update_realSCsTotalLength();
+    WorkerContext.get().getDataBlockManager().update_realSCsAllSTotalLength();
+    WorkerContext.get().getDataBlockManager().print_allSCs();
+    return result;
+  }
+
   /* code end */
 
   /**

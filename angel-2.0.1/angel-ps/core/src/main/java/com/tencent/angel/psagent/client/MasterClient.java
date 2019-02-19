@@ -494,7 +494,6 @@ public class MasterClient {
     LOG.info("send taskIteration RPC, iteration = " + iteration + ", taskid = " + taskIndex);//////
     TaskIterationResponse response = master.taskIteration(null, request);
     int trainDataStatus = response.getTrainDataStatus();
-    trainDataRemove(taskIndex);
     return trainDataStatus;
   }
 
@@ -504,7 +503,7 @@ public class MasterClient {
    * @param taskIndex task index
    * @throws ServiceException rpc failed
    */
-  public void trainDataRemove(int taskIndex) throws ServiceException {
+  public List<Boolean> trainDataRemove(int taskIndex) throws ServiceException {
     TrainDataRemoveRequest request = TrainDataRemoveRequest.newBuilder()
             .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build())
             .build();
@@ -515,6 +514,7 @@ public class MasterClient {
     for (int i = 0; i < allSCsStatus.size(); i++){
       LOG.info("SC index = " + i + ", status = " + allSCsStatus.get(i));
     }
+    return allSCsStatus;
   }
 
   public void taskRemoveExecution(int taskIndex) throws ServiceException {

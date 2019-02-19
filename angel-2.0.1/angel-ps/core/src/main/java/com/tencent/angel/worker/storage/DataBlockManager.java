@@ -223,6 +223,26 @@ public class DataBlockManager {
     LOG.info("##############");
     LOG.info("");
   }
+
+
+  public long[] handleAllSCsStatus(List<Boolean> allSCsStatus){
+    assert (realSCsTrainSLength.size() == allSCsStatus.size());
+    assert (realSCsValidSLength.size() == allSCsStatus.size());
+    long[] result = new long[2]; // one for training data, one for valid data
+    for (int i = realSCsStatus.size() - 1; i >= 0; i--){ // compare from end to front
+      LOG.info("i = " + i);
+      LOG.info("realSCsStatus = " + realSCsStatus.get(i));
+      LOG.info("allSCsStatus = " + allSCsStatus.get(i));
+      if (realSCsStatus.get(i) != allSCsStatus.get(i)){
+        realSCsStatus.set(i, allSCsStatus.get(i));
+        LOG.info("remove samples at index = " + i + "and set related SC status = " + realSCsStatus.get(i));
+        result[0] += realSCsTrainSLength.get(i);
+        result[1] += realSCsValidSLength.get(i);
+      }
+    }
+    return result;
+  }
+
   /* code end */
 
   public DataBlockManager() {

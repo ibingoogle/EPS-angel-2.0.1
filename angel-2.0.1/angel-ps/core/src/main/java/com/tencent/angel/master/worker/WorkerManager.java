@@ -337,8 +337,6 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     incrementWorkerGroupNumber();
     LOG.info("dispatch datasplit for new worker");
 
-    context.getDataSpliter().dispatchExtraSplitsUseLocation();
-
     if (context.getDataSpliter().dispatchExtraSplitsUseLocation()) {
       try {
         writeLock.lock();
