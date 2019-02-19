@@ -320,9 +320,9 @@ public class DataSpliter {
   /* new code */
   public boolean dispatchExtraSplitsUseLocation() throws IOException, InterruptedException {
     LOG.info("private void dispatchExtraSplitsUseLocation~~~");
-    LOG.info("before dispatch~~~~~~~~~~~~~~");
+    LOG.info("before dispatch ~~~~~~~~~~~~~~");
     print_all_SCs();
-    
+
     boolean result = true;
     int dispatchedSCsNum = 0;
     int maxDispatchNum = (int) ((averageSCsNum * (totalActiveWGNum - 1)) / averageSCsNum);
@@ -370,7 +370,7 @@ public class DataSpliter {
       LOG.info("wgIndex = " + i + ", status = " + trainDataStatus.get(i));
     }
 
-    LOG.info("after dispatch~~~~~~~~~~~~~~");
+    LOG.info("after dispatch ~~~~~~~~~~~~~~");
     update_avgSCsNum();
     update_realSCsTotalLength();
     print_all_SCs();
@@ -379,7 +379,7 @@ public class DataSpliter {
 
   public void dispatchIdleSCs(List<SplitClassification> idleSCs) throws IOException, InterruptedException {
     LOG.info("private void dispatchIdleSCs(List<SplitClassification> idleSCs)~~~~");
-    LOG.info("Before dispatch .......");
+    LOG.info("Before dispatch idleSCs.......");
     print_all_SCs();
 
     // round robin
@@ -406,7 +406,7 @@ public class DataSpliter {
       }
     }
     update_realSCsTotalLength();
-    LOG.info("after dispatch ......");
+    LOG.info("after dispatch idleSCs......");
     update_avgSCsNum();
     print_all_SCs();
 
@@ -605,7 +605,7 @@ public class DataSpliter {
     trainDataStatus.put(trainDataStatus.size(), 0);
 
     List<SplitClassification> SCs = new ArrayList<SplitClassification>();
-    appendedSCs.put(SCs.size(), SCs);
+    appendedSCs.put(appendedSCs.size(), SCs);
   }
   /* code end */
 
