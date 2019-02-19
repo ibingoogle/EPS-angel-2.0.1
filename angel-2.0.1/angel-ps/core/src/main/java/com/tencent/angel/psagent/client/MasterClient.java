@@ -510,7 +510,11 @@ public class MasterClient {
             .build();
     LOG.info("send trainDataRemove RPC, taskid = " + taskIndex);//////
     TrainDataRemoveResponse response = master.trainDataRemove(null, request);
-    List<Integer> removedSCIndexList = response.getRemovedSCIndexList();
+    List<Boolean> allSCsStatus = response.getAllSCsStatusList();
+
+    for (int i = 0; i < allSCsStatus.size(); i++){
+      LOG.info("SC index = " + i + ", status = " + allSCsStatus.get(i));
+    }
   }
 
   public void taskRemoveExecution(int taskIndex) throws ServiceException {

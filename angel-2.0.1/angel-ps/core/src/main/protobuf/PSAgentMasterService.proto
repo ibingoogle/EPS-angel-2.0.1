@@ -129,7 +129,7 @@ message TrainDataRemoveRequest {
 }
 
 message TrainDataRemoveResponse {
-  repeated int32 removedSCIndex = 1;
+  repeated bool allSCsStatus = 1;
 }
 
 

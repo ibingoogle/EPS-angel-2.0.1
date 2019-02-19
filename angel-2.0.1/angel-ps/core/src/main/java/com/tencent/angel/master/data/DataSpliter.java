@@ -358,6 +358,9 @@ public class DataSpliter {
       }
     }
 
+    // dispatch first SC in realSplitClassifications in splitClassifications to guarantee the execution of new worker
+    splitClassifications.put(splitClassifications.size(), realSplitClassifications.get(realSplitClassifications.size() - 1).get(0));
+
     for (int i = 0; i < statusChanged.size(); i++){
       LOG.info("status changed wgindex = " + statusChanged.get(i));
       if (trainDataStatus.get(statusChanged.get(i)) != -1){

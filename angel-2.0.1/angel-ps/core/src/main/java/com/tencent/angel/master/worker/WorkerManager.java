@@ -338,7 +338,7 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     LOG.info("dispatch datasplit for new worker");
 
     context.getDataSpliter().dispatchExtraSplitsUseLocation();
-    /*
+
     if (context.getDataSpliter().dispatchExtraSplitsUseLocation()) {
       try {
         writeLock.lock();
@@ -354,7 +354,7 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
       } finally {
         writeLock.unlock();
       }
-    }*/
+    }
   }
 
   /* code end */
@@ -375,10 +375,10 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
 
   /* new code */
   public void incrementWorkerGroupNumber() {
-    /*workergroupNumber++;
+    workergroupNumber++;
     totalTaskNumber++;
     context.getConf().setInt(AngelConf.ANGEL_TASK_ACTUAL_NUM, totalTaskNumber);
-    context.getConf().setInt(AngelConf.ANGEL_WORKERGROUP_ACTUAL_NUM, workergroupNumber);*/
+    context.getConf().setInt(AngelConf.ANGEL_WORKERGROUP_ACTUAL_NUM, workergroupNumber);
     context.getDataSpliter().incrementActualSplitNum();
   }
   /* code end */

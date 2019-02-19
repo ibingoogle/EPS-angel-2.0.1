@@ -1129,9 +1129,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
                                                            TrainDataRemoveRequest request) throws ServiceException {
     TaskId taskId = ProtobufUtil.convertToId(request.getTaskId());
     LOG.info("taskId = " + taskId);
-    LOG.info("workergroupId = " + context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
+    int workergroupId = context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId());
+    LOG.info("workergroupId = " + workergroupId);
     TrainDataRemoveResponse.Builder builder = TrainDataRemoveResponse.newBuilder();
-    builder.addRemovedSCIndex(-1);builder.addRemovedSCIndex(0);
+    for (int i = 0; i < context.getDataSpliter().realSCsStatus.get(workergroupId).size(); i++){
+      builder.addAllSCsStatus(context.getDataSpliter().realSCsStatus.get(workergroupId).get(i));
+    }
     return builder.build();
   }
   /* code end */
