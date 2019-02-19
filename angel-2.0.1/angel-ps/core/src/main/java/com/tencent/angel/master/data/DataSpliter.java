@@ -74,7 +74,6 @@ public class DataSpliter {
 
 
   public Map<Integer, List<SplitClassification>> appendedSCs;
-  public SplitClassification extraSplitClassification;
 
   public void print_all_SCs(){
     LOG.info("");
@@ -319,11 +318,63 @@ public class DataSpliter {
   }
 
   /* new code */
-  public void dispatchExtraSplitsUseLocation(){
+  public boolean dispatchExtraSplitsUseLocation() throws IOException, InterruptedException {
     LOG.info("private void dispatchExtraSplitsUseLocation~~~");
-    if (extraSplitClassification != null && splitClassifications.size() < actualSplitNum){
-      splitClassifications.put(actualSplitNum-1, extraSplitClassification);
+    LOG.info("before dispatch~~~~~~~~~~~~~~");
+    print_all_SCs();
+    
+    boolean result = true;
+    int dispatchedSCsNum = 0;
+    int maxDispatchNum = (int) ((averageSCsNum * (totalActiveWGNum - 1)) / averageSCsNum);
+    LOG.info("maxDispatchNum = " + maxDispatchNum);
+    if (maxDispatchNum < 1) return false;
+    List<Integer> statusChanged = new ArrayList<Integer>();
+    while (dispatchedSCsNum < maxDispatchNum) {
+      for (int i = 0; i < realSplitClassifications.size() - 1; i++) {
+        if (activeWGIndex.get(i) && activeSCsNum.get(i) > 1) {
+          activeSCsNum.put(i, activeSCsNum.get(i) - 1);
+          statusChanged.add(i);
+          LOG.info("i = " + i);
+          int index = realSCsStatus.get(i).size() - 1;
+          while (realSCsStatus.get(i).get(index) == false) {
+            index--;
+          }
+          realSCsStatus.get(i).set(index, false);
+          SplitClassification dispatchedSC = realSplitClassifications.get(i).get(index);
+
+          realSplitClassifications.get(realSplitClassifications.size() - 1).add(dispatchedSC);
+          LOG.info("dispatched SC = " + dispatchedSC);
+          realSCsStatus.get(realSCsStatus.size() - 1).add(true);
+          realSCsLength.get(realSCsLength.size() - 1).add(dispatchedSC.getSplitNewAPI(0).getLength());
+          activeSCsNum.put((activeSCsNum.size() - 1), activeSCsNum.get(activeSCsNum.size() - 1) + 1);
+
+          SplitClassification dispatchedSCCopy = new SplitClassification();
+          dispatchedSCCopy = dispatchedSC;
+          appendedSCs.get(appendedSCs.size() - 1).add(dispatchedSCCopy);
+
+          dispatchedSCsNum++;
+          if (dispatchedSCsNum == maxDispatchNum) break;
+        }
+      }
     }
+
+    for (int i = 0; i < statusChanged.size(); i++){
+      LOG.info("status changed wgindex = " + statusChanged.get(i));
+      if (trainDataStatus.get(statusChanged.get(i)) != -1){
+        trainDataStatus.put(statusChanged.get(i), -1);
+      }
+    }
+
+    LOG.info("status =>");
+    for (int i = 0; i < trainDataStatus.size(); i++){
+      LOG.info("wgIndex = " + i + ", status = " + trainDataStatus.get(i));
+    }
+
+    LOG.info("after dispatch~~~~~~~~~~~~~~");
+    update_avgSCsNum();
+    update_realSCsTotalLength();
+    print_all_SCs();
+    return result;
   }
 
   public void dispatchIdleSCs(List<SplitClassification> idleSCs) throws IOException, InterruptedException {
@@ -535,6 +586,26 @@ public class DataSpliter {
   }
   public void  incrementActualSplitNum(){
     actualSplitNum++;
+    List<SplitClassification> realSCs = new ArrayList<SplitClassification>();
+    realSplitClassifications.put(realSplitClassifications.size(), realSCs);
+
+    List<Boolean> Status = new ArrayList<Boolean>();
+    realSCsStatus.put(realSCsStatus.size(), Status);
+
+    List<Long> Length = new ArrayList<Long>();
+    realSCsLength.put(realSCsLength.size(), Length);
+
+    realSCsTotalLength_all.put(realSCsTotalLength_all.size(), 0L);
+    realSCsTotalLength_active.put(realSCsTotalLength_active.size(), 0L);
+
+    activeWGIndex.add(true);
+    totalActiveWGNum++;
+    activeSCsNum.put(activeSCsNum.size(), 0);
+
+    trainDataStatus.put(trainDataStatus.size(), 0);
+
+    List<SplitClassification> SCs = new ArrayList<SplitClassification>();
+    appendedSCs.put(SCs.size(), SCs);
   }
   /* code end */
 

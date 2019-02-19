@@ -328,6 +328,8 @@ public class AngelConf extends Configuration {
           "angel.client.output.metrics.file";
   public static final String DEFAULT_ANGEL_CLIENT_OUTPUT_METRICS_FILE = "/opt/modules/angel-2.0.1-ps/metrics-output/loss.txt";
 
+  public static final String ANGEL_CLIENT_INC_TASK_EPOCH = "angel.client.inc.task.epoch";
+  public static final int DEFAULT_ANGEL_CLIENT_INC_TASK_EPOCH = -1;
   /* code end */
 
   // //////////////////////////////

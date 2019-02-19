@@ -46,6 +46,7 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,6 +96,8 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
   /* new code */
   public int defaultWorkergroupNumber;
   public int defaultTotalTaskNumber;
+
+  public int incWorkerEpoch;
   /* code end */
 
   /**
@@ -193,6 +196,10 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     successGroups = new HashSet<WorkerGroupId>();
     killedGroups = new HashSet<WorkerGroupId>();
     failedGroups = new HashSet<WorkerGroupId>();
+
+    /* new code */
+    incWorkerEpoch = conf.getInt(AngelConf.ANGEL_CLIENT_INC_TASK_EPOCH, AngelConf.DEFAULT_ANGEL_CLIENT_INC_TASK_EPOCH);
+    /* code end */
   }
 
   public AMWorkerGroup getWorkGroup(WorkerId workerId) {
@@ -323,25 +330,31 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
   }
 
   /* new code */
-  public void incrementOneWorker() {
+  public void incrementOneWorker() throws IOException, InterruptedException {
     LOG.info("to increment a new worker......");
+    LOG.info("before increment numbers~~~~~~~~~~~~~~");
+    context.getDataSpliter().print_all_SCs();
     incrementWorkerGroupNumber();
     LOG.info("dispatch datasplit for new worker");
+
     context.getDataSpliter().dispatchExtraSplitsUseLocation();
-    try {
-      writeLock.lock();
-      initOneWorker();
-      int i = workerGroupMap.size() - 1;
-      AMWorkerGroup group = workerGroupMap.get(new WorkerGroupId(i));
-      LOG.info("set this is extra worker");
-      group.IsExtraWorker = true;
-      for (AMWorker worker : group.getWorkerSet()) {
-        worker.handle(new AMWorkerEvent(AMWorkerEventType.SCHEDULE, worker.getId()));
+    /*
+    if (context.getDataSpliter().dispatchExtraSplitsUseLocation()) {
+      try {
+        writeLock.lock();
+        initOneWorker();
+        int i = workerGroupMap.size() - 1;
+        AMWorkerGroup group = workerGroupMap.get(new WorkerGroupId(i));
+        LOG.info("set this is extra worker");
+        group.IsExtraWorker = true;
+        for (AMWorker worker : group.getWorkerSet()) {
+          worker.handle(new AMWorkerEvent(AMWorkerEventType.SCHEDULE, worker.getId()));
+        }
+        isInited = true;
+      } finally {
+        writeLock.unlock();
       }
-      isInited = true;
-    } finally {
-      writeLock.unlock();
-    }
+    }*/
   }
 
   /* code end */
