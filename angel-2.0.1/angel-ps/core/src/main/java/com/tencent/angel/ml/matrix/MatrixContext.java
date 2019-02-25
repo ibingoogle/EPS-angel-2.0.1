@@ -399,9 +399,11 @@ public class MatrixContext implements Serializable {
    * @throws IOException
    */
   public void init(Configuration conf) throws IOException {
+    LOG.info("init() in MatrixContext.java......"); //////
     initPartitioner();
     check();
     String loadPath = attributes.get(MatrixConf.MATRIX_LOAD_PATH);
+    LOG.info("loadPath = " + loadPath); //////
     if(loadPath == null) {
       loadPath = conf.get(AngelConf.ANGEL_LOAD_MODEL_PATH);
       if (loadPath != null) {

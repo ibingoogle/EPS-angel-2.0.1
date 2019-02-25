@@ -156,6 +156,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
       LOG.debug("receive ps heartbeat request. request=" + request);
     }
 
+    /* new code */
+    LOG.info("receive ps heartbeat request. request=" + request);
+    /* code end */
+
     //parse parameter server counters
     List<Pair> params = request.getMetricsList();
     int size = params.size();
@@ -210,23 +214,41 @@ public class MasterService extends AbstractService implements MasterProtocol {
       List<RecoverPartKey> needRecoverParts = new ArrayList<>();
 
       List<MatrixReport> matrixReports = ProtobufUtil.convertToMatrixReports(matrixReportsProto);
+      /* new code */
+      LOG.info("matrixReports:");
+      for (int i = 0; i < matrixReports.size(); i++){
+        LOG.info("MatrixId = " + matrixReports.get(i).matrixId);
+        LOG.info("PartitionsReports:");
+        for (int j = 0; j < matrixReports.get(i).partReports.size(); j++){
+          LOG.info("      PartitionId = " + matrixReports.get(i).partReports.get(j).partId);
+          LOG.info("      PartitionState = " + matrixReports.get(i).partReports.get(j).state);
+        }
+      }
+      /* code end */
+
       context.getMatrixMetaManager()
         .syncMatrixInfos(matrixReports, needCreateMatrices, needReleaseMatrices, needRecoverParts,
           psAttemptId.getPsId());
 
       size = needCreateMatrices.size();
+      LOG.info("needCreateMatrices.size() = " + size); //////
       for (int i = 0; i < size; i++) {
+        LOG.info("needCreateMatrices.get(" + i + ")_ToString = " + needCreateMatrices.get(i).toString()); //////
         resBuilder
           .addNeedCreateMatrices(ProtobufUtil.convertToMatrixMetaProto(needCreateMatrices.get(i)));
       }
 
       size = needReleaseMatrices.size();
+      LOG.info("needReleaseMatrices.size() = " + size); //////
       for (int i = 0; i < size; i++) {
+        LOG.info("needReleaseMatrices.get(" + i + ")_ToString = " + needReleaseMatrices.get(i).toString()); //////
         resBuilder.addNeedReleaseMatrixIds(needReleaseMatrices.get(i));
       }
 
       size = needRecoverParts.size();
+      LOG.info("needRecoverParts.size() = " + size); //////
       for (int i = 0; i < size; i++) {
+        LOG.info("needRecoverParts.get(" + i + ")_ToString = " + needRecoverParts.get(i).toString()); //////
         resBuilder.addNeedRecoverParts(ProtobufUtil.convert(needRecoverParts.get(i)));
       }
     }
@@ -377,6 +399,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
     if (LOG.isDebugEnabled()) {
       LOG.debug("receive create matrix request. request=" + request);
     }
+
+    LOG.info("receive create matrix request. request=" + request); //////
 
     try {
       context.getMatrixMetaManager()

@@ -60,20 +60,35 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
   private val weightCtx: MatrixContext = (inputDataFormat, NetUtils.storageType(modelType)) match {
     case ("dense", "dense" | "component_dense") => // dense data, dense model
       // in this condition, all the parameters are stored in one row
+      LOG.info("1"); //////
       val psRows: Int = numSlot + 1
       val psCols = SharedConf.indexRange * outputDim
+      LOG.info("outputDim = " + outputDim); //////
+      LOG.info("SlotNum = " + numSlot); //////
+      LOG.info("psRows = " + psRows); //////
+      LOG.info("psCols = " + psCols); //////
       PSMatrixUtils.createPSMatrixCtx(s"${name}_weight", psRows, psCols, modelType)
     // in this condition, the shape of weight matrix is (inputDim, outputDim)
     // and inputDim = SharedConf.indexRange
     case ("libsvm" | "dummy", "dense" | "component_dense") => // sparse data, dense model
+      LOG.info("2"); //////
       val psRows: Int = outputDim * (numSlot + 1)
       val psCols = SharedConf.indexRange
+      LOG.info("outputDim = " + outputDim); //////
+      LOG.info("SlotNum = " + numSlot); //////
+      LOG.info("psRows = " + psRows); //////
+      LOG.info("psCols = " + psCols); //////
       PSMatrixUtils.createPSMatrixCtx(s"${name}_weight", psRows, psCols, modelType)
     // in this condition, the shape of weight matrix is (outputDim, inputDim)
     // and inputDim = SharedConf.indexRange
     case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
+      LOG.info("3"); //////
       val psRows: Int = outputDim * (numSlot + 1)
       val psCols = SharedConf.indexRange
+      LOG.info("outputDim = " + outputDim); //////
+      LOG.info("SlotNum = " + numSlot); //////
+      LOG.info("psRows = " + psRows); //////
+      LOG.info("psCols = " + psCols); //////
       val wCtx = PSMatrixUtils.createPSMatrixCtx(s"${name}_weight", psRows, psCols, modelType)
       // in this condition, the shape of weight matrix is (outputDim, inputDim)
       // and inputDim = SharedConf.indexRange

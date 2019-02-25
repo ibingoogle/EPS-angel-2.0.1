@@ -155,7 +155,9 @@ public class AMMatrixMetaManager {
    */
   public void createMatrices(List<MatrixContext> matrixContexts) throws Exception {
     int size = matrixContexts.size();
+    LOG.info("matrixContexts.size() = " + size); //////
     for (int i = 0; i < size; i++) {
+      LOG.info("matrixContext[" + i + "]_ToString = " + matrixContexts.get(i).toString());
       createMatrix(matrixContexts.get(i));
     }
   }
@@ -175,9 +177,13 @@ public class AMMatrixMetaManager {
       throw new InvalidParameterException(errorMsg);
     }
 
+    LOG.info("before init matrix "); //////
+
     MatrixMeta meta = initMatrixMeta(matrixContext);
 
     LOG.debug("after init matrix " + meta);
+
+    LOG.info("after init matrix " + meta); //////
 
     matrixMetaManager.addMatrix(meta);
 
@@ -230,6 +236,7 @@ public class AMMatrixMetaManager {
       partIdToMetaMap.put(partitions.get(i).getPartId(), partitions.get(i));
     }
     MatrixMeta meta = new MatrixMeta(matrixContext, partIdToMetaMap);
+    LOG.info("meta toString = " + meta.toString()); //////
     return meta;
   }
 
@@ -285,8 +292,10 @@ public class AMMatrixMetaManager {
 
   private void assignPSForPartitions(Partitioner partitioner, List<PartitionMeta> partitions) {
     int partNum = partitions.size();
+    LOG.info("assignPSForPartitions in AMMatrixMetaManager.java......");
     for (int i = 0; i < partNum; i++) {
       int psIndex = partitioner.assignPartToServer(partitions.get(i).getPartId());
+      LOG.info("      partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndex); //////
       ParameterServerId psId = new ParameterServerId(psIndex);
       partitions.get(i).addReplicationPS(psId);
       partitions.get(i).makePsToMaster(psId);
@@ -479,8 +488,10 @@ public class AMMatrixMetaManager {
       //if a matrix exists on parameter server but not exist on master, we should notify the parameter server to remove this matrix
       for (int matrixId : matrixIdInPSSet) {
         LOG.debug("matrix in ps " + matrixId);
+        LOG.info("matrix in ps " + matrixId); //////
         if (!matrixIdToPSMetaMap.containsKey(matrixId)) {
           LOG.debug("matrix " + matrixId + " need release");
+          LOG.info("matrix " + matrixId + " need release"); //////
           needReleaseMatrixes.add(matrixId);
         }
       }
@@ -489,7 +500,13 @@ public class AMMatrixMetaManager {
       for (Entry<Integer, MatrixMeta> psMatrixEntry : matrixIdToPSMetaMap.entrySet()) {
         LOG.debug(
           "matrix in master " + psMatrixEntry.getKey() + ", " + psMatrixEntry.getValue().getName());
+        /* new code */
+        LOG.info(
+                "matrix in master " + psMatrixEntry.getKey() + ", " + psMatrixEntry.getValue().getName());
+        /* code end */
         if (!matrixIdInPSSet.contains(psMatrixEntry.getKey())) {
+          LOG.info("matrix " + psMatrixEntry.getKey() + " need create"); //////
+          LOG.info("matrix meta to string = " + psMatrixEntry.getValue().toString()); //////
           needCreateMatrixes.add(psMatrixEntry.getValue());
         }
       }

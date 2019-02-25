@@ -136,7 +136,7 @@ public class ServerPartition implements Serialize {
 
   private ServerRow initRow(int rowIndex, RowType rowType, long startCol, long endCol,
     double estSparsity) {
-    LOG.info("           initRow in ServerPartition.java, RowIndex = " + rowIndex + ", RowType = " + rowIndex + ", startCol = " + startCol + ", endCol = " + endCol); //////
+    LOG.info("           initRow in ServerPartition.java, RowIndex = " + rowIndex + ", RowType = " + rowType + ", startCol = " + startCol + ", endCol = " + endCol); //////
     int estEleNum = (int) ((endCol - startCol) * estSparsity);
     LOG.info("           estEleNum = " + estEleNum); //////
     return ServerRowFactory.createServerRow(rowIndex, rowType, startCol, endCol, estEleNum);
@@ -158,14 +158,14 @@ public class ServerPartition implements Serialize {
       int rowNum = buf.readInt();
       int rowId;
       RowType rowType;
-
+      LOG.info("total rowNum = " + rowNum); //////
       for (int i = 0; i < rowNum; i++) {
-        LOG.info("rowNum = " + i);
+        LOG.info("i = " + i); //////
         rowId = buf.readInt();
         rowType = RowType.valueOf(buf.readInt());
-        LOG.info("rowType = " + rowType);
+        LOG.info("rowType = " + rowType.toString()); //////
         ServerRow row = getRow(rowId);
-        LOG.info("row.update(rowType, buf, op);");
+        LOG.info("row.update(rowType, buf, op);"); //////
         row.update(rowType, buf, op);
       }
     } finally {

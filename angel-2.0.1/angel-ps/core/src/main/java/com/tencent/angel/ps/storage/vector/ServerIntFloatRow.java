@@ -187,6 +187,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
 
 
   @Override public void update(RowType updateType, ByteBuf buf, UpdateOp op) {
+    LOG.info("row Id = " + this.rowId + ", size = " + this.size()); //////
     startWrite();
     try {
       switch (updateType) {
@@ -276,6 +277,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
 
   private void updateUseIntFloatSparse(ByteBuf buf, UpdateOp op) {
     LOG.info("updateUseIntFloatSparse(ByteBuf buf, UpdateOp op)");//////
+    LOG.info("row Id = " + this.rowId + ", size = " + this.size()); //////
     int size = buf.readInt();
     if (op == UpdateOp.PLUS) {
       LOG.info("op == UpdateOp.PLUS");//////

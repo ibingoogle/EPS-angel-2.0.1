@@ -66,6 +66,7 @@ import java.net.UnknownHostException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -578,7 +579,9 @@ public class ParameterServer {
     PSReportRequest request = builder.build();
     LOG.debug("ps hb = " + request);
     try {
+      LOG.info("heartbeat() in ParameterServer.java"); //////
       ret = master.psReport(request);
+      LOG.info("ret.getPsCommand() = " + ret.getPsCommand()); //////
       switch (ret.getPsCommand()) {
         case PSCOMMAND_REGISTER:
           try {
@@ -599,6 +602,8 @@ public class ParameterServer {
       }
 
       LOG.debug("ps hb ret = " + ret);
+
+      LOG.info("ps hb ret = " + ret); //////
       if (ret.hasNeedSaveMatrices()) {
         saver.save(ProtobufUtil.convert(ret.getNeedSaveMatrices()));
       }
@@ -617,11 +622,27 @@ public class ParameterServer {
   private void syncMatrices(List<MLProtos.MatrixMetaProto> needCreateMatrices,
     List<Integer> needReleaseMatrices, List<RecoverPartKeyProto> needRecoverParts)
     throws Exception {
+    LOG.info("syncMatrices......"); //////
     if (!needCreateMatrices.isEmpty()) {
+      /* old code
       createMatrices(ProtobufUtil.convertToMatricesMeta(needCreateMatrices));
+      /* new code */
+      LOG.info("createMatrices......"); ///////
+      List<MatrixMeta> matricesMeta = ProtobufUtil.convertToMatricesMeta(needCreateMatrices);
+      for (int i = 0; i < matricesMeta.size(); i++){
+        LOG.info("matrixMeta " + i);
+        LOG.info("      MatrixContext_ToString = " + matricesMeta.get(i).getMatrixContext().toString());
+        LOG.info("      MatrixPartitionsMeta:");
+        for (Map.Entry<Integer, PartitionMeta> entry : matricesMeta.get(i).getPartitionMetas().entrySet()){
+          LOG.info("          PartitionInteger " + entry.getKey());
+          LOG.info("          PartitionKey_ToString = " + entry.getValue().getPartitionKey().toString());
+          LOG.info("          PartitionMeta_ToString = " + entry.getValue().toString());
+        }
+      }
+    /* code end */
     }
-
     if (!needReleaseMatrices.isEmpty()) {
+      LOG.info("releaseMatrices......"); //////
       releaseMatrices(needReleaseMatrices);
     }
 

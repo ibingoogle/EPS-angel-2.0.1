@@ -154,12 +154,14 @@ public class RangePartitioner implements Partitioner {
         endRow = (i <= (row - blockRow)) ? (i + blockRow) : row;
         endCol = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
         partitions.add(new PartitionMeta(matrixId, id++, startRow, endRow, startCol, endCol));
+        LOG.info("partitionsMeta_ToString = " + partitions.get(partitions.size() - 1).toString()); //////
         j = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
       }
       i = (i <= (row - blockRow)) ? (i + blockRow) : row;
     }
 
     LOG.info("partition count: " + partitions.size());
+    LOG.info("after split matrix " + mContext); //////
     return partitions;
   }
 

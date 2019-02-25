@@ -807,7 +807,11 @@ public abstract class AngelClient implements AngelClientInterface {
   @Override public void createMatrices(List<MatrixContext> matrixContexts) throws AngelException {
     try {
       for (MatrixContext context : matrixContexts) {
+        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        LOG.info("MatrixContext_ToString = " + context.toString());
         context.init(conf);
+        LOG.info("MatrixContext_ToString = " + context.toString());
+        LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
       }
 
       master.createMatrices(null, ProtobufUtil.buildCreateMatricesRequest(matrixContexts));
