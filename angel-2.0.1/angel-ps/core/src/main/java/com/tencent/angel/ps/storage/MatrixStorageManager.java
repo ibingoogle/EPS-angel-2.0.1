@@ -73,6 +73,7 @@ public class MatrixStorageManager {
    */
   public void addMatrices(List<MatrixMeta> matrixMetas) throws IOException {
     int size = matrixMetas.size();
+    LOG.info("add Matrices in MatrixStorageManager.java"); //////
     for (int i = 0; i < size; i++) {
       addMatrix(matrixMetas.get(i));
     }

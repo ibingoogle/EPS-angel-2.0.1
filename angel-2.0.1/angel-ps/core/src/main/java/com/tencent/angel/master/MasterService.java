@@ -253,6 +253,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
       LOG.debug("receive ps register request. request=" + request);
     }
 
+    /* new code */
+    LOG.debug("receive ps register request. request=" + request);
+    /* code end */
+
     PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
     PSRegisterResponse.Builder resBuilder = PSRegisterResponse.newBuilder();
 
@@ -1188,6 +1192,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
    */
   @Override public GetTaskMatrixClockResponse getTaskMatrixClocks(RpcController controller,
     GetTaskMatrixClockRequest request) throws ServiceException {
+    LOG.info("public GetTaskMatrixClockResponse getTaskMatrixClocks......"); //////
+
     AMTaskManager taskManager = context.getTaskManager();
     Collection<AMTask> tasks = taskManager.getTasks();
     GetTaskMatrixClockResponse.Builder builder = GetTaskMatrixClockResponse.newBuilder();
@@ -1195,10 +1201,15 @@ public class MasterService extends AbstractService implements MasterProtocol {
     MatrixClock.Builder matrixClockBuilder = MatrixClock.newBuilder();
 
     Int2IntOpenHashMap matrixClocks = null;
+    LOG.info("start build GetTaskMatrixClockResponse"); //////
     for (AMTask task : tasks) {
+      LOG.info("TaskId = " + task.getTaskId().getIndex()); //////
       taskBuilder.setTaskId(ProtobufUtil.convertToIdProto(task.getTaskId()));
       matrixClocks = task.getMatrixClocks();
+      LOG.info("matrixClocks_ToString = " + matrixClocks.toString()); //////
       for (it.unimi.dsi.fastutil.ints.Int2IntMap.Entry entry : matrixClocks.int2IntEntrySet()) {
+        LOG.info("      MatrixId = " + entry.getIntKey()); //////
+        LOG.info("      Clock = " + entry.getIntValue()); //////
         taskBuilder.addMatrixClocks(
           matrixClockBuilder.setMatrixId(entry.getIntKey()).setClock(entry.getIntValue()).build());
       }

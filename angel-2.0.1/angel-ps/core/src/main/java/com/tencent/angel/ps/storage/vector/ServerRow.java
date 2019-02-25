@@ -93,6 +93,7 @@ public abstract class ServerRow implements Serialize {
    */
   public ServerRow(int rowId, RowType rowType, long startCol, long endCol, long estElemNum,
     Vector row) {
+    LOG.info("           build ServerRow in ServerRow.java"); //////
     this.rowId = rowId;
     this.rowType = rowType;
     this.startCol = startCol;
@@ -430,6 +431,8 @@ public abstract class ServerRow implements Serialize {
   }
 
   private Vector initRow(long startCol, long endCol, long estElemNum) {
+    LOG.info("           initRow in ServerRow.java, startCol = " + startCol + ", endCol = " + endCol + ", estEleNum = " + estElemNum); //////
+    LOG.info("           rowType = " + rowType); //////
     Vector ret;
     switch (rowType) {
       case T_DOUBLE_SPARSE:
@@ -573,6 +576,16 @@ public abstract class ServerRow implements Serialize {
           "can not support " + rowType + " type row for ServerIntDoubleRow");
     }
     useIntKey = ret instanceof IntKeyVector;
+
+    /* new code */
+    LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    LOG.info("           ret_ToString = " + ret.toString());
+    LOG.info("           ret_rowId = " + ret.getRowId());
+    LOG.info("           ret_rowType = " + ret.getType());
+    LOG.info("           ret_rowSize = " + ret.getSize());
+    LOG.info("           ret_rowStorage.class = " + ret.getStorage().getClass());
+    LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    /* code end */
     return ret;
   }
 }

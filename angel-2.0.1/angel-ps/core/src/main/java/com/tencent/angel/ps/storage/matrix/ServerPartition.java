@@ -116,15 +116,18 @@ public class ServerPartition implements Serialize {
    * Init partition
    */
   public void init() {
+    LOG.info("      init() ServerPartition.java, PartitionId = " + partitionKey.getPartitionId()); //////
     if (partitionKey != null) {
       initRows(partitionKey, rowType, estSparsity);
     }
   }
 
   private void initRows(PartitionKey partitionKey, RowType rowType, double estSparsity) {
+    LOG.info("      initRows in ServerPartition.java"); //////
     int rowStart = partitionKey.getStartRow();
     int rowEnd = partitionKey.getEndRow();
     for (int rowIndex = rowStart; rowIndex < rowEnd; rowIndex++) {
+      LOG.info("           rows.putRow"); //////
       rows.putRow(rowIndex,
         initRow(rowIndex, rowType, partitionKey.getStartCol(), partitionKey.getEndCol(),
           estSparsity));
@@ -133,7 +136,9 @@ public class ServerPartition implements Serialize {
 
   private ServerRow initRow(int rowIndex, RowType rowType, long startCol, long endCol,
     double estSparsity) {
+    LOG.info("           initRow in ServerPartition.java, RowIndex = " + rowIndex + ", RowType = " + rowIndex + ", startCol = " + startCol + ", endCol = " + endCol); //////
     int estEleNum = (int) ((endCol - startCol) * estSparsity);
+    LOG.info("           estEleNum = " + estEleNum); //////
     return ServerRowFactory.createServerRow(rowIndex, rowType, startCol, endCol, estEleNum);
   }
 

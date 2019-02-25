@@ -25,6 +25,7 @@ import com.tencent.angel.ipc.TConnectionManager;
 import com.tencent.angel.master.MasterProtocol;
 import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.PartitionLocation;
+import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.model.PSMatricesLoadResult;
 import com.tencent.angel.model.PSMatricesSaveResult;
 import com.tencent.angel.protobuf.ProtobufUtil;
@@ -45,6 +46,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Master RPC client
@@ -113,6 +115,10 @@ public class MasterClient {
    * @throws ServiceException
    */
   public Int2ObjectOpenHashMap<Int2IntOpenHashMap> getTaskMatrixClocks() throws ServiceException {
+    /* new code */
+    LOG.info("Int2ObjectOpenHashMap<Int2IntOpenHashMap> getTaskMatrixClocks()......");
+    /* code end */
+
     GetTaskMatrixClockResponse response =
       masterProxy.getTaskMatrixClocks(null, GetTaskMatrixClockRequest.newBuilder().build());
     Int2ObjectOpenHashMap<Int2IntOpenHashMap> taskIdToMatrixClocksMap =
@@ -121,14 +127,20 @@ public class MasterClient {
     List<TaskMatrixClock> taskMatrixClocks = response.getTaskMatrixClocksList();
     int size = taskMatrixClocks.size();
     int matrixNum;
+    LOG.info("taskMatrixClocks.size() = " + size); //////
     for (int i = 0; i < size; i++) {
+      LOG.info("size index = " + i); //////
       Int2IntOpenHashMap matrixIdToClockMap =
         new Int2IntOpenHashMap(taskMatrixClocks.get(i).getMatrixClocksCount());
+      LOG.info("taskIndex = " + taskMatrixClocks.get(i).getTaskId().getTaskIndex()); //////
+      LOG.info("matrixIdToClockMap_ToString = " + matrixIdToClockMap.toString()); //////
       taskIdToMatrixClocksMap
         .put(taskMatrixClocks.get(i).getTaskId().getTaskIndex(), matrixIdToClockMap);
       List<MatrixClock> matrixClocks = taskMatrixClocks.get(i).getMatrixClocksList();
       matrixNum = matrixClocks.size();
       for (int j = 0; j < matrixNum; j++) {
+        LOG.info("      MatrixId = " + matrixClocks.get(j).getMatrixId()); //////
+        LOG.info("      Clock = " + matrixClocks.get(j).getClock()); //////
         matrixIdToClockMap.put(matrixClocks.get(j).getMatrixId(), matrixClocks.get(j).getClock());
       }
     }
@@ -265,6 +277,10 @@ public class MasterClient {
    * @throws ClassNotFoundException
    */
   public List<MatrixMeta> getMatricesMeta() throws ServiceException, ClassNotFoundException {
+    /* new code */
+    LOG.info("List<MatrixMeta> getMatricesMeta()......");
+    /* code end */
+
     GetPSMatricesResponse response = masterProxy.getPSMatricesMeta(null,
       GetPSMatricesMetaRequest.newBuilder()
         .setPsId(ProtobufUtil.convertToIdProto(context.getPSAttemptId().getPsId())).build());
@@ -274,6 +290,18 @@ public class MasterClient {
     for (int i = 0; i < size; i++) {
       matricesMeta.add(ProtobufUtil.convertToMatrixMeta(matricesMataProto.get(i)));
     }
+    /* new code */
+    for (int i = 0; i < matricesMeta.size(); i++){
+      LOG.info("matrixMeta " + i);
+      LOG.info("      MatrixContext_ToString = " + matricesMeta.get(i).getMatrixContext().toString());
+      LOG.info("      MatrixPartitionsMeta:");
+      for (Map.Entry<Integer, PartitionMeta> entry : matricesMeta.get(i).getPartitionMetas().entrySet()){
+        LOG.info("          PartitionInteger " + entry.getKey());
+        LOG.info("          PartitionKey_ToString = " + entry.getValue().getPartitionKey().toString());
+        LOG.info("          PartitionMeta_ToString = " + entry.getValue().toString());
+      }
+    }
+    /* code end */
 
     return matricesMeta;
   }

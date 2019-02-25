@@ -19,8 +19,12 @@
 package com.tencent.angel.ps.storage.vector;
 
 import com.tencent.angel.ml.matrix.RowType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ServerRowFactory {
+  private final static Log LOG = LogFactory.getLog(ServerRowFactory.class); //////
+
   public static ServerRow createEmptyServerRow(RowType type) {
     switch (type) {
       case T_DOUBLE_DENSE:
@@ -83,6 +87,7 @@ public class ServerRowFactory {
 
   public static ServerRow createServerRow(int rowIndex, RowType rowType, long startCol, long endCol,
     int estEleNum) {
+    LOG.info("           createServerRow in ServerRowFactory.java"); //////
     switch (rowType) {
       case T_DOUBLE_DENSE:
       case T_DOUBLE_DENSE_COMPONENT:

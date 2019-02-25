@@ -651,12 +651,14 @@ public class ParameterServer {
   }
 
   private void initMatricesData(final List<MatrixMeta> matrixMetas) throws IOException {
+    LOG.info("initMatricesData(final List<MatrixMeta> matrixMetas)......"); //////
     if (context.getPartReplication() > 1 && context.getPSAttemptId().getIndex() > 0) {
       return;
     }
-
+    LOG.info("no return in initMatricesData(...)..."); //////
     // Recover PS from snapshot or load path
     if (context.getPSAttemptId().getIndex() > 1) {
+      LOG.info("Recover PS from snapshot or load path......."); //////
       int matrixNum = matrixMetas.size();
       List<PSMatrixLoadContext> matrixLoadContexts = new ArrayList<>(matrixMetas.size());
       SnapshotRecover recover = new SnapshotRecover(context);
@@ -725,6 +727,8 @@ public class ParameterServer {
     clockVectorManager.start();
     runningContext.start();
 
+    // > 0 means it is not the first PSAttempt
+    LOG.info("getAttemptIndex() = " + getAttemptIndex()); //////
     if (getAttemptIndex() > 0) {
       LOG.info("PS " + getServerId() + " running attempt " + getAttemptIndex()
         + " load matrices from snapshot if need");

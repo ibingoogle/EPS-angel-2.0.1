@@ -67,6 +67,7 @@ public class ServerMatrix {
   }
 
   public void init() {
+    LOG.info("init() ServerMatirx.java, MatrixId = " + matrixId + ", name = " + matrixName); //////
     MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
     Map<Integer, PartitionMeta> partMetas = matrixMeta.getPartitionMetas();
 
