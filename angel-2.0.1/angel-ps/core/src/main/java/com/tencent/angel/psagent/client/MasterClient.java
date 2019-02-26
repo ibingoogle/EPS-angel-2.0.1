@@ -228,6 +228,7 @@ public class MasterClient {
     List<String> matrixNames = new ArrayList<>(matrixContexts.size());
 
     int size = matrixContexts.size();
+    LOG.info("matrixContexts.size() = " + size); //////
     for (int i = 0; i < size; i++) {
       matrixContexts.get(i).init(PSAgentContext.get().getConf());
       matrixNames.add(matrixContexts.get(i).getName());
@@ -242,7 +243,9 @@ public class MasterClient {
     CheckMatricesCreatedResponse checkResponse = null;
     while (true) {
       long startTs = Time.now();
+      LOG.info("checkRequest = " + checkRequest); //////
       checkResponse = master.checkMatricesCreated(null, checkRequest);
+      LOG.info("checkResponse = " + checkResponse); //////
       if (checkResponse.getStatus() == 0) {
         LOG.info("create matrices " + String.join(",", matrixNames) + " success");
 

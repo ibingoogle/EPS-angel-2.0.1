@@ -162,6 +162,7 @@ public class ServerPartition implements Serialize {
       for (int i = 0; i < rowNum; i++) {
         LOG.info("i = " + i); //////
         rowId = buf.readInt();
+        LOG.info("rowId = " + rowId); //////
         rowType = RowType.valueOf(buf.readInt());
         LOG.info("rowType = " + rowType.toString()); //////
         ServerRow row = getRow(rowId);

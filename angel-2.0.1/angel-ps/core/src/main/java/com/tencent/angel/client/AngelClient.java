@@ -855,7 +855,9 @@ public abstract class AngelClient implements AngelClientInterface {
 
     int size = matrixNames.size();
     while (true) {
+      LOG.info("checkMatricesCreated request = " + request); //////
       CheckMatricesCreatedResponse response = master.checkMatricesCreated(null, request);
+      LOG.info("checkMatricesCreated response = " + response); //////
       if (response.getStatus() == 0) {
         return;
       }

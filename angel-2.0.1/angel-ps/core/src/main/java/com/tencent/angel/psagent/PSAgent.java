@@ -720,6 +720,7 @@ public class PSAgent {
    */
   public void createMatrix(MatrixContext matrixContext, long timeOutMs) throws AngelException {
     try {
+      LOG.info("createMatrix(MatrixContext matrixContext, long timeOutMs) => matrixContext = " + matrixContext.toString()); //////
       PSAgentContext.get().getMasterClient().createMatrix(matrixContext, timeOutMs);
     } catch (Throwable x) {
       throw new AngelException(x);

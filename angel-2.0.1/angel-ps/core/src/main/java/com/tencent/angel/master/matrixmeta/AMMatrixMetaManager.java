@@ -183,7 +183,7 @@ public class AMMatrixMetaManager {
 
     LOG.debug("after init matrix " + meta);
 
-    LOG.info("after init matrix " + meta); //////
+    LOG.info("after init matrix " + meta.toString()); //////
 
     matrixMetaManager.addMatrix(meta);
 
