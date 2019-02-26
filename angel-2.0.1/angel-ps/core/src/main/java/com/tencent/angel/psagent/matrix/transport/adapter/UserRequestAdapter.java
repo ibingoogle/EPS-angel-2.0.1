@@ -578,6 +578,12 @@ public class UserRequestAdapter {
    */
   public FutureResult<Vector[]> get(int matrixId, int[] rowIds, int[] indices)
     throws AngelException {
+    /* new code */
+    LOG.info("public FutureResult<Vector[]> get(int matrixId, int[] rowIds, int[] indices)");
+    LOG.info("matrixId = " + matrixId);
+    LOG.info("rowIds.size " + rowIds.length);
+    LOG.info("indices.size = " + indices.length);
+    /* code end */
     return get(new IntIndexGetRowsRequest(matrixId, rowIds, indices, null));
   }
 
@@ -617,6 +623,12 @@ public class UserRequestAdapter {
    */
   public FutureResult<Vector[]> get(int matrixId, int[] rowIds, long[] indices)
     throws AngelException {
+    /* new code */
+    LOG.info("public FutureResult<Vector[]> get(int matrixId, int[] rowIds, long[] indices)");
+    LOG.info("matrixId = " + matrixId);
+    LOG.info("rowIds.size " + rowIds.length);
+    LOG.info("indices.size = " + indices.length);
+    /* code end */
     return get(new LongIndexGetRowsRequest(matrixId, rowIds, indices, null));
   }
 
@@ -636,11 +648,28 @@ public class UserRequestAdapter {
   }
 
   private FutureResult<Vector[]> get(IndexGetRowsRequest request) {
+    LOG.info("IndexGetRowsRequest request = " + request); //////
     checkParams(request.getMatrixId(), request.getRowIds());
     Map<PartitionKey, List<Integer>> partToRowIdsMap = PSAgentContext.get().getMatrixMetaManager()
       .getPartitionToRowsMap(request.getMatrixId(), request.getRowIds());
     List<PartitionKey> row0Parts =
       PSAgentContext.get().getMatrixMetaManager().getPartitions(request.getMatrixId(), 0);
+    /* new code */
+    LOG.info("partToRowIdsMap =>");
+    for(Map.Entry<PartitionKey, List<Integer>> entry: partToRowIdsMap.entrySet()){
+      LOG.info("PartitionId = " + entry.getKey().getPartitionId());
+      LOG.info("PartitionKey = " + entry.getKey().toString());
+      for (int j = 0; j< entry.getValue().size(); j++){
+        LOG.info("      RowId = " + entry.getValue().get(j));
+      }
+    }
+    LOG.info("row0Parts =>");
+    for (int i = 0; i<row0Parts.size(); i++){
+      LOG.info("PartitionId = " + row0Parts.get(i).getPartitionId());
+      LOG.info("PartitionKey = " + row0Parts.get(i).toString());
+    }
+    /* code end */
+
     FutureResult<Vector[]> result = new FutureResult<>();
 
     Map<PartitionKey, IndicesView> splits;

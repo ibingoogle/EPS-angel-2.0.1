@@ -72,6 +72,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.tencent.angel.ps.server.data.TransportMethod.INDEX_GET_ROWS;
+
 /**
  * RPC client to parameter servers. It uses Netty as the network communication framework.
  */
@@ -577,6 +579,19 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     IndexPartGetRowsRequest request =
       new IndexPartGetRowsRequest(requestId, matrixId, rowIds, partKey, colIds, valueType, func);
     LOG.debug("get request=" + request);
+
+    /* new code */
+    LOG.info("get request=" + request);
+    LOG.info("request getType = " + request.getType());
+    LOG.info("requestId = " + requestId);
+    LOG.info("matrixId = " + matrixId);
+    LOG.info("rowIds = " + rowIds);
+    LOG.info("partKeyId = " + partKey.getPartitionId());
+    LOG.info("partKey_ToString = " + partKey.toString());
+    LOG.info("ColIds startPos = " + colIds.startPos + ", endPos = " + colIds.endPos);
+    LOG.info("valueType = " + valueType.getTypeId() + " => " + valueType.name());
+    LOG.info("func = " + func.toString());
+    /* code end */
 
     FutureResult<IndexPartGetRowsResult> future = new FutureResult<>();
     requestToResultMap.put(request, future);
@@ -1087,6 +1102,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
      * choose get partition requests and send it to server first schedule schedulableFailedGetCache
      */
     private void getDataSplit() {
+      LOG.info("getDataSplit......"); //////
       // Submit the schedulable failed get RPCS
       submitTask(schedulableFailedGetCache);
       if (!schedulableFailedGetCache.isEmpty()) {
@@ -1100,7 +1116,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         if (getQueue == null) {
           return;
         }
-
+        /* new code */
+        if (getQueue.size() > 0){
+          LOG.info("getQueue size = " + getQueue.size());
+        }
+        /* code end */
         // if submit task in getQueue failed, we should make up the last chosen get queue index
         if (!getQueue.isEmpty() && (submitTask(getQueue) == 0)) {
           makeUpChoosedGetQueue();
@@ -1223,6 +1243,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         rpcContext.before(item.getContext().getServerId());
       }
       LOG.debug("submit request seqId=" + seqId + ",request=" + item);
+      /* new code */
+      if (item.getType() == INDEX_GET_ROWS){
+        LOG.info("submit request seqId=" + seqId + ",request=" + item);
+      }
+      /* code end */
       seqIdToRequestMap.put(seqId, item);
       requestThreadPool.execute(new Requester(item, seqId));
     }
@@ -1827,9 +1852,12 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       request.getContext().setActualServerId(psLoc.psId);
       request.getContext().setLocation(psLoc.loc);
 
-      if (request.getType().getMethodId() == 2 || request.getType().getMethodId() == 15){//////
-        LOG.info("psLocation = " + psLoc.toString() + " request = " + request + " with seqId = " + seqId);//////
-      }//////
+      /* new code */
+      if (request.getType().getMethodId() == 2 || request.getType().getMethodId() == 15 || request.getType().getMethodId() == 13){
+        LOG.info("request.getType().getMethodId() = " + request.getType().getMethodId());
+        LOG.info("psLocation = " + psLoc.toString() + " request = " + request + " with seqId = " + seqId);
+      }
+      /* code end */
 
 
       // If location is null, means that the server is not ready
