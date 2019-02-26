@@ -462,7 +462,9 @@ public class WorkerPool {
     } else if (method == TransportMethod.INDEX_GET_ROWS) {
       try {
         LOG.info("method == TransportMethod.INDEX_GET_ROWS"); //////
+        LOG.info("cliendId = " + clientId);
         out = handleIndexGetRows(clientId, seqId, in);
+        LOG.info("out = " + out.toString() + ", out capacity = " + out.capacity() + ", out readable = " + out.readableBytes() + ", out writeable = " + out.writableBytes()); //////
       } catch (Throwable ex) {
         LOG.error("handler index get row failed ", ex);
       } finally {
@@ -594,6 +596,7 @@ public class WorkerPool {
       IndexPartGetRowsRequest request = new IndexPartGetRowsRequest();
       request.deserialize(in);
       PartitionKey partKey = request.getPartKey();
+      LOG.info("partitionKey = " + partKey.toString()); //////
       IndexType indexType = IndexType.valueOf(in.readInt());
       int colNum = in.readInt();
       List<Integer> rowIds = request.getRowIds();
