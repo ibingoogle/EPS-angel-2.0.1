@@ -87,6 +87,7 @@ public class ValidationUtils {
 
 
     LOG.debug(String.format("validate samples is %s, and the cost is %d ms", totalNum, cost));
+    LOG.info(String.format("validate samples is %s, and the cost is %d ms", totalNum, cost)); //////
   }
 
   /**
@@ -195,6 +196,8 @@ public class ValidationUtils {
     throws IOException, InterruptedException {
     LOG.debug("Start calculate loss and auc, sample number: " + totalNum);
 
+    LOG.info("Start calculate loss and auc, sample number: " + totalNum);//////
+
     long startTime = System.currentTimeMillis();
     double loss = 0.0;
 
@@ -240,6 +243,10 @@ public class ValidationUtils {
     LOG.debug(String
       .format("validate cost %d ms, loss= %.5f, precision=%.5f, trueRecall=%.5f, falseRecall=%.5f",
         cost, loss, precision, trueRecall, falseRecall));
+
+    LOG.info(String
+            .format("validate cost %d ms, loss= %.5f, precision=%.5f, trueRecall=%.5f, falseRecall=%.5f",
+                    cost, loss, precision, trueRecall, falseRecall)); //////
 
     return new Tuple5<>(loss, precision, aucResult, trueRecall, falseRecall);
   }
