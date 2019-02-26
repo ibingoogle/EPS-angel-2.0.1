@@ -590,7 +590,9 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     LOG.info("partKey_ToString = " + partKey.toString());
     LOG.info("ColIds startPos = " + colIds.startPos + ", endPos = " + colIds.endPos);
     LOG.info("valueType = " + valueType.getTypeId() + " => " + valueType.name());
-    LOG.info("func = " + func.toString());
+    if (func != null) {
+      LOG.info("func = " + func.toString());
+    }
     /* code end */
 
     FutureResult<IndexPartGetRowsResult> future = new FutureResult<>();
@@ -1102,7 +1104,6 @@ public class MatrixTransportClient implements MatrixTransportInterface {
      * choose get partition requests and send it to server first schedule schedulableFailedGetCache
      */
     private void getDataSplit() {
-      LOG.info("getDataSplit......"); //////
       // Submit the schedulable failed get RPCS
       submitTask(schedulableFailedGetCache);
       if (!schedulableFailedGetCache.isEmpty()) {
@@ -1116,11 +1117,6 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         if (getQueue == null) {
           return;
         }
-        /* new code */
-        if (getQueue.size() > 0){
-          LOG.info("getQueue size = " + getQueue.size());
-        }
-        /* code end */
         // if submit task in getQueue failed, we should make up the last chosen get queue index
         if (!getQueue.isEmpty() && (submitTask(getQueue) == 0)) {
           makeUpChoosedGetQueue();
