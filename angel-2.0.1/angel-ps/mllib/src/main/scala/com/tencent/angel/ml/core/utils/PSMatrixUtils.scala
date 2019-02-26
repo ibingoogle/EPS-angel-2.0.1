@@ -235,6 +235,7 @@ object PSMatrixUtils {
   def getMatrixWithIndex(epoch: Int, matrixId: Int, startRowId: Int, endRowId: Int, index: Vector): Matrix = {
     val vectors = getRowsWithIndex(epoch, matrixId, (startRowId until endRowId).toArray, index)
 
+    /* old code
     vectors.head match {
       case _: CompIntDoubleVector =>
         MFactory.rbCompIntDoubleMatrix(vectors.map(_.asInstanceOf[CompIntDoubleVector]))
@@ -269,6 +270,51 @@ object PSMatrixUtils {
       case _: LongIntVector =>
         MFactory.rbLongIntMatrix(vectors.map(_.asInstanceOf[LongIntVector]))
     }
+    */
+    /* new code */
+    System.out.print("vectors.size = " + vectors.length)
+    for (i <- 0 until vectors.length) {
+      System.out.print("i = " + i)
+      System.out.print("vector.getSize = " + vectors.apply(i).getSize)
+      System.out.print("vector.getRowId = " + vectors.apply(i).getRowId)
+    }
+    System.out.print("vectors.head = " + vectors.head.toString)
+
+    vectors.head match {
+      case _: CompIntDoubleVector =>
+        MFactory.rbCompIntDoubleMatrix(vectors.map(_.asInstanceOf[CompIntDoubleVector]))
+      case _: CompIntFloatVector =>
+        MFactory.rbCompIntFloatMatrix(vectors.map(_.asInstanceOf[CompIntFloatVector]))
+      case _: CompIntLongVector =>
+        MFactory.rbCompIntLongMatrix(vectors.map(_.asInstanceOf[CompIntLongVector]))
+      case _: CompIntIntVector =>
+        MFactory.rbCompIntIntMatrix(vectors.map(_.asInstanceOf[CompIntIntVector]))
+      case _: CompLongDoubleVector =>
+        MFactory.rbCompLongDoubleMatrix(vectors.map(_.asInstanceOf[CompLongDoubleVector]))
+      case _: CompLongFloatVector =>
+        MFactory.rbCompLongFloatMatrix(vectors.map(_.asInstanceOf[CompLongFloatVector]))
+      case _: CompLongLongVector =>
+        MFactory.rbCompLongLongMatrix(vectors.map(_.asInstanceOf[CompLongLongVector]))
+      case _: CompLongIntVector =>
+        MFactory.rbCompLongIntMatrix(vectors.map(_.asInstanceOf[CompLongIntVector]))
+      case _: IntDoubleVector =>
+        MFactory.rbIntDoubleMatrix(vectors.map(_.asInstanceOf[IntDoubleVector]))
+      case _: IntFloatVector =>
+        MFactory.rbIntFloatMatrix(vectors.map(_.asInstanceOf[IntFloatVector]))
+      case _: IntLongVector =>
+        MFactory.rbIntLongMatrix(vectors.map(_.asInstanceOf[IntLongVector]))
+      case _: IntIntVector =>
+        MFactory.rbIntIntMatrix(vectors.map(_.asInstanceOf[IntIntVector]))
+      case _: LongDoubleVector =>
+        MFactory.rbLongDoubleMatrix(vectors.map(_.asInstanceOf[LongDoubleVector]))
+      case _: LongFloatVector =>
+        MFactory.rbLongFloatMatrix(vectors.map(_.asInstanceOf[LongFloatVector]))
+      case _: LongLongVector =>
+        MFactory.rbLongLongMatrix(vectors.map(_.asInstanceOf[LongLongVector]))
+      case _: LongIntVector =>
+        MFactory.rbLongIntMatrix(vectors.map(_.asInstanceOf[LongIntVector]))
+    }
+    /* code end */
   }
 
   def incrementRowByMatrix(matrixId: Int, rowId: Int, mat: Matrix): Unit = {

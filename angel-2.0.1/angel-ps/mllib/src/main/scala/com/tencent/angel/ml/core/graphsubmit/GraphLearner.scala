@@ -121,8 +121,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         iter.next()
         LOG.info("just push null gradient ...")
         graph.pushGradient_null() // this worker does not work, just skipped this epoch and push null
-      }else{
-
+      }else {
+        if (iterSleepMillis > 0) {
+          Thread.sleep(iterSleepMillis)
+        }
         LOG.info("start to feedData ...")
         val data: Array[LabeledData] = iter.next()
         LOG.info("feedData size = " + data.length)

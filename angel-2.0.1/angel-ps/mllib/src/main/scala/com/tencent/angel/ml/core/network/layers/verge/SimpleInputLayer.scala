@@ -179,6 +179,14 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         /* code end */
         // the shape of weight matrix is (outputDim, inputDim)
         weight = PSMatrixUtils.getMatrixWithIndex(1, weightId, 0, outputDim, indices)
+        /* new code */
+        LOG.info("NumRows in weight => " + weight.getNumRows)
+        LOG.info("weight getClass => " + weight.getClass)
+        for (i <- 0 until weight.getNumRows){
+          LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
+        }
+        /* code end */
+
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
         val indices = graph.placeHolder.getIndices
         // the shape of weight matrix is (outputDim, inputDim)

@@ -356,7 +356,17 @@ public class RowSplitCombineUtils {
       vectors[i] = vector;
       vectors[i].setMatrixId(request.getMatrixId());
       vectors[i].setRowId(rowIds[i]);
+
+
+    /* new code */
+    LOG.info("vector.size() = " + vector.size());
+    LOG.info("vector.max = " + vector.max());
+    LOG.info("vector.min = " + vector.min());
+    LOG.info("vector.average = " + vector.average());
+    LOG.info("vector rowId = " + vector.getRowId());
+    /* code end */
     }
+
 
     return vectors;
   }
