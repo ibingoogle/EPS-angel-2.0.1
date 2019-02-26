@@ -95,6 +95,9 @@ object MLConf {
 
   val ML_VALIDATE_BOOLEAN = "ml.data.validate.boolean"
   val DEFAULT_ML_VALIDATE_BOOLEAN = true
+
+  val ML_WORKER_ITERATION_SLEEP_SEC = "ml.worker.iteration.sleep.sec"
+  val DEFAULT_ML_WORKER_ITERATION_SLEEP_SEC = 0
   /*code end*/
 
   val ML_EPOCH_NUM = "ml.epoch.num"

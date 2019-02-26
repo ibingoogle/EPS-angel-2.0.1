@@ -75,6 +75,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   var NewLearner: Boolean = false
 
   var valiBoolean: Boolean = true
+  var iterSleepMillis: Int = 0
   /*code end*/
 
   // Init Graph Model
@@ -121,6 +122,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("just push null gradient ...")
         graph.pushGradient_null() // this worker does not work, just skipped this epoch and push null
       }else{
+
         LOG.info("start to feedData ...")
         val data: Array[LabeledData] = iter.next()
         LOG.info("feedData size = " + data.length)
@@ -211,6 +213,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     LOG.info("default validationData size = " + Validete_defaultLength)
     valiBoolean = SharedConf.validateBoolean
     LOG.info("valiBoolean = " + valiBoolean)
+    iterSleepMillis = SharedConf.iterSleepSec * 1000
+    LOG.info("iterSleepMillis = " + iterSleepMillis)
     /* code end */
 
     val trainDataSize = if (negTrainData == null) posTrainData.size() else {

@@ -490,6 +490,11 @@ object SharedConf {
 
     sc.getBoolean(MLConf.ML_VALIDATE_BOOLEAN, MLConf.DEFAULT_ML_VALIDATE_BOOLEAN)
   }
+  def iterSleepSec: Int = {
+    get()
+
+    sc.getInt(MLConf.ML_WORKER_ITERATION_SLEEP_SEC, MLConf.DEFAULT_ML_WORKER_ITERATION_SLEEP_SEC)
+  }
   /* code end */
 
   def learningRate: Double = {
