@@ -173,6 +173,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         val indices = graph.placeHolder.getIndices
         /* new code */
         LOG.info("indices get Type = " + indices.getType)
+        LOG.info("indices size = " + indices.getSize)
         LOG.info("weightId = " + weightId)
         LOG.info("outputDim = " + outputDim)
         /* code end */

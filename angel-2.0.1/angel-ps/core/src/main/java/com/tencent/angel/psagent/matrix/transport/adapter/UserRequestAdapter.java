@@ -582,7 +582,7 @@ public class UserRequestAdapter {
     LOG.info("public FutureResult<Vector[]> get(int matrixId, int[] rowIds, int[] indices)");
     LOG.info("matrixId = " + matrixId);
     LOG.info("rowIds.size " + rowIds.length);
-    LOG.info("indices.size = " + indices.length);
+    LOG.info("indices.size = " + indices.length); // total number of pulled parameters
     /* code end */
     return get(new IntIndexGetRowsRequest(matrixId, rowIds, indices, null));
   }
