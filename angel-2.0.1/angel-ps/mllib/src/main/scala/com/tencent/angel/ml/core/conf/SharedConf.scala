@@ -484,6 +484,14 @@ object SharedConf {
     sc.getDouble(MLConf.ML_VALIDATE_RATIO, MLConf.DEFAULT_ML_VALIDATE_RATIO)
   }
 
+  /* new code */
+  def validateBoolean: Boolean = {
+    get()
+
+    sc.getBoolean(MLConf.ML_VALIDATE_BOOLEAN, MLConf.DEFAULT_ML_VALIDATE_BOOLEAN)
+  }
+  /* code end */
+
   def learningRate: Double = {
     get()
 

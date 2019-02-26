@@ -106,6 +106,7 @@ class GraphTrainTask(ctx: TaskContext) extends TrainTask[LongWritable, Text](ctx
     code end */
 
     /* new code */
+    LOG.info("valiRat = " + valiRat)
     var count = 0
     val vali = Math.ceil(1.0 / valiRat).toInt
 

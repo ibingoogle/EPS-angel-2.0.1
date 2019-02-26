@@ -92,6 +92,9 @@ object MLConf {
 
   val ML_RM_EXE_EPOCH = "ml.rm.exe.epoch"
   val DEFAULT_ML_RM_EXE_EPOCH = -1 // default does not remove the execution of any task
+
+  val ML_VALIDATE_BOOLEAN = "ml.data.validate.boolean"
+  val DEFAULT_ML_VALIDATE_BOOLEAN = true
   /*code end*/
 
   val ML_EPOCH_NUM = "ml.epoch.num"

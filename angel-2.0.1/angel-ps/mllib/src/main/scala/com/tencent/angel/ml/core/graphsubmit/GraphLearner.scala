@@ -73,6 +73,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   var Validete_defaultLength: Int = 0
 
   var NewLearner: Boolean = false
+
+  var valiBoolean: Boolean = true
   /*code end*/
 
   // Init Graph Model
@@ -207,6 +209,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
     Validete_defaultLength = validationData.size()
     LOG.info("default trainData size = " + Train_defaultLength)
     LOG.info("default validationData size = " + Validete_defaultLength)
+    valiBoolean = SharedConf.validateBoolean
+    LOG.info("valiBoolean = " + valiBoolean)
     /* code end */
 
     val trainDataSize = if (negTrainData == null) posTrainData.size() else {
@@ -560,6 +564,13 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   def validate(epoch: Int, valiData: DataBlock[LabeledData]): Unit = {
     val isClassification = conf.getBoolean(MLConf.ML_MODEL_IS_CLASSIFICATION, MLConf.DEFAULT_ML_MODEL_IS_CLASSIFICATION)
     val numClass = conf.getInt(MLConf.ML_NUM_CLASS, MLConf.DEFAULT_ML_NUM_CLASS)
+    /* new code */
+    LOG.info("valiBoolean = " + valiBoolean)
+    if (!valiBoolean){
+      LOG.info("No Validate because it is disabled !")
+      return
+    }
+    /* code end */
     if (isClassification && valiData.size > 0) {
       if (numClass == 2) {
         val validMetric = new ValidationUtils(valiData, model).calMetrics(model.lossFunc)
