@@ -234,6 +234,9 @@ public class UserRequestAdapter {
     throws InterruptedException, ExecutionException {
     LOG.debug("start to getRow request, matrix=" + matrixId + ", rowIndex=" + rowIndex + ", clock="
       + clock);
+
+    LOG.info("start to getRow request, matrix=" + matrixId + ", rowIndex=" + rowIndex + ", clock="
+            + clock); //////
     checkParams(matrixId, rowIndex);
     long startTs = System.currentTimeMillis();
 
@@ -292,6 +295,12 @@ public class UserRequestAdapter {
         // Wait the final result
         Vector row = result.get();
         LOG.debug("get row use time=" + (System.currentTimeMillis() - startTs));
+
+        /* new code */
+        LOG.info("row.getSize() = " + row.getSize());
+        LOG.info("row.getRowId = " + row.getRowId());
+        LOG.info("get row use time=" + (System.currentTimeMillis() - startTs));
+        /* code end */
         // Put it to the matrix cache
         // matrixStorage.addRow(rowIndex, row);
         return row;

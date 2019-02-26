@@ -272,13 +272,14 @@ object PSMatrixUtils {
     }
     */
     /* new code */
-    System.out.print("vectors.size = " + vectors.length)
+    System.out.println("vectors.size = " + vectors.length)
     for (i <- 0 until vectors.length) {
-      System.out.print("i = " + i)
-      System.out.print("vector.getSize = " + vectors.apply(i).getSize)
-      System.out.print("vector.getRowId = " + vectors.apply(i).getRowId)
+      System.out.println("i = " + i)
+      System.out.println("vector.getSize = " + vectors.apply(i).getSize)
+      System.out.println("vector.getRowId = " + vectors.apply(i).getRowId)
     }
-    System.out.print("vectors.head = " + vectors.head.toString)
+    // intFloatVector
+    System.out.println("vectors.head = " + vectors.head.toString)
 
     vectors.head match {
       case _: CompIntDoubleVector =>

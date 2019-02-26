@@ -181,12 +181,12 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         weight = PSMatrixUtils.getMatrixWithIndex(1, weightId, 0, outputDim, indices)
         /* new code */
         LOG.info("NumRows in weight => " + weight.getNumRows)
+        // intFloatMatrix
         LOG.info("weight getClass => " + weight.getClass)
         for (i <- 0 until weight.getNumRows){
           LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
         }
         /* code end */
-
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
         val indices = graph.placeHolder.getIndices
         // the shape of weight matrix is (outputDim, inputDim)
@@ -196,6 +196,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         throw new AngelException("Dense data, sparse model, pls. change model to dense")
     }
     bias = PSMatrixUtils.getRow(epoch, biasId, 0)
+    LOG.info("weight and bias pull over~~~~~~~~~~~") //////
   }
 
   override def pushGradient(): Unit = {
