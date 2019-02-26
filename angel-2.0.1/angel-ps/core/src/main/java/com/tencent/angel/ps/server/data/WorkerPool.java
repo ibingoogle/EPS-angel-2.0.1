@@ -218,6 +218,9 @@ public class WorkerPool {
     if (method.getMethodId() == 15){
       LOG.info("methodId = " + methodId);
     }
+    if (method.getMethodId() == 13){
+      LOG.info("methodId = " + methodId);
+    }
     /* code end */
 
     if (isDataRequest(method)) {
@@ -446,6 +449,7 @@ public class WorkerPool {
 
     if (method == TransportMethod.INDEX_GET_ROW) {
       try {
+        LOG.info("method == TransportMethod.INDEX_GET_ROW without s"); //////
         out = handleIndexGetRow(clientId, seqId, in);
       } catch (Throwable ex) {
         LOG.error("handler index get row failed ", ex);
@@ -457,6 +461,7 @@ public class WorkerPool {
       }
     } else if (method == TransportMethod.INDEX_GET_ROWS) {
       try {
+        LOG.info("method == TransportMethod.INDEX_GET_ROWS"); //////
         out = handleIndexGetRows(clientId, seqId, in);
       } catch (Throwable ex) {
         LOG.error("handler index get row failed ", ex);
