@@ -629,6 +629,7 @@ public class ParameterServer {
       /* new code */
       LOG.info("createMatrices......"); ///////
       List<MatrixMeta> matricesMeta = ProtobufUtil.convertToMatricesMeta(needCreateMatrices);
+      createMatrices(matricesMeta);
       for (int i = 0; i < matricesMeta.size(); i++){
         LOG.info("matrixMeta " + i);
         LOG.info("      MatrixContext_ToString = " + matricesMeta.get(i).getMatrixContext().toString());
