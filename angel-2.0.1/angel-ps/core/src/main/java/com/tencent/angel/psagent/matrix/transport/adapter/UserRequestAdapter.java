@@ -804,7 +804,14 @@ public class UserRequestAdapter {
             break;
 
           case INDEX_GET_ROWS:
+            LOG.info("case INDEX_GET_ROWS.........."); //////
+            LOG.info("subresponse = " + subResponse.toString()); //////
             if (cache.canMerge()) {
+              /* new code */
+              LOG.info("cache.canMerge()..........");
+              LOG.info("get result from request = " + request);
+              LOG.info("cache.getProgress() = " + cache.getProgress());
+              /* code end */
               workerPool.execute(new IndexRowsMerger((IndexGetRowsRequest) request, cache, result));
             }
             break;
@@ -1300,7 +1307,9 @@ public class UserRequestAdapter {
 
     private void mergeIndexRow(IndexGetRowsCache cache) {
       try {
+        LOG.info("subResponse size = " + cache.getSubResponses().size()); //////
         Vector[] vectors = RowSplitCombineUtils.combineIndexRowsSplits(request, cache);
+        LOG.info("vectors.length = " + vectors.length); //////
         result.set(vectors);
       } catch (Exception x) {
         LOG.fatal("merge row failed ", x);

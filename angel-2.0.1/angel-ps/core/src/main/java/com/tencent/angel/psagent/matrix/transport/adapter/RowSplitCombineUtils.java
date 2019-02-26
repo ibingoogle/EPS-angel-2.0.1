@@ -166,6 +166,8 @@ public class RowSplitCombineUtils {
       PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(request.getMatrixId());
     RowType rowType = matrixMeta.getRowType();
 
+    LOG.info("rowType = " + rowType.name()); //////
+
     switch (rowType) {
       case T_DOUBLE_DENSE:
       case T_DOUBLE_SPARSE:
@@ -322,8 +324,19 @@ public class RowSplitCombineUtils {
     int[] colIds = ((IntIndexGetRowsRequest) request).getColIds();
     Map<PartitionKey, IndexPartGetRowsResult> partKeyToResultMap = getPartToResultMap(cache);
 
+    /* new code */
+    LOG.info("rowIds.length = " + rowIds.length);
+    LOG.info("colIds.length = " + colIds.length);
+    LOG.info("partKeyToResultMap.size = " + partKeyToResultMap.size());
+    for (Map.Entry<PartitionKey, IndexPartGetRowsResult> entry : partKeyToResultMap.entrySet()){
+      LOG.info("      partitionKey = " + entry.getKey().toString());
+      LOG.info("      IndexPartGetRowsResult_ToString = " + entry.getValue().toString());
+      LOG.info("      IndexPartGetRowsResult data size = " + entry.getValue().getDataSize());
+    }
+    /* code end */
     Vector[] vectors = new Vector[rowIds.length];
     for (int i = 0; i < rowIds.length; i++) {
+      LOG.info("i = " + i); //////
       IntFloatVector vector =
         VFactory.sparseFloatVector((int) matrixMeta.getColNum(), colIds.length);
       List<PartitionKey> parts =
@@ -333,6 +346,7 @@ public class RowSplitCombineUtils {
         if (result == null) {
           continue;
         }
+        LOG.info("partKey = " + partKey.toString()); //////
         IndicesView colIdView = result.getColIds();
         float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
         for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
