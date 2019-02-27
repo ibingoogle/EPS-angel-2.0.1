@@ -676,7 +676,7 @@ public class UserRequestAdapter {
 
   private FutureResult<Vector[]> get(IndexGetRowsRequest request) {
     /* new code */
-    int removedParameterServerId = 4;
+    int removedParameterServerId = 3;
     LOG.info("IndexGetRowsRequest request = " + request);
     /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
@@ -745,9 +745,9 @@ public class UserRequestAdapter {
     }
 
     /* new code */
-    for (int i = 0; i< parts.size(); i++){
+    for (int i = 0; i < parts.size(); i++) {
       ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(parts.get(i));
-      if (serverId.getIndex() != removedParameterServerId){
+      if (serverId.getIndex() == removedParameterServerId){
         parts.remove(i);
         break;
       }
