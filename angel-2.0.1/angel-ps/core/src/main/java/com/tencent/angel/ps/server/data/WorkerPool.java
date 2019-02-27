@@ -739,12 +739,15 @@ public class WorkerPool {
 
     switch (method) {
       case GET_ROWSPLIT: {
+        LOG.info("GET_ROWSPLIT......"); //////
+        LOG.info("cliendId = " + clientId); //////
         if (state == ServerState.BUSY) {
           result = new GetRowSplitResponse(ResponseType.SERVER_IS_BUSY, log);
         } else {
           GetRowSplitRequest request = new GetRowSplitRequest();
           request.deserialize(in);
           result = getRowSplit(request);
+          LOG.info("result.toString() = " + result.toString()); //////
         }
         break;
       }

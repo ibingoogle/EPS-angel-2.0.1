@@ -23,6 +23,8 @@ import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.ps.storage.matrix.ServerPartition;
 import com.tencent.angel.ps.storage.vector.ServerRow;
 import com.tencent.angel.psagent.PSAgentContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Matrix cache manager. It managers a matrix cache {@link MatrixCache} for every matrix.
  */
 public class MatricesCache {
+
+  private static final Log LOG = LogFactory.getLog(MatricesCache.class); //////
   /**
    * matrix id to matrix cache map
    */
@@ -136,7 +140,9 @@ public class MatricesCache {
    */
   public ServerRow getRowSplit(int matrixId, PartitionKey partKey, int rowIndex) {
     MatrixCache matrixCache = matricesCacheMap.get(matrixId);
+    LOG.info("ServerRow getRowSplit(int matrixId, PartitionKey partKey, int rowIndex)......"); //////
     if (matrixCache == null) {
+      LOG.info("matrixCache = " + matrixCache); //////
       return null;
     }
     return matrixCache.getRowSplit(partKey, rowIndex);

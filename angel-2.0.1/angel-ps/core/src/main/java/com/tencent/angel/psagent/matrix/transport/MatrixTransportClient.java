@@ -463,6 +463,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
   @SuppressWarnings("unchecked") @Override
   public Future<ServerRow> getRowSplit(int requestId, PartitionKey partKey, int rowIndex,
     int clock) {
+    LOG.info("Future<ServerRow> getRowSplit"); //////
     ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(partKey);
     GetRowSplitRequest request = new GetRowSplitRequest(requestId, clock, partKey, rowIndex);
     FutureResult<ServerRow> future = new FutureResult<>();

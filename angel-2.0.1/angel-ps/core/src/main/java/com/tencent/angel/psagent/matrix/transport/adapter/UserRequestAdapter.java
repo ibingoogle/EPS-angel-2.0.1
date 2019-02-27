@@ -243,6 +243,11 @@ public class UserRequestAdapter {
     // Get partitions for this row
     List<PartitionKey> partList =
       PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId, rowIndex);
+    /* new code */
+    LOG.info("partList size = " + partList.size());
+    LOG.info("rowIndex = " + rowIndex);
+    LOG.info("clock = " + clock);
+    /* code end */
     GetRowRequest request = new GetRowRequest(matrixId, rowIndex, clock);
     MatrixMeta meta = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId);
 
@@ -257,6 +262,7 @@ public class UserRequestAdapter {
 
     // Need get from ps or storage/cache
     if (result == null) {
+      LOG.info("result == null ......"); //////
       // Switch to new request id, send a new request
       try {
         requestId = request.getRequestId();
@@ -282,8 +288,19 @@ public class UserRequestAdapter {
         MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
         int size = partList.size();
         for (int i = 0; i < size; i++) {
+          LOG.info("get Row => i = " + i); //////
           ServerRow rowSplit = matricesCache.getRowSplit(matrixId, partList.get(i), rowIndex);
+          /* new code */
+          if (rowSplit != null){
+            LOG.info("rowSplit != null");
+            LOG.info("rowSplit.getClock() = " + rowSplit.getClock());
+            LOG.info("clock = " + clock);
+          }else {
+            LOG.info("rowSplit == null");
+          }
+          /* code end */
           if (rowSplit != null && rowSplit.getClock() >= clock) {
+            LOG.info("rowSplit != null && rowSplit.getClock() >= clock"); /////
             notifyResponse(requestId, rowSplit);
             //responseCache.addSubResponse(rowSplit);
           } else {
@@ -311,6 +328,7 @@ public class UserRequestAdapter {
         getRowSubrespons.remove(request);
       }
     } else {
+      LOG.info("result != null ......"); //////
       // Just wait result
       return result.get();
     }
@@ -799,7 +817,9 @@ public class UserRequestAdapter {
             break;
 
           case GET_ROW:
+            LOG.info("case GET_ROW.........."); //////
             if (cache.canMerge()) {
+              LOG.info("GET_ROW cache.canMerge()..........");
               if (!((GetRowPipelineCache) cache).merging.getAndSet(true)) {
                 workerPool.execute(new RowMerger((GetRowRequest) request, cache, result));
               }
@@ -817,7 +837,7 @@ public class UserRequestAdapter {
             LOG.info("subresponse = " + subResponse.toString()); //////
             if (cache.canMerge()) {
               /* new code */
-              LOG.info("cache.canMerge()..........");
+              LOG.info("INDEX_GET_ROWS cache.canMerge()..........");
               LOG.info("get result from request = " + request);
               LOG.info("cache.getProgress() = " + cache.getProgress());
               /* code end */
