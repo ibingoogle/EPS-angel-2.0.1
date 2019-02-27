@@ -675,7 +675,10 @@ public class UserRequestAdapter {
   }
 
   private FutureResult<Vector[]> get(IndexGetRowsRequest request) {
-    LOG.info("IndexGetRowsRequest request = " + request); //////
+    /* new code */
+    int removedParameterServerId = 4;
+    LOG.info("IndexGetRowsRequest request = " + request);
+    /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
     Map<PartitionKey, List<Integer>> partToRowIdsMap = PSAgentContext.get().getMatrixMetaManager()
       .getPartitionToRowsMap(request.getMatrixId(), request.getRowIds());
@@ -717,13 +720,47 @@ public class UserRequestAdapter {
       }
     });
 
+    /* new code */
+    for (Map.Entry<PartitionKey, IndicesView> entry: splits.entrySet()){
+      LOG.info("splits~~~~~~partitionKey = " + entry.getKey().toString());
+      LOG.info("splits~~~~~~partitionId = " + entry.getKey().getPartitionId());
+    }
+    for (int i = 0; i< parts.size(); i++){
+      LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
+      LOG.info("parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
+    }
+    /* code end */
+
     Map<PartitionKey, IndicesView> validSplits = new HashMap<>(partToRowIdsMap.size());
     for (Entry<PartitionKey, List<Integer>> entry : partToRowIdsMap.entrySet()) {
       IndicesView indicesView = getIndicesView(entry.getKey(), splits);
-      if (indicesView != null) {
+      /* old code */
+      // if (indicesView != null) {
+      /* new code */
+      ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
+      if (indicesView != null && serverId.getIndex() != removedParameterServerId) {
+      /* code end */
         validSplits.put(entry.getKey(), indicesView);
       }
     }
+
+    /* new code */
+    for (int i = 0; i< parts.size(); i++){
+      ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(parts.get(i));
+      if (serverId.getIndex() != removedParameterServerId){
+        parts.remove(i);
+        break;
+      }
+    }
+    for (Map.Entry<PartitionKey, IndicesView> entry: validSplits.entrySet()){
+      LOG.info("validSplits~~~~~~partitionKey = " + entry.getKey().toString());
+      LOG.info("validSplits~~~~~~partitionId = " + entry.getKey().getPartitionId());
+    }
+    for (int i = 0; i< parts.size(); i++){
+      LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
+      LOG.info("parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
+    }
+    /* code end */
 
     IndexGetRowsCache cache = new IndexGetRowsCache(validSplits.size(), parts);
     int requestId = request.getRequestId();
