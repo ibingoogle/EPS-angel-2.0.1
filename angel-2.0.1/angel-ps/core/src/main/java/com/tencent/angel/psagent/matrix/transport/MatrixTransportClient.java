@@ -466,16 +466,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     int clock) {
     LOG.info("Future<ServerRow> getRowSplit1"); //////
     ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(partKey);
-    LOG.info("Future<ServerRow> getRowSplit2"); //////
     GetRowSplitRequest request = new GetRowSplitRequest(requestId, clock, partKey, rowIndex);
     FutureResult<ServerRow> future = new FutureResult<>();
-    LOG.info("Future<ServerRow> getRowSplit3"); //////
     requestToResultMap.put(request, future);
-    LOG.info("Future<ServerRow> getRowSplit4"); //////
     addToGetQueueForServer(serverId, request);
-    LOG.info("Future<ServerRow> getRowSplit5"); //////
     startGet();
-    LOG.info("Future<ServerRow> getRowSplit6"); //////
     return future;
   }
 
@@ -1857,7 +1852,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       request.getContext().setLocation(psLoc.loc);
 
       /* new code */
-      if (request.getType().getMethodId() == 2 || request.getType().getMethodId() == 15 || request.getType().getMethodId() == 13){
+      if (request.getType().getMethodId() == 2 || request.getType().getMethodId() == 15 || request.getType().getMethodId() == 13 || request.getType().getMethodId() == 1){
         LOG.info("request.getType().getMethodId() = " + request.getType().getMethodId());
         LOG.info("psLocation = " + psLoc.toString() + " request = " + request + " with seqId = " + seqId);
       }
