@@ -72,6 +72,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.tencent.angel.ps.server.data.TransportMethod.GET_ROWSPLIT;
 import static com.tencent.angel.ps.server.data.TransportMethod.INDEX_GET_ROWS;
 
 /**
@@ -463,13 +464,18 @@ public class MatrixTransportClient implements MatrixTransportInterface {
   @SuppressWarnings("unchecked") @Override
   public Future<ServerRow> getRowSplit(int requestId, PartitionKey partKey, int rowIndex,
     int clock) {
-    LOG.info("Future<ServerRow> getRowSplit"); //////
+    LOG.info("Future<ServerRow> getRowSplit1"); //////
     ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(partKey);
+    LOG.info("Future<ServerRow> getRowSplit2"); //////
     GetRowSplitRequest request = new GetRowSplitRequest(requestId, clock, partKey, rowIndex);
     FutureResult<ServerRow> future = new FutureResult<>();
+    LOG.info("Future<ServerRow> getRowSplit3"); //////
     requestToResultMap.put(request, future);
+    LOG.info("Future<ServerRow> getRowSplit4"); //////
     addToGetQueueForServer(serverId, request);
+    LOG.info("Future<ServerRow> getRowSplit5"); //////
     startGet();
+    LOG.info("Future<ServerRow> getRowSplit6"); //////
     return future;
   }
 
@@ -1241,7 +1247,8 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       }
       LOG.debug("submit request seqId=" + seqId + ",request=" + item);
       /* new code */
-      if (item.getType() == INDEX_GET_ROWS){
+      if (item.getType() == INDEX_GET_ROWS || item.getType() == GET_ROWSPLIT){
+        LOG.info("item.getType() = " + item.getType());
         LOG.info("submit request seqId=" + seqId + ",request=" + item);
       }
       /* code end */
