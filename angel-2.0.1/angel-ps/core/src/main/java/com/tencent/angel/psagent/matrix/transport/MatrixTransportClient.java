@@ -2136,6 +2136,8 @@ public class MatrixTransportClient implements MatrixTransportInterface {
 
         switch (method) {
           case GET_ROWSPLIT: {
+            LOG.info("response handler, seqId=" + seqId + ", method=" + method + ", ts=" + System
+                    .currentTimeMillis()); //////
             handleGetRowSplitResponse(msg, seqId, (GetRowSplitRequest) request);
             break;
           }
@@ -2146,6 +2148,8 @@ public class MatrixTransportClient implements MatrixTransportInterface {
           }
 
           case INDEX_GET_ROWS: {
+            LOG.info("response handler, seqId=" + seqId + ", method=" + method + ", ts=" + System
+                    .currentTimeMillis());//////
             handleIndexPartGetRowsResponse(msg, seqId, (IndexPartGetRowsRequest) request);
             break;
           }
@@ -2358,7 +2362,9 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       //  .getRowSplit(request.getPartKey().getMatrixId(), request.getPartKey(),
       //    request.getRowIndex());
       //response.setRowSplit(rowSplit);
+      LOG.info("before response.deserialize(buf)"); //////
       response.deserialize(buf);
+      LOG.info("after response.deserialize(buf)"); //////
 
       handleServerState(request, response.getState());
 
@@ -2367,6 +2373,13 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         FutureResult<ServerRow> future = requestToResultMap.remove(request);
         if (future != null) {
           future.set(response.getRowSplit());
+          /* new code */
+          LOG.info("buf => " + buf.toString());
+          LOG.info("request => " + request);
+          LOG.info("response => " + response);
+          LOG.info("response.bufferLen() => " + response.bufferLen());
+          LOG.info("notifyResponse in handleGetRowSplitResponse");
+          /* code end */
           PSAgentContext.get().getUserRequestAdapter()
             .notifyResponse(request.getUserRequestId(), response.getRowSplit());
         }
@@ -2414,7 +2427,13 @@ public class MatrixTransportClient implements MatrixTransportInterface {
           result.setColIds(request.getColIds());
           result.setPartKey(request.getPartKey());
           future.set(result);
-          // LOG.info("user request id " + request.getUserRequestId());
+          /* new code */
+          LOG.info("buf => " + buf.toString());
+          LOG.info("request => " + request);
+          LOG.info("response => " + response);
+          LOG.info("response.bufferLen() => " + response.bufferLen());
+          LOG.info("notifyResponse in handleIndexPartGetRowsResponse");
+          /* code end */
           PSAgentContext.get().getUserRequestAdapter()
             .notifyResponse(request.getUserRequestId(), response.getPartResult());
         }
