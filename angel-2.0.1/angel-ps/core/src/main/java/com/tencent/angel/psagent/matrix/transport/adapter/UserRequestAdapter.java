@@ -676,7 +676,10 @@ public class UserRequestAdapter {
 
   private FutureResult<Vector[]> get(IndexGetRowsRequest request) {
     /* new code */
-    int removedParameterServerId = 3;
+    int removedParameterServerId = PSAgentContext.get().getConf()
+            .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID,
+                    AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
+    LOG.info("removedParameterServerId = " + removedParameterServerId);
     LOG.info("IndexGetRowsRequest request = " + request);
     /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
