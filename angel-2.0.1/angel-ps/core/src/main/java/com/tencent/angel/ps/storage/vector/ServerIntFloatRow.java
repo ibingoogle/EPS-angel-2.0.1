@@ -67,6 +67,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
     this.startColInt = startCol;
     this.endColInt = endCol;
     this.intFloatRow = (IntFloatVector) row;
+    LOG.info("ServerIntFloatRow~~~~"); //////
   }
 
   /**
@@ -80,6 +81,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
    */
   public ServerIntFloatRow(int rowId, RowType rowType, int startCol, int endCol, int estElemNum) {
     this(rowId, rowType, startCol, endCol, estElemNum, null);
+    LOG.info("ServerIntFloatRow@@@@"); //////
   }
 
   /**
@@ -89,6 +91,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
    */
   public ServerIntFloatRow(RowType rowType) {
     this(0, rowType, 0, 0, 0);
+    LOG.info("ServerIntFloatRow000000"); //////
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -390,6 +393,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
   @Override public ServerRow clone() {
     startRead();
     try {
+      LOG.info("ServerIntFloatRow$$$$$$"); //////
       return new ServerIntFloatRow(rowId, rowType, startColInt, endColInt, (int) estElemNum,
         intFloatRow.clone());
     } finally {

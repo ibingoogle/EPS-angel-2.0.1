@@ -26,6 +26,7 @@ public class ServerRowFactory {
   private final static Log LOG = LogFactory.getLog(ServerRowFactory.class); //////
 
   public static ServerRow createEmptyServerRow(RowType type) {
+    LOG.info("           ServerRow createEmptyServerRow(RowType type) in ServerRowFactory.java"); //////
     switch (type) {
       case T_DOUBLE_DENSE:
       case T_DOUBLE_SPARSE:
