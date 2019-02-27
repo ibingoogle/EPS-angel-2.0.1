@@ -94,6 +94,7 @@ public abstract class ServerRow implements Serialize {
   public ServerRow(int rowId, RowType rowType, long startCol, long endCol, long estElemNum,
     Vector row) {
     LOG.info("           build ServerRow in ServerRow.java"); //////
+    LOG.info("           row Class = " + this.getClass()); //////
     this.rowId = rowId;
     this.rowType = rowType;
     this.startCol = startCol;
