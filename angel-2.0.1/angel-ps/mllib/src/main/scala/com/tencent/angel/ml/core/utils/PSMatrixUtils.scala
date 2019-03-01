@@ -233,6 +233,7 @@ object PSMatrixUtils {
   }
 
   def getMatrixWithIndex(epoch: Int, matrixId: Int, startRowId: Int, endRowId: Int, index: Vector): Matrix = {
+    System.out.println("index: Vector class = " + index.getClass); //////
     val vectors = getRowsWithIndex(epoch, matrixId, (startRowId until endRowId).toArray, index)
 
     /* old code

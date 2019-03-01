@@ -22,8 +22,12 @@ package com.tencent.angel.psagent.matrix.storage;
  * The storage for a single matrix.
  */
 
+import com.tencent.angel.PartitionKey;
 import com.tencent.angel.ml.math2.vector.Vector;
+import com.tencent.angel.psagent.matrix.transport.adapter.IndicesView;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -31,11 +35,19 @@ public class MatrixStorage {
   /**
    * row index to row map
    */
-  /* old code */
-  // private final ConcurrentHashMap<Integer, Vector> rowIndexToRowMap;
+  private final ConcurrentHashMap<Integer, Vector> rowIndexToRowMap;
+
   /* new code */
-  public final ConcurrentHashMap<Integer, Vector> rowIndexToRowMap;
+  /**
+   * row index to (PartitionKey to float[] in vectors) from different servers
+   */
+  public ConcurrentHashMap<Integer, HashMap<PartitionKey, float[]>> rowIdToPartKeyToFloats;
+  /**
+   * row index to (PartitionKey to IndicesView in vectors) from different servers
+   */
+  public ConcurrentHashMap<Integer, HashMap<PartitionKey, IndicesView>> rowIdToPartKeyToView;
   /* code end */
+
   private final ReentrantReadWriteLock lock;
 
   /**
@@ -43,6 +55,8 @@ public class MatrixStorage {
    */
   public MatrixStorage() {
     rowIndexToRowMap = new ConcurrentHashMap<>();
+    rowIdToPartKeyToFloats = new ConcurrentHashMap<>(); //////
+    rowIdToPartKeyToView = new ConcurrentHashMap<>(); //////
     lock = new ReentrantReadWriteLock();
   }
 

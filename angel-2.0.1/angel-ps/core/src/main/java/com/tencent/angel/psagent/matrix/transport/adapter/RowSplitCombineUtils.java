@@ -24,9 +24,11 @@ import com.tencent.angel.ml.math2.vector.*;
 import com.tencent.angel.ml.math2.vector.Vector;
 import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.RowType;
+import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.storage.vector.*;
 import com.tencent.angel.psagent.PSAgentContext;
 import com.tencent.angel.psagent.matrix.storage.MatrixStorage;
+import it.unimi.dsi.fastutil.Hash;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -325,29 +327,18 @@ public class RowSplitCombineUtils {
     int[] colIds = ((IntIndexGetRowsRequest) request).getColIds();
     Map<PartitionKey, IndexPartGetRowsResult> partKeyToResultMap = getPartToResultMap(cache);
 
-    /* new code */
-    LOG.info("rowIds.length = " + rowIds.length);
-    LOG.info("colIds.length = " + colIds.length);
-    LOG.info("partKeyToResultMap.size = " + partKeyToResultMap.size());
-    for (Map.Entry<PartitionKey, IndexPartGetRowsResult> entry : partKeyToResultMap.entrySet()){
-      LOG.info("      partitionKey = " + entry.getKey().toString());
-      LOG.info("      IndexPartGetRowsResult_ToString = " + entry.getValue().toString());
-      LOG.info("      IndexPartGetRowsResult data size = " + entry.getValue().getDataSize());
-    }
-    /* code end */
+    /* old code
     Vector[] vectors = new Vector[rowIds.length];
     for (int i = 0; i < rowIds.length; i++) {
-      LOG.info("i = " + i); //////
       IntFloatVector vector =
-        VFactory.sparseFloatVector((int) matrixMeta.getColNum(), colIds.length);
+              VFactory.sparseFloatVector((int) matrixMeta.getColNum(), colIds.length);
       List<PartitionKey> parts =
-        PSAgentContext.get().getMatrixMetaManager().getPartitions(request.getMatrixId(), rowIds[i]);
+              PSAgentContext.get().getMatrixMetaManager().getPartitions(request.getMatrixId(), rowIds[i]);
       for (PartitionKey partKey : parts) {
         IndexPartGetRowsResult result = partKeyToResultMap.get(partKey);
         if (result == null) {
           continue;
         }
-        LOG.info("partKey = " + partKey.toString()); //////
         IndicesView colIdView = result.getColIds();
         float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
         for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
@@ -357,32 +348,97 @@ public class RowSplitCombineUtils {
       vectors[i] = vector;
       vectors[i].setMatrixId(request.getMatrixId());
       vectors[i].setRowId(rowIds[i]);
+    }
+    old code end */
 
+    /* new code */
+    LOG.info("rowIds.length = " + rowIds.length);
+    LOG.info("colIds.length = " + colIds.length);
+    LOG.info("partKeyToResultMap.size = " + partKeyToResultMap.size());
+    for (Map.Entry<PartitionKey, IndexPartGetRowsResult> entry : partKeyToResultMap.entrySet()){
+      LOG.info("      partitionKey = " + entry.getKey().toString());
+      LOG.info("      IndexPartGetRowsResult_ToString = " + entry.getValue().toString());
+      LOG.info("      IndexPartGetRowsResult data size = " + entry.getValue().getDataSize());
+    }
 
-      /* new code */
+    int matrixId = request.getMatrixId();
+    MatrixStorage matrixStorage = PSAgentContext.get().getMatrixStorageManager().getMatrixStoage(matrixId);
+
+    Vector[] vectors = new Vector[rowIds.length];
+    for (int i = 0; i < rowIds.length; i++) {
+      if (!matrixStorage.rowIdToPartKeyToFloats.containsKey(i)) {
+        HashMap<PartitionKey, float[]> PartKeyToFloats = new HashMap<PartitionKey, float[]>();
+        matrixStorage.rowIdToPartKeyToFloats.put(i, PartKeyToFloats);
+      }
+      if (!matrixStorage.rowIdToPartKeyToView.containsKey(i)) {
+        HashMap<PartitionKey, IndicesView> PartKeyToView = new HashMap<PartitionKey, IndicesView>();
+        matrixStorage.rowIdToPartKeyToView.put(i, PartKeyToView);
+      }
+
+      IntFloatVector vector =
+              VFactory.sparseFloatVector((int) matrixMeta.getColNum(), colIds.length);
+      List<PartitionKey> parts =
+              PSAgentContext.get().getMatrixMetaManager().getPartitions(request.getMatrixId(), rowIds[i]);
+      for (PartitionKey partKey : parts) {
+        IndexPartGetRowsResult result = partKeyToResultMap.get(partKey);
+        if (result == null) {
+          continue;
+        }
+        LOG.info("partKey = " + partKey.toString());
+        IndicesView colIdView = result.getColIds();
+        float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
+        for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
+          vector.set(colIds[j], values[j - colIdView.startPos]);
+        }
+
+        if (!matrixStorage.rowIdToPartKeyToFloats.get(i).containsKey(partKey)){
+          matrixStorage.rowIdToPartKeyToFloats.get(i).put(partKey, values);
+        }else {
+          matrixStorage.rowIdToPartKeyToFloats.get(i).replace(partKey, values);
+        }
+        if (!matrixStorage.rowIdToPartKeyToView.get(i).containsKey(partKey)){
+          matrixStorage.rowIdToPartKeyToView.get(i).put(partKey, colIdView);
+        }else {
+          matrixStorage.rowIdToPartKeyToView.get(i).replace(partKey, colIdView);
+        }
+      }
+      vectors[i] = vector;
+      vectors[i].setMatrixId(request.getMatrixId());
+      vectors[i].setRowId(rowIds[i]);
+
       LOG.info("vector.size() = " + vector.size());
       LOG.info("vector.max = " + vector.max());
       LOG.info("vector.min = " + vector.min());
       LOG.info("vector.average = " + vector.average());
       LOG.info("vector rowId = " + vector.getRowId());
-      /* code end */
     }
 
-    /* new code */
-    int matrixId = request.getMatrixId();
-    LOG.info("matrixId = " + matrixId);
-    MatrixStorage matrixStorage = PSAgentContext.get().getMatrixStorageManager().getMatrixStoage(matrixId);
     if (matrixStorage != null){
       LOG.info("matrixStoage != null");
-      if (matrixStorage.rowIndexToRowMap != null){
-        LOG.info("matrixStorage.rowIndexToRowMap != null");
+      if (matrixStorage.rowIdToPartKeyToFloats != null && matrixStorage.rowIdToPartKeyToView != null){
+        LOG.info("matrixStorage.rowIdToPartKeyToFloats != null");
+        LOG.info("matrixStorage.rowIdToPartKeyToView != null");
         for (int i = 0; i < rowIds.length; i++) {
           LOG.info("i = " + i);
-          if (matrixStorage.rowIndexToRowMap.containsKey(i)){
-            LOG.info("matrixStorage.rowIndexToRowMap.containsKey(" + i + ")");
-            LOG.info("vector to string => " + matrixStorage.rowIndexToRowMap.get(i).toString());
-            LOG.info("vector size => " + matrixStorage.rowIndexToRowMap.get(i).getSize());
-            LOG.info("vector storage => " + matrixStorage.rowIndexToRowMap.get(i).getStorage());
+          if (matrixStorage.rowIdToPartKeyToFloats.containsKey(i) && matrixStorage.rowIdToPartKeyToView.containsKey(i)){
+            LOG.info("matrixStorage.rowIdToPartKeyToFloats.containsKey(" + i + ")");
+            LOG.info("matrixStorage.rowIdToPartKeyToViewcontainsKey(" + i + ")");
+            if (matrixStorage.rowIdToPartKeyToFloats.get(i) != null && matrixStorage.rowIdToPartKeyToView.get(i) != null) {
+              LOG.info("matrixStorage.rowIdToPartKeyToFloats.get(" + i + ") != null");
+              LOG.info("matrixStorage.rowIdToPartKeyToView.get(" + i + ") != null");
+              for (Map.Entry<PartitionKey, float[]> entry: matrixStorage.rowIdToPartKeyToFloats.get(i).entrySet()) {
+                PartitionKey partKey = entry.getKey();
+                ParameterServerId PSId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
+                LOG.info("PartitionKey to String = " + partKey.toString());
+                LOG.info("PartitionId = " + partKey.getPartitionId());
+                LOG.info("ParameterServerId to String = " + PSId.toString());
+                LOG.info("ParameterServerId = " + PSId.getIndex());
+                LOG.info("float[] size = " + entry.getValue().length);
+                IndicesView colIdView = matrixStorage.rowIdToPartKeyToView.get(i).get(partKey);
+                LOG.info("colIdView.startPos = " + colIdView.startPos);
+                LOG.info("colIdView.endPos = " + colIdView.endPos);
+              }
+            }
           }
         }
       }
