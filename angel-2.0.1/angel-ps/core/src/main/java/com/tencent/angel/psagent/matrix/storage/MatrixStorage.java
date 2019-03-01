@@ -31,7 +31,11 @@ public class MatrixStorage {
   /**
    * row index to row map
    */
-  private final ConcurrentHashMap<Integer, Vector> rowIndexToRowMap;
+  /* old code */
+  // private final ConcurrentHashMap<Integer, Vector> rowIndexToRowMap;
+  /* new code */
+  public final ConcurrentHashMap<Integer, Vector> rowIndexToRowMap;
+  /* code end */
   private final ReentrantReadWriteLock lock;
 
   /**

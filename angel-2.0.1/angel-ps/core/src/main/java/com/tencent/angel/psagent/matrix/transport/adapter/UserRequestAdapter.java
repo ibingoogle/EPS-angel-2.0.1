@@ -727,6 +727,8 @@ public class UserRequestAdapter {
     for (Map.Entry<PartitionKey, IndicesView> entry: splits.entrySet()){
       LOG.info("splits~~~~~~partitionKey = " + entry.getKey().toString());
       LOG.info("splits~~~~~~partitionId = " + entry.getKey().getPartitionId());
+      LOG.info("IndicesView.startPos = " + entry.getValue().startPos);
+      LOG.info("IndicesView.endPos = " + entry.getValue().endPos);
     }
     for (int i = 0; i< parts.size(); i++){
       LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
@@ -758,6 +760,8 @@ public class UserRequestAdapter {
     for (Map.Entry<PartitionKey, IndicesView> entry: validSplits.entrySet()){
       LOG.info("validSplits~~~~~~partitionKey = " + entry.getKey().toString());
       LOG.info("validSplits~~~~~~partitionId = " + entry.getKey().getPartitionId());
+      LOG.info("IndicesView.startPos = " + entry.getValue().startPos);
+      LOG.info("IndicesView.endPos = " + entry.getValue().endPos);
     }
     for (int i = 0; i< parts.size(); i++){
       LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());

@@ -26,6 +26,7 @@ import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.RowType;
 import com.tencent.angel.ps.storage.vector.*;
 import com.tencent.angel.psagent.PSAgentContext;
+import com.tencent.angel.psagent.matrix.storage.MatrixStorage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -358,15 +359,35 @@ public class RowSplitCombineUtils {
       vectors[i].setRowId(rowIds[i]);
 
 
-    /* new code */
-    LOG.info("vector.size() = " + vector.size());
-    LOG.info("vector.max = " + vector.max());
-    LOG.info("vector.min = " + vector.min());
-    LOG.info("vector.average = " + vector.average());
-    LOG.info("vector rowId = " + vector.getRowId());
-    /* code end */
+      /* new code */
+      LOG.info("vector.size() = " + vector.size());
+      LOG.info("vector.max = " + vector.max());
+      LOG.info("vector.min = " + vector.min());
+      LOG.info("vector.average = " + vector.average());
+      LOG.info("vector rowId = " + vector.getRowId());
+      /* code end */
     }
 
+    /* new code */
+    int matrixId = request.getMatrixId();
+    LOG.info("matrixId = " + matrixId);
+    MatrixStorage matrixStorage = PSAgentContext.get().getMatrixStorageManager().getMatrixStoage(matrixId);
+    if (matrixStorage != null){
+      LOG.info("matrixStoage != null");
+      if (matrixStorage.rowIndexToRowMap != null){
+        LOG.info("matrixStorage.rowIndexToRowMap != null");
+        for (int i = 0; i < rowIds.length; i++) {
+          LOG.info("i = " + i);
+          if (matrixStorage.rowIndexToRowMap.containsKey(i)){
+            LOG.info("matrixStorage.rowIndexToRowMap.containsKey(" + i + ")");
+            LOG.info("vector to string => " + matrixStorage.rowIndexToRowMap.get(i).toString());
+            LOG.info("vector size => " + matrixStorage.rowIndexToRowMap.get(i).getSize());
+            LOG.info("vector storage => " + matrixStorage.rowIndexToRowMap.get(i).getStorage());
+          }
+        }
+      }
+    }
+    /* code end */
 
     return vectors;
   }
