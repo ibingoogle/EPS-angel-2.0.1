@@ -615,9 +615,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(partKey);
     UpdateRequest request;
     if (taskContext != null) {
+      LOG.info("taskContext != null"); //////
       request = new UpdateRequest(requestId, taskContext.getIndex(), clock, partKey, updateItem,
         updateClock, op);
     } else {
+      LOG.info("taskContext == null"); //////
       request = new UpdateRequest(requestId, -1, -1, partKey, updateItem, false, op);
     }
 

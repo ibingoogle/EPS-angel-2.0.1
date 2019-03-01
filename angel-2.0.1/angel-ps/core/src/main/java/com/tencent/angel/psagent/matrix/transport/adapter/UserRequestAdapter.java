@@ -1139,9 +1139,13 @@ public class UserRequestAdapter {
     /*code end*/
 
     if (useNewSplit(matrixId, rows)) {
+      LOG.info("rows.length = " + rows.length); //////
       for (int i = 0; i < rows.length; i++) {
         rows[i].setRowId(rowIds[i]);
         rows[i].setMatrixId(matrixId);
+        LOG.info("rows[" + i + "] get size = " + rows[i].getSize()); //////
+        LOG.info("rows[" + i + "] get rowId = " + rows[i].getRowId()); //////
+        LOG.info("rows[" + i + "] get class = " + rows[i].getClass()); //////
       }
 
       List<PartitionKey> partitions =
@@ -1157,6 +1161,7 @@ public class UserRequestAdapter {
 
       MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
       long colNum = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId).getColNum();
+      LOG.info("colNum = " + colNum); //////
       for (PartitionKey partKey : partitions) {
         /*new code*/
         LOG.info("update clock = -1");
