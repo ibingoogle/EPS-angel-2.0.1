@@ -131,13 +131,43 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
             }
           case ("libsvm" | "dummy", "float") =>
             forward = MFactory.denseFloatMatrix(graph.placeHolder.getBatchSize, outputDim)
+            /* new code */
+            LOG.info("outputDim = " + outputDim)
+            LOG.info("BatchSize = " + graph.placeHolder.getBatchSize)
+            LOG.info("forward.getNumRows => " + forward.getNumRows)
+            /* code end */
             (0 until outputDim).foreach { colId =>
+              /* old code
               val col = graph.placeHolder.getFeats.dot(weight.getRow(colId)).iadd(VectorUtils.getFloat(bias, colId))
               forward.asInstanceOf[BlasFloatMatrix].setCol(colId, col)
+              code end */
+              /* new code */
+              LOG.info("colId = " + colId)
+              val Feats = graph.placeHolder.getFeats // Matrix
+              LOG.info("Feats.getNumRows => " + Feats.getNumRows)
+              LOG.info("Feats.class = " + Feats.getClass)
+              LOG.info("NumRows in weight => " + weight.getNumRows)
+              // intFloatMatrix
+              LOG.info("weight getClass => " + weight.getClass)
+              for (i <- 0 until weight.getNumRows){
+                LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
+              }
+              val getRow_colId = weight.getRow(colId) // Vector
+              LOG.info("getRow_colId getSize= " + getRow_colId.getSize)
+              LOG.info("getRow_colId getRowId= " + getRow_colId.getRowId)
+              val dot = Feats.dot(getRow_colId)
+              LOG.info("dot getSize= " + dot.getSize)
+              LOG.info("dot getRowId= " + dot.getRowId)
+              val col = dot.iadd(VectorUtils.getFloat(bias, colId))
+              LOG.info("col getSize= " + col.getSize)
+              LOG.info("col getRowId= " + col.getRowId)
+              forward.asInstanceOf[BlasFloatMatrix].setCol(colId, col)
+              /* code end */
             }
         }
 
         output = transFunc(forward)
+        LOG.info("output class = " + output.getClass) //////
         status = STATUS.Forward
       case _ =>
     }
