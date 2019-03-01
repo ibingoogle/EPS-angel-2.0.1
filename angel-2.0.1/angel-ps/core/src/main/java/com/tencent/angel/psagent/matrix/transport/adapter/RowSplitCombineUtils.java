@@ -366,6 +366,7 @@ public class RowSplitCombineUtils {
 
     Vector[] vectors = new Vector[rowIds.length];
     for (int i = 0; i < rowIds.length; i++) {
+      LOG.info("i = " + i);
       if (!matrixStorage.rowIdToPartKeyToFloats.containsKey(i)) {
         HashMap<PartitionKey, float[]> PartKeyToFloats = new HashMap<PartitionKey, float[]>();
         matrixStorage.rowIdToPartKeyToFloats.put(i, PartKeyToFloats);
