@@ -433,10 +433,16 @@ public class RowSplitCombineUtils {
                 LOG.info("PartitionId = " + partKey.getPartitionId());
                 LOG.info("ParameterServerId to String = " + PSId.toString());
                 LOG.info("ParameterServerId = " + PSId.getIndex());
-                LOG.info("float[] size = " + entry.getValue().length);
-                IndicesView colIdView = matrixStorage.rowIdToPartKeyToView.get(i).get(partKey);
-                LOG.info("colIdView.startPos = " + colIdView.startPos);
-                LOG.info("colIdView.endPos = " + colIdView.endPos);
+                if (entry.getValue() != null) {
+                  LOG.info("float[] size = " + entry.getValue().length);
+                  if (entry.getValue().length > 0) {
+                    LOG.info("float[0] = " + entry.getValue()[0]);
+                    LOG.info("float[entry.getValue().length - 1] = " + entry.getValue()[entry.getValue().length - 1]);
+                  }
+                  IndicesView colIdView = matrixStorage.rowIdToPartKeyToView.get(i).get(partKey);
+                  LOG.info("colIdView.startPos = " + colIdView.startPos);
+                  LOG.info("colIdView.endPos = " + colIdView.endPos);
+                }
               }
             }
           }
