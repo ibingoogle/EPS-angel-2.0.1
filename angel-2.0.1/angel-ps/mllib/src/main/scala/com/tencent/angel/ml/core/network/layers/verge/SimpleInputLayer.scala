@@ -312,8 +312,6 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
 
               LOG.info("weight argmin = " + realweight.argmin())
               LOG.info("weight argmax = " + realweight.argmax())
-              LOG.info("weight at " + realweight.argmin() + " = " + realweight.get(realweight.argmin()))
-              LOG.info("weight at " + realweight.argmax() + " = " + realweight.get(realweight.argmax()))
 
               LOG.info("weight min = " + realweight.min())
               LOG.info("weight max = " + realweight.max())
