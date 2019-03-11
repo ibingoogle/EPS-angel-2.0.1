@@ -775,6 +775,7 @@ public class WorkerPool {
       }
 
       case UPDATE: {
+        LOG.info("UPDATE"); //////
         if (state == ServerState.BUSY) {
           result = new UpdateResponse(ResponseType.SERVER_IS_BUSY, log);
         } else {
