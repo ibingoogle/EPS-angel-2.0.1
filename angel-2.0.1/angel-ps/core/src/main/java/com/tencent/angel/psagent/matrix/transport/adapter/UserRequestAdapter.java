@@ -1143,6 +1143,7 @@ public class UserRequestAdapter {
       for (int i = 0; i < rows.length; i++) {
         rows[i].setRowId(rowIds[i]);
         rows[i].setMatrixId(matrixId);
+        LOG.info("rowIds[" + i + "] = " + rowIds[i]);
         LOG.info("rows[" + i + "] get size = " + rows[i].getSize()); //////
         LOG.info("rows[" + i + "] get rowId = " + rows[i].getRowId()); //////
         LOG.info("rows[" + i + "] get class = " + rows[i].getClass()); //////

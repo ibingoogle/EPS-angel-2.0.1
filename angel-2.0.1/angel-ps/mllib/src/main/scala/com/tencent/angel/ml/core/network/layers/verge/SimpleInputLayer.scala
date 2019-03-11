@@ -174,6 +174,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
 
         output = transFunc(forward)
         LOG.info("output class = " + output.getClass) //////
+        LOG.info("output numRows = " + output.getNumRows);//////
         status = STATUS.Forward
       case _ =>
     }
@@ -190,6 +191,12 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         // println(s"the status in SparseInputLayer($name)-calBackward is ${status.toString}")
         val gradTemp = gatherGrad()
         backward = transFunc.calGrad(output, gradTemp)
+        /* new code */
+        LOG.info("backward class = " + backward.getClass)
+        LOG.info("rowsNum in backward = " + backward.getNumRows)
+        LOG.info("row[0].size = " + backward.getRow(0).getSize + ", type = " + backward.getRow(0).getType + ", storage Type = " + backward.getRow(0).getStorage.getType)
+        /* code end */
+
         status = STATUS.Backward
       case _ =>
     }
@@ -247,19 +254,49 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               .imul(normal)
             PSMatrixUtils.incrementRowByMatrix(weightId, numSlot, weightGrad)
           case _ => // sparse data, dense or sparse model, note: dense data, sparse model is not allowed
+            LOG.info("outputDim in pushGradient = " + outputDim) //////
             val vectors = (0 until outputDim).toArray.map { colId =>
               val weightRowGrad = valueType match {
                 case "double" =>
                   graph.placeHolder.getFeats.transDot(backward.asInstanceOf[BlasDoubleMatrix].getCol(colId))
                     .imul(normal)
                 case "float" =>
-                  graph.placeHolder.getFeats.transDot(backward.asInstanceOf[BlasFloatMatrix].getCol(colId))
-                    .imul(normal)
+                  // old code
+                  //graph.placeHolder.getFeats.transDot(backward.asInstanceOf[BlasFloatMatrix].getCol(colId))
+                    //.imul(normal)
+                  /* new code */
+                  LOG.info("float in pushGradient")
+                  val Feats = graph.placeHolder.getFeats // Matrix
+                  LOG.info("Feats.getNumRows in pushGradient => " + Feats.getNumRows)
+                  LOG.info("Feats.class in pushGradient = " + Feats.getClass)
+                  for (i <- 0 until 10){
+                    LOG.info("row[" + i + "] => " + Feats.getRow(i).getSize + ", type = " + Feats.getRow(i).getType + ", RowId = " + Feats.getRow(i).getRowId)
+                  }
+                  val getCol_colId = backward.asInstanceOf[BlasDoubleMatrix].getCol(colId) // Vector
+                  LOG.info("getRow_colId getSize= " + getCol_colId.getSize)
+                  LOG.info("getRow_colId getRowId= " + getCol_colId.getRowId)
+                  LOG.info("getRow_colId get class= " + getCol_colId.getClass)
+                  val dot = Feats.transDot(getCol_colId) // Vector
+                  LOG.info("dot getSize in pushGradient= " + dot.getSize)
+                  LOG.info("dot getRowId in pushGradient= " + dot.getRowId)
+                  LOG.info("dot get class in pushGradient= " + dot.getClass)
+                  val col = dot.imul(normal) // Vector
+                  LOG.info("col getSize in pushGradient= " + col.getSize)
+                  LOG.info("col getRowId in pushGradient= " + col.getRowId)
+                  LOG.info("col get class in pushGradient= " + col.getClass)
+                  col
+                  /* code end */
               }
 
               weightRowGrad.setMatrixId(weight.getMatrixId)
               weightRowGrad.setRowId(outputDim * numSlot + colId)
               weightRowGrad.setClock(weight.getClock)
+              /* new code */
+              LOG.info("weightRowGrad getSize in pushGradient= " + weightRowGrad.getSize)
+              LOG.info("weightRowGrad getRowId in pushGradient= " + weightRowGrad.getRowId)
+              LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
+              /* code end */
+
 
               weightRowGrad
             }
