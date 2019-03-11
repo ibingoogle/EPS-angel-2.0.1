@@ -435,6 +435,7 @@ public class RowSplitCombineUtils {
               for (Map.Entry<PartitionKey, float[]> entry: matrixStorage.rowIdToPartKeyToFloats.get(i).entrySet()) {
                 PartitionKey partKey = entry.getKey();
                 ParameterServerId PSId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
+                LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 LOG.info("PartitionKey to String = " + partKey.toString());
                 LOG.info("PartitionId = " + partKey.getPartitionId());
                 LOG.info("ParameterServerId to String = " + PSId.toString());
@@ -443,12 +444,14 @@ public class RowSplitCombineUtils {
                   LOG.info("float[] size = " + entry.getValue().length);
                   if (entry.getValue().length > 0) {
                     LOG.info("float[0] = " + entry.getValue()[0]);
-                    LOG.info("float[entry.getValue().length - 1] = " + entry.getValue()[entry.getValue().length - 1]);
+                    LOG.info("float[" + (entry.getValue().length - 1) + "] = " + entry.getValue()[entry.getValue().length - 1]);
                   }
                   IndicesView colIdView = matrixStorage.rowIdToPartKeyToView.get(i).get(partKey);
                   LOG.info("colIdView.startPos = " + colIdView.startPos);
                   LOG.info("colIdView.endPos = " + colIdView.endPos);
+                  LOG.info("colIdView.startPos - colIdView.endPos = " + (colIdView.startPos - colIdView.endPos));
                 }
+                LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
               }
             }
           }

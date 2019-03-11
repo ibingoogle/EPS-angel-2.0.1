@@ -333,6 +333,10 @@ public class AngelConf extends Configuration {
 
   public static final String ANGEL_WORKER_RM_SERVER_ID = "angel.worker.rm.server.id";
   public static final int DEFAULT_ANGEL_WORKER_RM_SERVER_ID = -1;
+
+
+  public static final String ANGEL_WORKER_RM_SERVER_EPOCH = "angel.worker.rm.server.epoch";
+  public static final int DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH = -1;
   /* code end */
 
   // //////////////////////////////

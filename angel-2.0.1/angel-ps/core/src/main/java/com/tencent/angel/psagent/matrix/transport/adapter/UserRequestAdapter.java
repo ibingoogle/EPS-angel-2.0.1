@@ -123,6 +123,14 @@ public class UserRequestAdapter {
 
   private final int colNumThreshold = 10000000;
 
+
+  /* new code */
+  public int currentEpoch = 0;
+  public int rmServerEpoch = PSAgentContext.get().getConf()
+          .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH,
+                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);;
+  /* code end */
+
   /**
    * Create a new UserRequestAdapter.
    */
@@ -680,6 +688,8 @@ public class UserRequestAdapter {
             .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID,
                     AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
     LOG.info("removedParameterServerId = " + removedParameterServerId);
+    LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
+    LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("IndexGetRowsRequest request = " + request);
     /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
