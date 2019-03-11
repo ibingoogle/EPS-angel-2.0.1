@@ -729,6 +729,7 @@ public class UserRequestAdapter {
       LOG.info("splits~~~~~~partitionId = " + entry.getKey().getPartitionId());
       LOG.info("IndicesView.startPos = " + entry.getValue().startPos);
       LOG.info("IndicesView.endPos = " + entry.getValue().endPos);
+      LOG.info("IndicesView.start-end = " + (entry.getValue().endPos - entry.getValue().startPos));
     }
     for (int i = 0; i< parts.size(); i++){
       LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
@@ -762,6 +763,7 @@ public class UserRequestAdapter {
       LOG.info("validSplits~~~~~~partitionId = " + entry.getKey().getPartitionId());
       LOG.info("IndicesView.startPos = " + entry.getValue().startPos);
       LOG.info("IndicesView.endPos = " + entry.getValue().endPos);
+      LOG.info("IndicesView.start-end = " + (entry.getValue().endPos - entry.getValue().startPos));
     }
     for (int i = 0; i< parts.size(); i++){
       LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());

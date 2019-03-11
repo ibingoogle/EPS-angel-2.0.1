@@ -304,12 +304,12 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
               val realweight = weightRowGrad.asInstanceOf[IntFloatVector]
               for (i <- 0 until realweight.size()){
-                if (i%100 == 0) {
+                if (i%1000 == 0) {
                   LOG.info("weight at " + i + " = " + realweight.get(i))
                 }
               }
               LOG.info("weight average = " + realweight.average())
-              
+
               LOG.info("weight argmin = " + realweight.argmin())
               LOG.info("weight argmax = " + realweight.argmax())
               LOG.info("weight at " + realweight.argmin() + " = " + realweight.get(realweight.argmin()))

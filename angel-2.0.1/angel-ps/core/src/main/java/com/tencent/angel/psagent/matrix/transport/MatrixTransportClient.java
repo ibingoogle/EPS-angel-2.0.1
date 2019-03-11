@@ -74,6 +74,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.tencent.angel.ps.server.data.TransportMethod.GET_ROWSPLIT;
 import static com.tencent.angel.ps.server.data.TransportMethod.INDEX_GET_ROWS;
+import static com.tencent.angel.ps.server.data.TransportMethod.UPDATE;
 
 /**
  * RPC client to parameter servers. It uses Netty as the network communication framework.
@@ -590,7 +591,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     LOG.info("rowIds = " + rowIds);
     LOG.info("partKeyId = " + partKey.getPartitionId());
     LOG.info("partKey_ToString = " + partKey.toString());
-    LOG.info("ColIds startPos = " + colIds.startPos + ", endPos = " + colIds.endPos);
+    LOG.info("ColIds startPos = " + colIds.startPos + ", endPos = " + colIds.endPos + ", startPos - endPos = " + (colIds.startPos - colIds.endPos));
     LOG.info("valueType = " + valueType.getTypeId() + " => " + valueType.name());
     if (func != null) {
       LOG.info("func = " + func.toString());
@@ -1244,7 +1245,7 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       }
       LOG.debug("submit request seqId=" + seqId + ",request=" + item);
       /* new code */
-      if (item.getType() == INDEX_GET_ROWS || item.getType() == GET_ROWSPLIT){
+      if (item.getType() == INDEX_GET_ROWS || item.getType() == GET_ROWSPLIT || item.getType() == UPDATE){
         LOG.info("item.getType() = " + item.getType());
         LOG.info("submit request seqId=" + seqId + ",request=" + item);
       }

@@ -33,6 +33,8 @@ import it.unimi.dsi.fastutil.longs.Long2FloatMap;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,8 @@ public class RowsViewUpdateItem extends UpdateItem {
     this.rows = rows;
     this.column = column;
   }
+
+  private static final Log LOG = LogFactory.getLog(RowsViewUpdateItem.class); //////
 
   public RowsViewUpdateItem() {
     this(null, null, 0);
@@ -494,6 +498,29 @@ public class RowsViewUpdateItem extends UpdateItem {
   }
 
   private void serializeRow(ByteBuf buf, Vector row) {
+    /* new code */
+    LOG.info("buf.toString() = " + buf.toString());
+    LOG.info("row");
+    LOG.info("row.getSize() = " + row.getSize());
+    LOG.info("row.getType = " + row.getType());
+    LOG.info("row.getClass = " + row.getClass());
+    IntFloatVector realweight = (IntFloatVector)row;
+    for (int i = 0; i < realweight.size(); i++) {
+      if (i%1000 == 0) {
+        LOG.info("weight at " + i + " = " + realweight.get(i));
+      }
+    }
+    LOG.info("weight average = " + realweight.average());
+
+    LOG.info("weight argmin = " + realweight.argmin());
+    LOG.info("weight argmax = " + realweight.argmax());
+    LOG.info("weight at " + realweight.argmin() + " = " + realweight.get(realweight.argmin()));
+    LOG.info("weight at " + realweight.argmax() + " = " + realweight.get(realweight.argmax()));
+
+    LOG.info("weight min = " + realweight.min());
+    LOG.info("weight max = " + realweight.max());
+
+    /* code end */
     final boolean needCheck = (column != (partKey.getEndCol() - partKey.getStartCol()));
     buf.writeInt(row.getRowId());
     switch (row.getType()) {
@@ -875,6 +902,15 @@ public class RowsViewUpdateItem extends UpdateItem {
       offset = 0;
     }
 
+    /* new code */
+    LOG.info("endCol = " + endCol);
+    LOG.info("startCol = " + startCol);
+    LOG.info("offset = " + offset);
+    LOG.info("row.isDense() = " + row.isDense());
+    LOG.info("row.isSparse() = " + row.isSparse());
+    LOG.info("needCheck = " + needCheck);
+    /* code end */
+
     if (row.isDense()) {
       buf.writeInt(RowType.T_FLOAT_DENSE.getNumber());
       float[] values = row.getStorage().getValues();
@@ -905,6 +941,22 @@ public class RowsViewUpdateItem extends UpdateItem {
       int num = 0;
       int[] indices = row.getStorage().getIndices();
       float[] values = row.getStorage().getValues();
+      /* new code */
+      LOG.info("indices size = " + indices.length);
+      for (int i = 0; i < indices.length; i++) {
+        if (i%1000 == 0) {
+          LOG.info("indices[" + i + "] = " + indices[i]);
+        }
+      }
+      LOG.info("values size = " + values.length);
+      for (int i = 0; i < values.length; i++) {
+        if (i%1000 == 0) {
+          LOG.info("value[" + i + "] = " + values[i]);
+        }
+      }
+      /* code end */
+
+      /* old code
       for (int i = 0; i < indices.length; i++) {
         if (!needCheck || colInPart(indices[i], partKey)) {
           buf.writeInt(indices[i] - offset);
@@ -912,6 +964,24 @@ public class RowsViewUpdateItem extends UpdateItem {
           num++;
         }
       }
+      */
+      /* new code */
+      for (int i = 0; i < indices.length; i++) {
+        if (i%1000 == 0) LOG.info("without if, i = " + i);
+        if (!needCheck || colInPart(indices[i], partKey)) {
+          if (i%1000 == 0) {
+            LOG.info("with if, i = " + i);
+            LOG.info("indices[" + i + "] = " + indices[i]);
+            LOG.info("indices[" + i + "] - offset = " + (indices[i] - offset));
+            LOG.info("value[" + i + "] = " + values[i]);
+          }
+          buf.writeInt(indices[i] - offset);
+          buf.writeFloat(values[i]);
+          num++;
+        }
+      }
+      LOG.info("num = " + num);
+      /* code end */
       buf.setInt(pos, num);
     }
   }
