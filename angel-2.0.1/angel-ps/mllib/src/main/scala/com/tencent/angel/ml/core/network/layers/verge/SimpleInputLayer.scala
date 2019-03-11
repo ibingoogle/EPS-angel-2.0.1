@@ -303,6 +303,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               LOG.info("weightRowGrad getRowId in pushGradient= " + weightRowGrad.getRowId)
               LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
               val realweight = weightRowGrad.asInstanceOf[IntFloatVector]
+              LOG.info("map in realweight size = " + realweight.getStorage.size())
               for (i <- 0 until realweight.size()){
                 if (i%5000 == 0) {
                   LOG.info("weight at " + i + " = " + realweight.get(i))
