@@ -355,7 +355,7 @@ public class RowSplitCombineUtils {
     LOG.info("rowIds.length = " + rowIds.length);
     LOG.info("colIds.length = " + colIds.length);
     for (int i = 0; i < colIds.length; i++){
-      if (i%1000 == 0){
+      if (i%5000 == 0){
         LOG.info("colIds[" + i + "] = " + colIds[i]);
       }
     }

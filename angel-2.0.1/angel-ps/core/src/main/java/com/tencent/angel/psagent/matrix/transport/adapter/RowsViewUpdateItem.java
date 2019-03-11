@@ -507,7 +507,7 @@ public class RowsViewUpdateItem extends UpdateItem {
       LOG.info("row.getClass = " + row.getClass());
       IntFloatVector realweight = (IntFloatVector) row;
       for (int i = 0; i < realweight.size(); i++) {
-        if (i % 1000 == 0) {
+        if (i % 5000 == 0) {
           LOG.info("weight at " + i + " = " + realweight.get(i));
         }
       }
@@ -944,21 +944,21 @@ public class RowsViewUpdateItem extends UpdateItem {
         if (indices != null) {
           LOG.info("indices.length = " + indices.length);
           for (int i = 0; i < indices.length; i++) {
-            if (i % 1000 == 0) LOG.info("indices[" + i + "] = " + indices[i]);
+            if (i % 5000 == 0) LOG.info("indices[" + i + "] = " + indices[i]);
           }
         }
         if (values != null) {
           LOG.info("values.length = " + values.length);
           for (int i = 0; i < values.length; i++) {
-            if (i % 1000 == 0) LOG.info("values[" + i + "] = " + values[i]);
+            if (i % 5000 == 0) LOG.info("values[" + i + "] = " + values[i]);
           }
         }
         int count = 0;
         while (iter.hasNext()) {
           entry = iter.next();
-          if (count % 1000 == 0) LOG.info("without if count index = " + count + ", index = " + entry.getIntKey());
+          if (count % 5000 == 0) LOG.info("without if count index = " + count + ", index = " + entry.getIntKey());
           if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
-            if (count % 1000 == 0) {
+            if (count % 5000 == 0) {
               LOG.info("   with if count index = " + count + ", index = " + entry.getIntKey());
               LOG.info("   index - offset = " + (entry.getIntKey() - offset));
               LOG.info("   value = " + entry.getFloatValue());

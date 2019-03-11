@@ -304,7 +304,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
               val realweight = weightRowGrad.asInstanceOf[IntFloatVector]
               for (i <- 0 until realweight.size()){
-                if (i%1000 == 0) {
+                if (i%5000 == 0) {
                   LOG.info("weight at " + i + " = " + realweight.get(i))
                 }
               }
@@ -318,6 +318,24 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
 
               LOG.info("weight isDense = " + realweight.isDense)
               LOG.info("weight isSparse = " + realweight.isSparse)
+              val weight_indices = realweight.getStorage.getIndices
+              val weight_values = realweight.getStorage.getValues
+              if (weight_indices != null) {
+                LOG.info("weight_indices.length = " + weight_indices.length)
+                var i = 0
+                while (i < weight_indices.length) {
+                  if (i % 5000 == 0) LOG.info("weight_indices[" + i + "] = " + weight_indices(i))
+                  i = i + 1;
+                }
+              }
+              if (weight_values != null) {
+                LOG.info("weight_values.length = " + weight_values.length)
+                var i = 0
+                while (i < weight_values.length) {
+                  if (i % 5000 == 0) LOG.info("weight_values[" + i + "] = " + weight_values(i))
+                  i = i + 1;
+                }
+              }
               /* code end */
 
 
