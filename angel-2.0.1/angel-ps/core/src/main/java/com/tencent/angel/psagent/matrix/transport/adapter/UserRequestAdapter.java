@@ -754,7 +754,7 @@ public class UserRequestAdapter {
       // if (indicesView != null) {
       /* new code */
       ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
-      if (indicesView != null && serverId.getIndex() != removedParameterServerId) {
+      if (indicesView != null && (serverId.getIndex() != removedParameterServerId || currentEpoch != rmServerEpoch)) {
       /* code end */
         validSplits.put(entry.getKey(), indicesView);
       }
@@ -763,7 +763,7 @@ public class UserRequestAdapter {
     /* new code */
     for (int i = 0; i < parts.size(); i++) {
       ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(parts.get(i));
-      if (serverId.getIndex() == removedParameterServerId){
+      if (serverId.getIndex() == removedParameterServerId && currentEpoch == rmServerEpoch){
         parts.remove(i);
         break;
       }
