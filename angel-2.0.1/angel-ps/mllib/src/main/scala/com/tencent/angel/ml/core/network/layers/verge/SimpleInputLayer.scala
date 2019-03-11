@@ -280,9 +280,9 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
                     LOG.info("row[" + i + "] => " + Feats.getRow(i).getSize + ", type = " + Feats.getRow(i).getType + ", RowId = " + Feats.getRow(i).getRowId)
                   }
                   val getCol_colId = backward.asInstanceOf[BlasFloatMatrix].getCol(colId) // Vector
-                  LOG.info("getRow_colId getSize= " + getCol_colId.getSize)
-                  LOG.info("getRow_colId getRowId= " + getCol_colId.getRowId)
-                  LOG.info("getRow_colId get class= " + getCol_colId.getClass)
+                  LOG.info("getCol_colId getSize= " + getCol_colId.getSize)
+                  LOG.info("getCol_colId getRowId= " + getCol_colId.getRowId)
+                  LOG.info("ggetCol_colId get class= " + getCol_colId.getClass)
                   val dot = Feats.transDot(getCol_colId) // Vector
                   LOG.info("dot getSize in pushGradient= " + dot.getSize)
                   LOG.info("dot getRowId in pushGradient= " + dot.getRowId)
@@ -302,6 +302,24 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               LOG.info("weightRowGrad getSize in pushGradient= " + weightRowGrad.getSize)
               LOG.info("weightRowGrad getRowId in pushGradient= " + weightRowGrad.getRowId)
               LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
+              val realweight = weightRowGrad.asInstanceOf[IntFloatVector]
+              for (i <- 0 until realweight.size()){
+                if (i%100 == 0) {
+                  LOG.info("weight at " + i + " = " + realweight.get(i))
+                }
+              }
+              LOG.info("weight average = " + realweight.average())
+              
+              LOG.info("weight argmin = " + realweight.argmin())
+              LOG.info("weight argmax = " + realweight.argmax())
+              LOG.info("weight at " + realweight.argmin() + " = " + realweight.get(realweight.argmin()))
+              LOG.info("weight at " + realweight.argmax() + " = " + realweight.get(realweight.argmax()))
+
+              LOG.info("weight min = " + realweight.min())
+              LOG.info("weight max = " + realweight.max())
+
+              LOG.info("weight numZeros = " + realweight.numZeros())
+              LOG.info("weight non-numZeros = " + (realweight.size() - realweight.numZeros()))
               /* code end */
 
 
