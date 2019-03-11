@@ -173,8 +173,13 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         }
 
         output = transFunc(forward)
-        LOG.info("output class = " + output.getClass) //////
-        LOG.info("output numRows = " + output.getNumRows);//////
+        /* new code */
+        LOG.info("output class = " + output.getClass)
+        LOG.info("output numRows = " + output.getNumRows)
+        for (i <- 0 until 10){
+          LOG.info("row[" + i + "] => " + output.getRow(i).getSize + ", type = " + output.getRow(i).getType + ", RowId = " + output.getRow(i).getRowId)
+        }
+        /* code end */
         status = STATUS.Forward
       case _ =>
     }
@@ -194,7 +199,9 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         /* new code */
         LOG.info("backward class = " + backward.getClass)
         LOG.info("rowsNum in backward = " + backward.getNumRows)
-        LOG.info("row[0].size = " + backward.getRow(0).getSize + ", type = " + backward.getRow(0).getType + ", storage Type = " + backward.getRow(0).getStorage.getType)
+        for (i <- 0 until 10) {
+          LOG.info("row[" + i + "].size = " + backward.getRow(i).getSize + ", type = " + backward.getRow(i).getType + ", storage Type = " + backward.getRow(i).getStorage.getType)
+        }
         /* code end */
 
         status = STATUS.Backward
@@ -272,7 +279,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
                   for (i <- 0 until 10){
                     LOG.info("row[" + i + "] => " + Feats.getRow(i).getSize + ", type = " + Feats.getRow(i).getType + ", RowId = " + Feats.getRow(i).getRowId)
                   }
-                  val getCol_colId = backward.asInstanceOf[BlasDoubleMatrix].getCol(colId) // Vector
+                  val getCol_colId = backward.asInstanceOf[BlasFloatMatrix].getCol(colId) // Vector
                   LOG.info("getRow_colId getSize= " + getCol_colId.getSize)
                   LOG.info("getRow_colId getRowId= " + getCol_colId.getRowId)
                   LOG.info("getRow_colId get class= " + getCol_colId.getClass)
