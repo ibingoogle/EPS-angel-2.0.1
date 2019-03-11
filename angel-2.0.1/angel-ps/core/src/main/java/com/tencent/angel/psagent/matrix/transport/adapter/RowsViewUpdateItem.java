@@ -34,6 +34,7 @@ import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RowsViewUpdateItem extends UpdateItem {
