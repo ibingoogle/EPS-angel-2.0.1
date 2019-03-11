@@ -337,6 +337,9 @@ public class AngelConf extends Configuration {
 
   public static final String ANGEL_WORKER_RM_SERVER_EPOCH = "angel.worker.rm.server.epoch";
   public static final int DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH = -1;
+
+  public static final String ANGEL_WORKER_RM_SERVER_WEIGHT_ZERO = "angel.worker.rm.server.weight.zero";
+  public static final boolean DEFAULT_ANGEL_WORKER_RM_SERVER_WEIGHT_ZERO = false;
   /* code end */
 
   // //////////////////////////////

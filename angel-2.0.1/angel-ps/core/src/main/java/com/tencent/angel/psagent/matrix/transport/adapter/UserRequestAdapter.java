@@ -128,7 +128,7 @@ public class UserRequestAdapter {
   public int currentEpoch = 0;
   public int rmServerEpoch = PSAgentContext.get().getConf()
           .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH,
-                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);;
+                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
   /* code end */
 
   /**

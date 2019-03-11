@@ -19,6 +19,7 @@
 package com.tencent.angel.psagent.matrix.transport.adapter;
 
 import com.tencent.angel.PartitionKey;
+import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.ml.math2.VFactory;
 import com.tencent.angel.ml.math2.vector.*;
 import com.tencent.angel.ml.math2.vector.Vector;
@@ -43,6 +44,13 @@ public class RowSplitCombineUtils {
   private static final Comparator partKeyComp = new PartitionKeyComparator();
   private static final float storageConvFactor = 0.25f;
 
+
+  /* new code */
+  public static boolean rmWeightZero = PSAgentContext.get().getConf()
+          .getBoolean(AngelConf.ANGEL_WORKER_RM_SERVER_WEIGHT_ZERO,
+                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_WEIGHT_ZERO);
+
+  /* code end */
 
   static class StartColComparator implements Comparator<ServerRow> {
 
@@ -387,25 +395,41 @@ public class RowSplitCombineUtils {
               PSAgentContext.get().getMatrixMetaManager().getPartitions(request.getMatrixId(), rowIds[i]);
       for (PartitionKey partKey : parts) {
         IndexPartGetRowsResult result = partKeyToResultMap.get(partKey);
-        if (result == null) {
-          continue;
-        }
         LOG.info("partKey = " + partKey.toString());
-        IndicesView colIdView = result.getColIds();
-        float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
-        for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
-          vector.set(colIds[j], values[j - colIdView.startPos]);
-        }
+        LOG.info("partitionId = " + partKey.getPartitionId());
+        if (result == null) {
+          LOG.info("result ================================================= null");
+          if (!rmWeightZero) {
+            IndicesView colIdView = matrixStorage.rowIdToPartKeyToView.get(i).get(partKey);
+            LOG.info("     colIdView.startPos = " + colIdView.startPos);
+            LOG.info("     colIdView.endPos = " + colIdView.endPos);
+            float[] values = matrixStorage.rowIdToPartKeyToFloats.get(i).get(partKey);
+            LOG.info("     values.size = " + values.length);
+            if (values.length > 0) {
+              LOG.info("float[0] = " + values[0]);
+              LOG.info("float[" + (values.length - 1) + "] = " + values[values.length - 1]);
+            }
+            for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
+              vector.set(colIds[j], values[j - colIdView.startPos]);
+            }
+          }
+        }else {
+          IndicesView colIdView = result.getColIds();
+          float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
+          for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
+            vector.set(colIds[j], values[j - colIdView.startPos]);
+          }
 
-        if (!matrixStorage.rowIdToPartKeyToFloats.get(i).containsKey(partKey)){
-          matrixStorage.rowIdToPartKeyToFloats.get(i).put(partKey, values);
-        }else {
-          matrixStorage.rowIdToPartKeyToFloats.get(i).replace(partKey, values);
-        }
-        if (!matrixStorage.rowIdToPartKeyToView.get(i).containsKey(partKey)){
-          matrixStorage.rowIdToPartKeyToView.get(i).put(partKey, colIdView);
-        }else {
-          matrixStorage.rowIdToPartKeyToView.get(i).replace(partKey, colIdView);
+          if (!matrixStorage.rowIdToPartKeyToFloats.get(i).containsKey(partKey)) {
+            matrixStorage.rowIdToPartKeyToFloats.get(i).put(partKey, values);
+          } else {
+            matrixStorage.rowIdToPartKeyToFloats.get(i).replace(partKey, values);
+          }
+          if (!matrixStorage.rowIdToPartKeyToView.get(i).containsKey(partKey)) {
+            matrixStorage.rowIdToPartKeyToView.get(i).put(partKey, colIdView);
+          } else {
+            matrixStorage.rowIdToPartKeyToView.get(i).replace(partKey, colIdView);
+          }
         }
       }
       vectors[i] = vector;
