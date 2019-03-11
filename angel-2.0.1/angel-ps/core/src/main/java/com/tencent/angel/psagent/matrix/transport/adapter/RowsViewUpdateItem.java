@@ -923,6 +923,7 @@ public class RowsViewUpdateItem extends UpdateItem {
       int num = 0;
       ObjectIterator<Int2FloatMap.Entry> iter = row.getStorage().entryIterator();
       Int2FloatMap.Entry entry;
+      /* old code
       while (iter.hasNext()) {
         entry = iter.next();
         if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
@@ -931,6 +932,27 @@ public class RowsViewUpdateItem extends UpdateItem {
           num++;
         }
       }
+      */
+      /* new code */
+      int count = 0;
+      while (iter.hasNext()) {
+        entry = iter.next();
+        if (count%1000 == 0) LOG.info("without if count = " + count + ", index = " + entry.getIntKey());
+        if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
+          if (count%1000 == 0) {
+            LOG.info("   without if count = " + count + ", index = " + entry.getIntKey());
+            LOG.info("   index - offset = " + (entry.getIntKey() - offset));
+            LOG.info("   value = " + entry.getFloatValue());
+          }
+            buf.writeInt(entry.getIntKey() - offset);
+          buf.writeFloat(entry.getFloatValue());
+          num++;
+        }
+        count++;
+      }
+      LOG.info("num = " + num);
+      LOG.info("count = " + count);
+      /* code end */
       buf.setInt(pos, num);
     } else {
       buf.writeInt(RowType.T_FLOAT_SPARSE.getNumber());
@@ -939,22 +961,6 @@ public class RowsViewUpdateItem extends UpdateItem {
       int num = 0;
       int[] indices = row.getStorage().getIndices();
       float[] values = row.getStorage().getValues();
-      /* new code */
-      LOG.info("indices size = " + indices.length);
-      for (int i = 0; i < indices.length; i++) {
-        if (i%1000 == 0) {
-          LOG.info("indices[" + i + "] = " + indices[i]);
-        }
-      }
-      LOG.info("values size = " + values.length);
-      for (int i = 0; i < values.length; i++) {
-        if (i%1000 == 0) {
-          LOG.info("value[" + i + "] = " + values[i]);
-        }
-      }
-      /* code end */
-
-      /* old code
       for (int i = 0; i < indices.length; i++) {
         if (!needCheck || colInPart(indices[i], partKey)) {
           buf.writeInt(indices[i] - offset);
@@ -962,24 +968,6 @@ public class RowsViewUpdateItem extends UpdateItem {
           num++;
         }
       }
-      */
-      /* new code */
-      for (int i = 0; i < indices.length; i++) {
-        if (i%1000 == 0) LOG.info("without if, i = " + i);
-        if (!needCheck || colInPart(indices[i], partKey)) {
-          if (i%1000 == 0) {
-            LOG.info("with if, i = " + i);
-            LOG.info("indices[" + i + "] = " + indices[i]);
-            LOG.info("indices[" + i + "] - offset = " + (indices[i] - offset));
-            LOG.info("value[" + i + "] = " + values[i]);
-          }
-          buf.writeInt(indices[i] - offset);
-          buf.writeFloat(values[i]);
-          num++;
-        }
-      }
-      LOG.info("num = " + num);
-      /* code end */
       buf.setInt(pos, num);
     }
   }
