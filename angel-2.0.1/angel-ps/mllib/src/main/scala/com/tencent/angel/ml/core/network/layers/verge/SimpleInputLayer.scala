@@ -316,8 +316,8 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               LOG.info("weight min = " + realweight.min())
               LOG.info("weight max = " + realweight.max())
 
-              LOG.info("weight numZeros = " + realweight.numZeros())
-              LOG.info("weight non-numZeros = " + (realweight.size() - realweight.numZeros()))
+              LOG.info("weight isDense = " + realweight.isDense)
+              LOG.info("weight isSparse = " + realweight.isSparse)
               /* code end */
 
 

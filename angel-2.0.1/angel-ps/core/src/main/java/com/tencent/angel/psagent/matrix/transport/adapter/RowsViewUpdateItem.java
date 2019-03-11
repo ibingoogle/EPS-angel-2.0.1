@@ -499,24 +499,26 @@ public class RowsViewUpdateItem extends UpdateItem {
 
   private void serializeRow(ByteBuf buf, Vector row) {
     /* new code */
-    LOG.info("buf.toString() = " + buf.toString());
-    LOG.info("row");
-    LOG.info("row.getSize() = " + row.getSize());
-    LOG.info("row.getType = " + row.getType());
-    LOG.info("row.getClass = " + row.getClass());
-    IntFloatVector realweight = (IntFloatVector)row;
-    for (int i = 0; i < realweight.size(); i++) {
-      if (i%1000 == 0) {
-        LOG.info("weight at " + i + " = " + realweight.get(i));
+    if (partKey.getPartitionId() == 0) {
+      LOG.info("buf.toString() = " + buf.toString());
+      LOG.info("row");
+      LOG.info("row.getSize() = " + row.getSize());
+      LOG.info("row.getType = " + row.getType());
+      LOG.info("row.getClass = " + row.getClass());
+      IntFloatVector realweight = (IntFloatVector) row;
+      for (int i = 0; i < realweight.size(); i++) {
+        if (i % 1000 == 0) {
+          LOG.info("weight at " + i + " = " + realweight.get(i));
+        }
       }
+      LOG.info("weight average = " + realweight.average());
+
+      LOG.info("weight argmin = " + realweight.argmin());
+      LOG.info("weight argmax = " + realweight.argmax());
+
+      LOG.info("weight min = " + realweight.min());
+      LOG.info("weight max = " + realweight.max());
     }
-    LOG.info("weight average = " + realweight.average());
-
-    LOG.info("weight argmin = " + realweight.argmin());
-    LOG.info("weight argmax = " + realweight.argmax());
-
-    LOG.info("weight min = " + realweight.min());
-    LOG.info("weight max = " + realweight.max());
 
     /* code end */
     final boolean needCheck = (column != (partKey.getEndCol() - partKey.getStartCol()));
@@ -901,12 +903,14 @@ public class RowsViewUpdateItem extends UpdateItem {
     }
 
     /* new code */
-    LOG.info("endCol = " + endCol);
-    LOG.info("startCol = " + startCol);
-    LOG.info("offset = " + offset);
-    LOG.info("row.isDense() = " + row.isDense());
-    LOG.info("row.isSparse() = " + row.isSparse());
-    LOG.info("needCheck = " + needCheck);
+    if (partKey.getPartitionId() == 0) {
+      LOG.info("endCol = " + endCol);
+      LOG.info("startCol = " + startCol);
+      LOG.info("offset = " + offset);
+      LOG.info("row.isDense() = " + row.isDense());
+      LOG.info("row.isSparse() = " + row.isSparse());
+      LOG.info("needCheck = " + needCheck);
+    }
     /* code end */
 
     if (row.isDense()) {
@@ -932,26 +936,51 @@ public class RowsViewUpdateItem extends UpdateItem {
           num++;
         }
       }
-      */
+      code end */
       /* new code */
-      int count = 0;
-      while (iter.hasNext()) {
-        entry = iter.next();
-        if (count%1000 == 0) LOG.info("without if count = " + count + ", index = " + entry.getIntKey());
-        if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
-          if (count%1000 == 0) {
-            LOG.info("   without if count = " + count + ", index = " + entry.getIntKey());
-            LOG.info("   index - offset = " + (entry.getIntKey() - offset));
-            LOG.info("   value = " + entry.getFloatValue());
+      if (partKey.getPartitionId() == 0) {
+        int[] indices = row.getStorage().getIndices();
+        float[] values = row.getStorage().getValues();
+        if (indices != null) {
+          LOG.info("indices.length = " + indices.length);
+          for (int i = 0; i < indices.length; i++) {
+            if (i % 1000 == 0) LOG.info("indices[" + i + "] = " + indices[i]);
           }
-            buf.writeInt(entry.getIntKey() - offset);
-          buf.writeFloat(entry.getFloatValue());
-          num++;
         }
-        count++;
+        if (values != null) {
+          LOG.info("values.length = " + values.length);
+          for (int i = 0; i < values.length; i++) {
+            if (i % 1000 == 0) LOG.info("values[" + i + "] = " + values[i]);
+          }
+        }
+        int count = 0;
+        while (iter.hasNext()) {
+          entry = iter.next();
+          if (count % 1000 == 0) LOG.info("without if count index = " + count + ", index = " + entry.getIntKey());
+          if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
+            if (count % 1000 == 0) {
+              LOG.info("   with if count index = " + count + ", index = " + entry.getIntKey());
+              LOG.info("   index - offset = " + (entry.getIntKey() - offset));
+              LOG.info("   value = " + entry.getFloatValue());
+            }
+            buf.writeInt(entry.getIntKey() - offset);
+            buf.writeFloat(entry.getFloatValue());
+            num++;
+          }
+          count++;
+        }
+        LOG.info("num = " + num);
+        LOG.info("count = " + count);
+      } else {
+        while (iter.hasNext()) {
+          entry = iter.next();
+          if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
+            buf.writeInt(entry.getIntKey() - offset);
+            buf.writeFloat(entry.getFloatValue());
+            num++;
+          }
+        }
       }
-      LOG.info("num = " + num);
-      LOG.info("count = " + count);
       /* code end */
       buf.setInt(pos, num);
     } else {
