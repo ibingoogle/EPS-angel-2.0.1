@@ -85,6 +85,16 @@ public class RangePartitioner implements Partitioner {
 
     LOG.info("start to split matrix " + mContext);
 
+    /* new code */
+    LOG.info("matrixId = " + matrixId);
+    LOG.info("row = " + row);
+    LOG.info("col = " + col);
+    LOG.info("validIndexNum = " + validIndexNum);
+    LOG.info("blockRow = " + blockRow);
+    LOG.info("blockCol = " + blockCol);
+    LOG.info("serverNum = " + serverNum);
+    /* code end */
+
     if (col < 0) {
       long partSize = DEFAULT_PARTITION_SIZE;
       if (validIndexNum > 0) {
