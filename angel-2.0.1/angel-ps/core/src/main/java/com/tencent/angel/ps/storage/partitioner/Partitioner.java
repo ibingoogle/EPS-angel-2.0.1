@@ -43,6 +43,10 @@ public interface Partitioner {
    */
   List<PartitionMeta> getPartitions();
 
+  /* new code */
+  List<PartitionMeta> getPartitions(int serverNum);
+  /* code end */
+
   /**
    * Assign a matrix partition to a parameter server
    *

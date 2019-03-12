@@ -175,6 +175,60 @@ public class RangePartitioner implements Partitioner {
     return partitions;
   }
 
+  /* new code */
+  public List<PartitionMeta> getPartitions(int serverNum) {
+    List<PartitionMeta> partitions = new ArrayList<PartitionMeta>();
+    int id = 0;
+    int matrixId = mContext.getMatrixId();
+    int row = mContext.getRowNum();
+    long col = mContext.getColNum();
+    int blockRow = mContext.getMaxRowNumInBlock();
+
+    LOG.info("start to split matrix " + mContext + " according to serverNum = " + serverNum);
+    LOG.info("matrixId = " + matrixId);
+
+
+    long partSize = DEFAULT_PARTITION_SIZE;
+    long blockCol = Math.min(Math.max(100, col / serverNum),
+              Math.max(partSize / blockRow, (long) (row * ((double) col / maxPartNum / blockRow))));
+
+    LOG.info("blockRow = " + blockRow + ", blockCol=" + blockCol);
+    mContext.setMaxRowNumInBlock(blockRow);
+    mContext.setMaxColNumInBlock(blockCol);
+
+    long minValue = 0;
+    long maxValue = 0;
+    if (col == -1) {
+      minValue = getMinIndex(mContext);
+      maxValue = getMaxIndex(mContext);
+    } else {
+      minValue = 0;
+      maxValue = col;
+    }
+
+    int startRow;
+    int endRow;
+    long startCol;
+    long endCol;
+    for (int i = 0; i < row; ) {
+      for (long j = minValue; j < maxValue; ) {
+        startRow = i;
+        startCol = j;
+        endRow = (i <= (row - blockRow)) ? (i + blockRow) : row;
+        endCol = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
+        partitions.add(new PartitionMeta(matrixId, id++, startRow, endRow, startCol, endCol));
+        LOG.info("partitionsMeta_ToString = " + partitions.get(partitions.size() - 1).toString());
+        j = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
+      }
+      i = (i <= (row - blockRow)) ? (i + blockRow) : row;
+    }
+
+    LOG.info("partition count: " + partitions.size());
+    LOG.info("after split matrix " + mContext);
+    return partitions;
+  }
+  /* code end */
+
   protected long getMaxIndex(MatrixContext mContext) {
     if (isIntIndex(mContext.getRowType())) {
       return Integer.MAX_VALUE;

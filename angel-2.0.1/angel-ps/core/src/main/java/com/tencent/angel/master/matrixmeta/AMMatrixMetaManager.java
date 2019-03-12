@@ -227,6 +227,11 @@ public class AMMatrixMetaManager {
       partitions = partitioner.getPartitions();
     }
 
+    /* new code */
+    int serverNum = context.getConf().getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER);
+    partitioner.getPartitions(serverNum-1);
+    /* code end */
+
     assignPSForPartitions(partitioner, partitions);
     assignReplicationSlaves(partitions);
 
