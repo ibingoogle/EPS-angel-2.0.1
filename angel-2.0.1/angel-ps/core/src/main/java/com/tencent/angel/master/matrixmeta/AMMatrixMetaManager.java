@@ -91,7 +91,8 @@ public class AMMatrixMetaManager {
   private final Lock writeLock;
 
   /* new code */
-  public int cur_serverNum = 0;
+  public int initial_serverNum = 0;
+  public HashSet<Integer> active_servers = null;
   public List<MatrixContext> matrixContexts;
 
   public int rmParameterServerIndex = -1;
@@ -111,7 +112,12 @@ public class AMMatrixMetaManager {
     writeLock = readWriteLock.writeLock();
 
     /* new code */
-    cur_serverNum = context.getConf().getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER) - 1;
+    initial_serverNum = context.getConf().getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER);
+    active_servers = new HashSet<>();
+    for (int i = 0; i < initial_serverNum; i++){
+      active_servers.add(i);
+    }
+
     matrixContexts = new ArrayList<MatrixContext>();
 
     rmParameterServerIndex = context.getConf().getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
@@ -271,6 +277,7 @@ public class AMMatrixMetaManager {
   /* new code */
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
     print_Meta();
+    active_servers.remove(rmParameterServerIndex);
     Map<Integer, PartitionMeta> matrixId2PartMeta = new HashMap<Integer, PartitionMeta>();
 
     // find ParameterServerId that corresponds to rmParameterServerIndex
@@ -433,17 +440,18 @@ public class AMMatrixMetaManager {
         }
         */
       }
+      /*
       Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
       for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
         LOG.info("  partitionId_idle = " + entry2.getKey());
         LOG.info("  PartitionMeta_idle = " + entry2.getValue());
-        /*
+
         List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
         for (int i = 0; i < storedPs_idle.size(); i++){
           LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
         }
-        */
-      }
+
+      }*/
     }
   }
 
@@ -456,16 +464,16 @@ public class AMMatrixMetaManager {
 
     Partitioner partitioner = initPartitioner(matrixContext, context.getConf());
 
-    List<PartitionMeta> partitions = partitioner.getPartitions_idle(cur_serverNum, idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
+    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size(), idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
     matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart += partitions.size();
 
     assignPSForPartitions_idle(partitioner, partitions);
 
     int size = partitions.size();
     for (int i = 0; i < size; i++) {
-      matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.put(partitions.get(i).getPartId(), partitions.get(i));
+      matrixMetaManager.getMatrixMeta(matrixId).getPartitionMetas().put(partitions.get(i).getPartId(), partitions.get(i));
     }
-    for (Map.Entry<Integer, PartitionMeta> entry: matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.entrySet()) {
+    for (Map.Entry<Integer, PartitionMeta> entry: matrixMetaManager.getMatrixMeta(matrixId).getPartitionMetas().entrySet()) {
       LOG.info("PartitionId = " + entry.getKey());
       LOG.info("PartitionMeta toString = " + entry.getValue().toString());
     }
@@ -539,13 +547,14 @@ public class AMMatrixMetaManager {
   private void assignPSForPartitions_idle(Partitioner partitioner, List<PartitionMeta> partitions) {
     int partNum = partitions.size();
     LOG.info("assignPSForPartitions_idle in AMMatrixMetaManager.java......");
+    int[] psIndexes = partitioner.assignPartsToServers_idle(active_servers, partNum);
+
     for (int i = 0; i < partNum; i++) {
-      int psIndex = partitioner.assignPartToServer_idle(i, cur_serverNum);
-      LOG.info("  partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndex);
+      LOG.info("  partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndexes[i]);
       // find ParameterServerId that corresponds to rmParameterServerIndex
       ParameterServerId psId = null;
       for (ParameterServerId existing_psId : psIdToMatrixIdsMap.keySet()){
-        if (existing_psId.getIndex() == psIndex) psId = existing_psId;
+        if (existing_psId.getIndex() == psIndexes[i]) psId = existing_psId;
       }
       if (psId == null) return;
       partitions.get(i).addReplicationPS(psId);

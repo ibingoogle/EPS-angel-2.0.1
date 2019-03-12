@@ -26,8 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Base class of range partitioner
@@ -288,8 +287,16 @@ public class RangePartitioner implements Partitioner {
   }
 
   /* new code */
-  public int assignPartToServer_idle(int partId, int serverNum) {
-    return partId % serverNum;
+  @Override
+  public int[] assignPartsToServers_idle(HashSet<Integer> active_servers, int partNum) {
+    assert (active_servers.size() == partNum);
+    Integer[] active_servers_array = new Integer[active_servers.size()];
+    active_servers.toArray(active_servers_array);
+    int[] res = new int[partNum];
+    for (int i = 0; i < partNum; i++){
+      res[i] = active_servers_array[i];
+    }
+    return res;
   }
   /* code end */
 }

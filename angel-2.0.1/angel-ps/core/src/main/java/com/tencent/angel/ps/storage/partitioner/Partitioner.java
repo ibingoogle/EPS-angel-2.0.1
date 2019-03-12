@@ -22,7 +22,9 @@ import com.tencent.angel.ml.matrix.MatrixContext;
 import com.tencent.angel.ml.matrix.PartitionMeta;
 import org.apache.hadoop.conf.Configuration;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Matrix partitioner interface.
@@ -45,7 +47,7 @@ public interface Partitioner {
 
   /* new code */
   List<PartitionMeta> getPartitions_idle(int serverNum, PartitionMeta idlePartitionMeta, int startId);
-  int assignPartToServer_idle(int partId, int serverNum);
+  int[] assignPartsToServers_idle(HashSet<Integer> active_servers, int partNum);
   /* code end */
 
   /**
