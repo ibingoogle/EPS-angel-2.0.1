@@ -129,6 +129,15 @@ public class UserRequestAdapter {
   public int rmServerEpoch = PSAgentContext.get().getConf()
           .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH,
                   AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
+  public int removedParameterServerId = PSAgentContext.get().getConf()
+          .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID,
+                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
+  public boolean rmServerPush = PSAgentContext.get().getConf()
+          .getBoolean(AngelConf.ANGEL_WORKER_RM_SERVER_OPERATION_PUSH,
+                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_OPERATION_PUSH);
+  public boolean rmServerPull = PSAgentContext.get().getConf()
+          .getBoolean(AngelConf.ANGEL_WORKER_RM_SERVER_OPERATION_PULL,
+                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_OPERATION_PULL);
   /* code end */
 
   /**
@@ -684,12 +693,10 @@ public class UserRequestAdapter {
 
   private FutureResult<Vector[]> get(IndexGetRowsRequest request) {
     /* new code */
-    int removedParameterServerId = PSAgentContext.get().getConf()
-            .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID,
-                    AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
     LOG.info("removedParameterServerId = " + removedParameterServerId);
     LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
     LOG.info("currentEpoch = " + currentEpoch);
+    LOG.info("rmServerPull = " + rmServerPull);
     LOG.info("IndexGetRowsRequest request = " + request);
     /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
@@ -752,12 +759,18 @@ public class UserRequestAdapter {
       IndicesView indicesView = getIndicesView(entry.getKey(), splits);
       /* old code */
       // if (indicesView != null) {
+      // validSplits.put(entry.getKey(), indicesView);
+      // }
       /* new code */
       ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
-      if (indicesView != null && (serverId.getIndex() != removedParameterServerId || currentEpoch != rmServerEpoch)) {
-      /* code end */
-        validSplits.put(entry.getKey(), indicesView);
+      if (indicesView != null) {
+        if (serverId.getIndex() != removedParameterServerId || currentEpoch != rmServerEpoch) {
+          validSplits.put(entry.getKey(), indicesView);
+        }else if (!rmServerPull) {
+          validSplits.put(entry.getKey(), indicesView);
+        }
       }
+      /* code end */
     }
 
     /* new code */
@@ -1148,6 +1161,10 @@ public class UserRequestAdapter {
     /*new code*/
     LOG.info("update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
     LOG.info("rows.length = " + rows.length);
+    LOG.info("removedParameterServerId = " + removedParameterServerId);
+    LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
+    LOG.info("currentEpoch = " + currentEpoch);
+    LOG.info("rmServerPush = " + rmServerPush);
     /*code end*/
 
     if (useNewSplit(matrixId, rows)) {
@@ -1163,6 +1180,17 @@ public class UserRequestAdapter {
 
       List<PartitionKey> partitions =
         PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
+
+      /* new code */
+      if (currentEpoch == rmServerEpoch && rmServerPush) {
+        for (PartitionKey partKey: partitions){
+          if (partKey.getPartitionId() == removedParameterServerId){
+            partitions.remove(partKey);
+          }
+        }
+      }
+      /* code end */
+
 
       UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
       UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
