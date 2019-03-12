@@ -545,7 +545,7 @@ public class AMMatrixMetaManager {
       // find ParameterServerId that corresponds to rmParameterServerIndex
       ParameterServerId psId = null;
       for (ParameterServerId existing_psId : psIdToMatrixIdsMap.keySet()){
-        if (existing_psId.getIndex() == rmParameterServerIndex) psId = existing_psId;
+        if (existing_psId.getIndex() == psIndex) psId = existing_psId;
       }
       if (psId == null) return;
       partitions.get(i).addReplicationPS(psId);
