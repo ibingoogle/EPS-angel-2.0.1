@@ -93,6 +93,9 @@ public class AMMatrixMetaManager {
   /* new code */
   public int cur_serverNum = 0;
   public List<MatrixContext> matrixContexts;
+
+  public int rmParameterServerId = -1;
+  public int rmServerEpoch = -1;
   /* code end */
 
   public AMMatrixMetaManager(AMContext context) {
@@ -110,6 +113,9 @@ public class AMMatrixMetaManager {
     /* new code */
     cur_serverNum = context.getConf().getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER) - 1;
     matrixContexts = new ArrayList<MatrixContext>();
+
+    rmParameterServerId = context.getConf().getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
+    rmServerEpoch = context.getConf().getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
     /* code end */
     // Add one sync matrix
     // addSyncMatrix();
@@ -177,9 +183,6 @@ public class AMMatrixMetaManager {
       LOG.info("matrixContext[" + i + "]_ToString = " + this.matrixContexts.get(i).toString());
       createMatrix(this.matrixContexts.get(i));
     }
-    int matrixIdwithIdle = 0;
-    int idlePartitionId = 2;
-    initIdlePartitionMeta(matrixIdwithIdle, idlePartitionId);
     /* code end */
   }
 
@@ -264,7 +267,124 @@ public class AMMatrixMetaManager {
     return meta;
   }
 
+
   /* new code */
+  public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
+    int matrixIdwithIdle = 0;
+    int idlePartitionId = 2;
+    print_Meta();
+    initIdlePartitionMeta(matrixIdwithIdle, idlePartitionId);
+    print_Meta();
+  }
+
+
+  public void print_Meta(){
+    LOG.info("");
+    print_MatrixMetaManager();
+    LOG.info("");
+    LOG.info("");
+    print_matrixIdToPSSetMap();
+    LOG.info("");
+    LOG.info("");
+    print_matrixPartitionsOnPS();
+    LOG.info("");
+    LOG.info("");
+    print_psIdToMatrixIdsMap();
+    LOG.info("");
+    LOG.info("");
+    print_psIdToRecoverPartsMap();
+    LOG.info("");
+    LOG.info("");
+  }
+
+
+  public void print_psIdToRecoverPartsMap(){
+    LOG.info("print_psIdToRecoverPartsMap");
+    for (Map.Entry<ParameterServerId, Set<RecoverPartKey>> entry: psIdToRecoverPartsMap.entrySet()){
+      ParameterServerId psId = entry.getKey();
+      LOG.info("      parameterServerId = " + psId.toString());
+      RecoverPartKey[] recoverPartKeys = new RecoverPartKey[entry.getValue().size()];
+      for (int i = 0; i<recoverPartKeys.length; i++){
+        LOG.info("            recoverPartKey.partKey = " + recoverPartKeys[i].partKey.toString());
+        LOG.info("            recoverPartKey.psLoc = " + recoverPartKeys[i].psLoc.toString());
+      }
+    }
+  }
+
+  public void print_psIdToMatrixIdsMap(){
+    LOG.info("print_psIdToMatrixIdsMap");
+    for (Map.Entry<ParameterServerId, Set<Integer>> entry: psIdToMatrixIdsMap.entrySet()){
+      ParameterServerId psId = entry.getKey();
+      LOG.info("      parameterServerId = " + psId.toString());
+      Integer[] matrixIds = new Integer[entry.getValue().size()];
+      entry.getValue().toArray(matrixIds);
+      for (int i = 0; i<matrixIds.length; i++){
+        LOG.info("            matrixId = " + matrixIds[i]);
+      }
+    }
+  }
+
+  public void print_matrixPartitionsOnPS(){
+    LOG.info("print_matrixPartitionsOnPS");
+    for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry: matrixPartitionsOnPS.entrySet()){
+      ParameterServerId psId = entry.getKey();
+      LOG.info("      parameterServerId = " + psId.toString());
+      for (Map.Entry<Integer, MatrixMeta> entry2: entry.getValue().entrySet()) {
+        LOG.info("            matrixId = " + entry2.getKey());
+        LOG.info("            MatrixMeta_toString = " + entry2.getValue().toString());
+        Map<Integer, PartitionMeta> partitionMetas = entry2.getValue().getPartitionMetas();
+        for (Map.Entry<Integer, PartitionMeta> entry3 : partitionMetas.entrySet()) {
+          LOG.info("                  partitionId = " + entry3.getKey());
+          LOG.info("                  PartitionMeta_toString = " + entry3.getValue());
+          List<ParameterServerId> storedPs = entry3.getValue().getPss();
+          for (int i = 0; i < storedPs.size(); i++) {
+            LOG.info("                        storedPSId[" + i + "] = " + storedPs.get(i).toString());
+          }
+        }
+      }
+    }
+  }
+
+  public void print_matrixIdToPSSetMap(){
+    LOG.info("print_matrixIdToPSSetMap");
+    for (Map.Entry<Integer, Set<ParameterServerId>> entry : matrixIdToPSSetMap.entrySet()){
+      LOG.info("      matrixId = " + entry.getKey());
+      ParameterServerId[] psIdSet = new ParameterServerId[entry.getValue().size()];
+      entry.getValue().toArray(psIdSet);
+      for (int i = 0; i < psIdSet.length; i++){
+        LOG.info("            ParameterServerId = " + psIdSet[i].toString());
+      }
+    }
+  }
+
+  public void print_MatrixMetaManager(){
+    LOG.info("print_MatrixMetaManager");
+    LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());
+    Map<Integer, MatrixMeta> matrixIdToMetaMap = matrixMetaManager.getMatrixMetas();
+    for (Map.Entry<Integer, MatrixMeta> entry: matrixIdToMetaMap.entrySet()){
+      LOG.info("      matrixId = " + entry.getKey());
+      LOG.info("      MatrixMeta_toString = " + entry.getValue().toString());
+      Map<Integer, PartitionMeta> partitionMetas = entry.getValue().getPartitionMetas();
+      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas.entrySet()){
+        LOG.info("            partitionId = " + entry2.getKey());
+        LOG.info("            PartitionMeta_toString = " + entry2.getValue());
+        List<ParameterServerId> storedPs = entry2.getValue().getPss();
+        for (int i = 0; i < storedPs.size(); i++){
+          LOG.info("                  storedPSId[" + i + "] = " + storedPs.get(i).toString());
+        }
+      }
+      Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
+      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
+        LOG.info("            partitionId_idle = " + entry2.getKey());
+        LOG.info("            PartitionMeta_idle_toString = " + entry2.getValue());
+        List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
+        for (int i = 0; i < storedPs_idle.size(); i++){
+          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
+        }
+      }
+    }
+  }
+
   private void initIdlePartitionMeta(int matrixId, int idlePartitionId)
           throws InvocationTargetException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IOException {
@@ -358,13 +478,11 @@ public class AMMatrixMetaManager {
     int partNum = partitions.size();
     LOG.info("assignPSForPartitions_idle in AMMatrixMetaManager.java......");
     for (int i = 0; i < partNum; i++) {
-      int psIndex = partitioner.assignPartToServer_idle(partitions.get(i).getPartId(), cur_serverNum);
+      int psIndex = partitioner.assignPartToServer_idle(i, cur_serverNum);
       LOG.info("      partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndex);
-      /*
       ParameterServerId psId = new ParameterServerId(psIndex);
       partitions.get(i).addReplicationPS(psId);
       partitions.get(i).makePsToMaster(psId);
-      */
     }
   }
 

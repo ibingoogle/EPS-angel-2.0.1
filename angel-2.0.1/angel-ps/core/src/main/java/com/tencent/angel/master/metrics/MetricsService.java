@@ -165,6 +165,10 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
                     LOG.info("add one workergroup at the end of iteration = " + currentIter);
                     context.getWorkerManager().incrementOneWorker();
                   }
+                  if (currentIter == context.getMatrixMetaManager().rmServerEpoch){
+                    LOG.info("remove one parameterserver at the end of iteration = " + currentIter);
+                    context.getMatrixMetaManager().rmOneParameterServer();
+                  }
                   /* code end */
                 }
                 break;
