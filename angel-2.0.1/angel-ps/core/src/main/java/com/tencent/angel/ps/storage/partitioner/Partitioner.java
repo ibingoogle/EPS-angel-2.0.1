@@ -44,7 +44,8 @@ public interface Partitioner {
   List<PartitionMeta> getPartitions();
 
   /* new code */
-  List<PartitionMeta> getPartitions(int serverNum);
+  List<PartitionMeta> getPartitions_idle(int serverNum, PartitionMeta idlePartitionMeta, int startId);
+  int assignPartToServer_idle(int partId, int serverNum);
   /* code end */
 
   /**

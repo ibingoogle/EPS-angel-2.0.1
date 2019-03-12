@@ -90,6 +90,11 @@ public class AMMatrixMetaManager {
   private final Lock readLock;
   private final Lock writeLock;
 
+  /* new code */
+  public int cur_serverNum = 0;
+  public List<MatrixContext> matrixContexts;
+  /* code end */
+
   public AMMatrixMetaManager(AMContext context) {
     this.context = context;
     matrixMetaManager = new MatrixMetaManager();
@@ -102,6 +107,10 @@ public class AMMatrixMetaManager {
     readLock = readWriteLock.readLock();
     writeLock = readWriteLock.writeLock();
 
+    /* new code */
+    cur_serverNum = context.getConf().getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER) - 1;
+    matrixContexts = new ArrayList<MatrixContext>();
+    /* code end */
     // Add one sync matrix
     // addSyncMatrix();
   }
@@ -154,12 +163,24 @@ public class AMMatrixMetaManager {
    * @throws InvalidParameterException
    */
   public void createMatrices(List<MatrixContext> matrixContexts) throws Exception {
+    /* old code
     int size = matrixContexts.size();
-    LOG.info("matrixContexts.size() = " + size); //////
     for (int i = 0; i < size; i++) {
       LOG.info("matrixContext[" + i + "]_ToString = " + matrixContexts.get(i).toString());
       createMatrix(matrixContexts.get(i));
     }
+    /* new code */
+    this.matrixContexts = new ArrayList<>(matrixContexts);
+    int size = this.matrixContexts.size();
+    LOG.info("matrixContexts.size() = " + size);
+    for (int i = 0; i < size; i++) {
+      LOG.info("matrixContext[" + i + "]_ToString = " + this.matrixContexts.get(i).toString());
+      createMatrix(this.matrixContexts.get(i));
+    }
+    int matrixIdwithIdle = 0;
+    int idlePartitionId = 2;
+    initIdlePartitionMeta(matrixIdwithIdle, idlePartitionId);
+    /* code end */
   }
 
   /**
@@ -227,11 +248,6 @@ public class AMMatrixMetaManager {
       partitions = partitioner.getPartitions();
     }
 
-    /* new code */
-    int serverNum = context.getConf().getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER);
-    partitioner.getPartitions(serverNum-1);
-    /* code end */
-
     assignPSForPartitions(partitioner, partitions);
     assignReplicationSlaves(partitions);
 
@@ -241,9 +257,43 @@ public class AMMatrixMetaManager {
       partIdToMetaMap.put(partitions.get(i).getPartId(), partitions.get(i));
     }
     MatrixMeta meta = new MatrixMeta(matrixContext, partIdToMetaMap);
-    LOG.info("meta toString = " + meta.toString()); //////
+    /* new code */
+    meta.PartitionIdStart = partIdToMetaMap.size();
+    LOG.info("meta toString = " + meta.toString());
+    for (Map.Entry<Integer, PartitionMeta> entry: partIdToMetaMap.entrySet()) {
+      LOG.info("PartitionId = " + entry.getKey());
+      LOG.info("PartitionMeta toString = " + entry.getValue().toString());
+    }
+    /* code end */
     return meta;
   }
+
+  /* new code */
+  private void initIdlePartitionMeta(int matrixId, int idlePartitionId)
+          throws InvocationTargetException, NoSuchMethodException, InstantiationException,
+          IllegalAccessException, IOException {
+    LOG.info("#####initIdlePartitionMeta#####");
+
+    MatrixContext matrixContext = matrixContexts.get(matrixId);
+    PartitionMeta idlePartitionMeta = matrixMetaManager.getMatrixMeta(matrixId).getPartitionMeta(idlePartitionId);
+
+    Partitioner partitioner = initPartitioner(matrixContext, context.getConf());
+
+    List<PartitionMeta> partitions = partitioner.getPartitions_idle(cur_serverNum, idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
+    matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart += partitions.size();
+
+    assignPSForPartitions_idle(partitioner, partitions);
+
+    int size = partitions.size();
+    for (int i = 0; i < size; i++) {
+      matrixMetaManager.getMatrixMeta(matrixId).addPartitionMeta(partitions.get(i).getPartId(), partitions.get(i));
+    }
+    for (Map.Entry<Integer, PartitionMeta> entry: matrixMetaManager.getMatrixMeta(matrixId).getPartitionMetas().entrySet()) {
+      LOG.info("PartitionId = " + entry.getKey());
+      LOG.info("PartitionMeta toString = " + entry.getValue().toString());
+    }
+  }
+  /* code end */
 
   /**
    * Load matrix proto from hdfs.
@@ -306,6 +356,23 @@ public class AMMatrixMetaManager {
       partitions.get(i).makePsToMaster(psId);
     }
   }
+
+  /* new code */
+  private void assignPSForPartitions_idle(Partitioner partitioner, List<PartitionMeta> partitions) {
+    int partNum = partitions.size();
+    LOG.info("assignPSForPartitions_idle in AMMatrixMetaManager.java......");
+    for (int i = 0; i < partNum; i++) {
+      int psIndex = partitioner.assignPartToServer_idle(partitions.get(i).getPartId(), cur_serverNum);
+      LOG.info("      partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndex);
+      /*
+      ParameterServerId psId = new ParameterServerId(psIndex);
+      partitions.get(i).addReplicationPS(psId);
+      partitions.get(i).makePsToMaster(psId);
+      */
+    }
+  }
+
+  /* code end */
 
   private void assignReplicationSlaves(List<PartitionMeta> partitions) {
     int replicationNum = context.getConf().getInt(AngelConf.ANGEL_PS_HA_REPLICATION_NUMBER,

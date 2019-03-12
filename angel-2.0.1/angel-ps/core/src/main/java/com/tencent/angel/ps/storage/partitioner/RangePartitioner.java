@@ -176,35 +176,41 @@ public class RangePartitioner implements Partitioner {
   }
 
   /* new code */
-  public List<PartitionMeta> getPartitions(int serverNum) {
+  public List<PartitionMeta> getPartitions_idle(int serverNum, PartitionMeta idlePartitionMeta, int startId) {
     List<PartitionMeta> partitions = new ArrayList<PartitionMeta>();
-    int id = 0;
     int matrixId = mContext.getMatrixId();
-    int row = mContext.getRowNum();
-    long col = mContext.getColNum();
-    int blockRow = mContext.getMaxRowNumInBlock();
+    int row = idlePartitionMeta.getEndRow() - idlePartitionMeta.getStartRow();
+    long col = idlePartitionMeta.getEndCol() - idlePartitionMeta.getStartCol();
+    long col_base = idlePartitionMeta.getStartCol();
+    int blockRow = row;
 
-    LOG.info("start to split matrix " + mContext + " according to serverNum = " + serverNum);
+    LOG.info("startId = " + startId);
     LOG.info("matrixId = " + matrixId);
+    LOG.info("row = " + row);
+    LOG.info("col = " + col);
+    LOG.info("blockRow = " + blockRow);
+    LOG.info("serverNum = " + serverNum);
 
+    LOG.info("start to split idlePartition " + idlePartitionMeta.toString() + " according to serverNum = " + serverNum);
 
     long partSize = DEFAULT_PARTITION_SIZE;
     long blockCol = Math.min(Math.max(100, col / serverNum),
               Math.max(partSize / blockRow, (long) (row * ((double) col / maxPartNum / blockRow))));
 
     LOG.info("blockRow = " + blockRow + ", blockCol=" + blockCol);
-    mContext.setMaxRowNumInBlock(blockRow);
-    mContext.setMaxColNumInBlock(blockCol);
+
+    int default_blockRow = mContext.getMaxRowNumInBlock();
+    long default_blockCol = mContext.getMaxColNumInBlock();
+    LOG.info("efault_blockRow = " + default_blockRow + ", default_blockCol=" + default_blockCol);
+    if (blockRow > default_blockRow && blockCol > default_blockCol) {
+      mContext.setMaxRowNumInBlock(blockRow);
+      mContext.setMaxColNumInBlock(blockCol);
+    }
 
     long minValue = 0;
     long maxValue = 0;
-    if (col == -1) {
-      minValue = getMinIndex(mContext);
-      maxValue = getMaxIndex(mContext);
-    } else {
-      minValue = 0;
-      maxValue = col;
-    }
+    minValue = col_base;
+    maxValue = col;
 
     int startRow;
     int endRow;
@@ -216,7 +222,7 @@ public class RangePartitioner implements Partitioner {
         startCol = j;
         endRow = (i <= (row - blockRow)) ? (i + blockRow) : row;
         endCol = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
-        partitions.add(new PartitionMeta(matrixId, id++, startRow, endRow, startCol, endCol));
+        partitions.add(new PartitionMeta(matrixId, startId++, startRow, endRow, startCol, endCol));
         LOG.info("partitionsMeta_ToString = " + partitions.get(partitions.size() - 1).toString());
         j = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
       }
@@ -224,7 +230,6 @@ public class RangePartitioner implements Partitioner {
     }
 
     LOG.info("partition count: " + partitions.size());
-    LOG.info("after split matrix " + mContext);
     return partitions;
   }
   /* code end */
@@ -278,4 +283,10 @@ public class RangePartitioner implements Partitioner {
     int serverNum = conf.getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER);
     return partId % serverNum;
   }
+
+  /* new code */
+  public int assignPartToServer_idle(int partId, int serverNum) {
+    return partId % serverNum;
+  }
+  /* code end */
 }

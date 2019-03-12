@@ -34,8 +34,13 @@ public class MatrixMeta {
 
   /**
    * Matrix partitions parameters
+   * parititionId to partitionMeta
    */
   private final Map<Integer, PartitionMeta> partitionMetas;
+
+  /* new code */
+  public int PartitionIdStart = 0;
+  /* code end */
 
   /**
    * Create a MatrixMeta
