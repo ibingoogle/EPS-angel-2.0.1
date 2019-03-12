@@ -198,6 +198,8 @@ public class RangePartitioner implements Partitioner {
     long blockCol = Math.min(Math.max(100, col / serverNum),
               Math.max(partSize / blockRow, (long) (row * ((double) col / maxPartNum / blockRow))));
 
+    if (col%blockCol > 0) blockCol += col%blockCol;
+
     LOG.info("blockRow = " + blockRow + ", blockCol=" + blockCol);
 
     int default_blockRow = mContext.getMaxRowNumInBlock();

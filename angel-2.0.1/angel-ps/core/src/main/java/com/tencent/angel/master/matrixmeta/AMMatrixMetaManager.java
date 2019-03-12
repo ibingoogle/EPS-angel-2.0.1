@@ -260,10 +260,6 @@ public class AMMatrixMetaManager {
     /* new code */
     meta.PartitionIdStart = partIdToMetaMap.size();
     LOG.info("meta toString = " + meta.toString());
-    for (Map.Entry<Integer, PartitionMeta> entry: partIdToMetaMap.entrySet()) {
-      LOG.info("PartitionId = " + entry.getKey());
-      LOG.info("PartitionMeta toString = " + entry.getValue().toString());
-    }
     /* code end */
     return meta;
   }
@@ -286,9 +282,9 @@ public class AMMatrixMetaManager {
 
     int size = partitions.size();
     for (int i = 0; i < size; i++) {
-      matrixMetaManager.getMatrixMeta(matrixId).addPartitionMeta(partitions.get(i).getPartId(), partitions.get(i));
+      matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.put(partitions.get(i).getPartId(), partitions.get(i));
     }
-    for (Map.Entry<Integer, PartitionMeta> entry: matrixMetaManager.getMatrixMeta(matrixId).getPartitionMetas().entrySet()) {
+    for (Map.Entry<Integer, PartitionMeta> entry: matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.entrySet()) {
       LOG.info("PartitionId = " + entry.getKey());
       LOG.info("PartitionMeta toString = " + entry.getValue().toString());
     }

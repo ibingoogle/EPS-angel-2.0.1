@@ -39,6 +39,7 @@ public class MatrixMeta {
   private final Map<Integer, PartitionMeta> partitionMetas;
 
   /* new code */
+  public Map<Integer, PartitionMeta> partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
   public int PartitionIdStart = 0;
   /* code end */
 
