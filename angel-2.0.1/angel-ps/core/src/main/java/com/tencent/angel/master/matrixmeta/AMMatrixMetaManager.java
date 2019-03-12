@@ -541,13 +541,17 @@ public class AMMatrixMetaManager {
     LOG.info("assignPSForPartitions_idle in AMMatrixMetaManager.java......");
     for (int i = 0; i < partNum; i++) {
       int psIndex = partitioner.assignPartToServer_idle(i, cur_serverNum);
-      LOG.info("      partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndex);
-      ParameterServerId psId = new ParameterServerId(psIndex);
+      LOG.info("  partitionId = " + partitions.get(i).getPartId() + " => PSIndex = " + psIndex);
+      // find ParameterServerId that corresponds to rmParameterServerIndex
+      ParameterServerId psId = null;
+      for (ParameterServerId existing_psId : psIdToMatrixIdsMap.keySet()){
+        if (existing_psId.getIndex() == rmParameterServerIndex) psId = existing_psId;
+      }
+      if (psId == null) return;
       partitions.get(i).addReplicationPS(psId);
       partitions.get(i).makePsToMaster(psId);
     }
   }
-
   /* code end */
 
   private void assignReplicationSlaves(List<PartitionMeta> partitions) {
