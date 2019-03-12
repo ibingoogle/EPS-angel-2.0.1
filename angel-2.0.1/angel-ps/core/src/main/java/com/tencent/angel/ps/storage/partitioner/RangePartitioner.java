@@ -188,6 +188,7 @@ public class RangePartitioner implements Partitioner {
     LOG.info("matrixId = " + matrixId);
     LOG.info("row = " + row);
     LOG.info("col = " + col);
+    LOG.info("col_base = " + col_base);
     LOG.info("blockRow = " + blockRow);
     LOG.info("serverNum = " + serverNum);
 
@@ -201,7 +202,7 @@ public class RangePartitioner implements Partitioner {
 
     int default_blockRow = mContext.getMaxRowNumInBlock();
     long default_blockCol = mContext.getMaxColNumInBlock();
-    LOG.info("efault_blockRow = " + default_blockRow + ", default_blockCol=" + default_blockCol);
+    LOG.info("default_blockRow = " + default_blockRow + ", default_blockCol=" + default_blockCol);
     if (blockRow > default_blockRow && blockCol > default_blockCol) {
       mContext.setMaxRowNumInBlock(blockRow);
       mContext.setMaxColNumInBlock(blockCol);
@@ -209,7 +210,7 @@ public class RangePartitioner implements Partitioner {
 
     long minValue = 0;
     long maxValue = 0;
-    minValue = col_base;
+    minValue = 0;
     maxValue = col;
 
     int startRow;
@@ -222,7 +223,7 @@ public class RangePartitioner implements Partitioner {
         startCol = j;
         endRow = (i <= (row - blockRow)) ? (i + blockRow) : row;
         endCol = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
-        partitions.add(new PartitionMeta(matrixId, startId++, startRow, endRow, startCol, endCol));
+        partitions.add(new PartitionMeta(matrixId, startId++, startRow, endRow, startCol+col_base, endCol+col_base));
         LOG.info("partitionsMeta_ToString = " + partitions.get(partitions.size() - 1).toString());
         j = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
       }
