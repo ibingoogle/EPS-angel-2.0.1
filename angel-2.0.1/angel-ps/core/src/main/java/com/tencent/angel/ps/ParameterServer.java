@@ -522,6 +522,7 @@ public class ParameterServer {
         try {
           LOG.info("0 => stopped.get() = " + stopped.get()); //////
           LOG.info("0 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          LOG.info("heartbeatInterval = " + heartbeatInterval); //////
           Thread.sleep(heartbeatInterval);
           LOG.info("1 => stopped.get() = " + stopped.get()); //////
           LOG.info("1 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
