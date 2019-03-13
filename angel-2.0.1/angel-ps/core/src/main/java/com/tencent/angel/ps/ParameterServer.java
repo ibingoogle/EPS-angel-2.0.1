@@ -261,6 +261,7 @@ public class ParameterServer {
    * @param exitCode the exit code
    */
   public void stop(int exitCode) {
+    LOG.info("stop*****************************"); //////
     LOG.info("stop ps rpcServer!");
     if (psServerService != null) {
       psServerService.stop();
@@ -331,6 +332,7 @@ public class ParameterServer {
   }
 
   private void exit(int code) {
+    LOG.info("exit*****************************"); //////
     AngelDeployMode deployMode = context.getDeployMode();
     if (deployMode == AngelDeployMode.YARN) {
       System.exit(code);
@@ -523,6 +525,7 @@ public class ParameterServer {
           LOG.info("0 => stopped.get() = " + stopped.get()); //////
           LOG.info("0 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           LOG.info("heartbeatInterval = " + heartbeatInterval); //////
+
           Thread.sleep(heartbeatInterval);
           LOG.info("1 => stopped.get() = " + stopped.get()); //////
           LOG.info("1 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
@@ -577,6 +580,7 @@ public class ParameterServer {
   }
 
   private void register() {
+    LOG.info("register*****************************"); //////
     try {
       master.register();
       LOG.info("Register to AppMaster successfully");
@@ -609,6 +613,7 @@ public class ParameterServer {
   }
 
   private void heartbeat() {
+    LOG.info("heartbeat*****************************"); //////
     PSReportRequest.Builder builder = PSReportRequest.newBuilder();
     builder.setPsAttemptId(attemptIdProto);
     Pair.Builder pairBuilder = Pair.newBuilder();
@@ -777,6 +782,7 @@ public class ParameterServer {
    * @throws IOException the io exception
    */
   public void start() throws Exception {
+    LOG.info("start*****************************"); //////
     if (snapshotDumper != null) {
       snapshotDumper.start();
     }
@@ -814,6 +820,7 @@ public class ParameterServer {
    * Done, will notify master and exit
    */
   public void done() {
+    LOG.info("done*****************************"); //////
     try {
       master.done();
       LOG.info("send done message to master success");
@@ -830,6 +837,7 @@ public class ParameterServer {
    * @param errorLog the error log
    */
   public void failed(String errorLog) {
+    LOG.info("failed*****************************"); //////
     try {
       master.failed(errorLog);
       LOG.info("send failed message to master success");
