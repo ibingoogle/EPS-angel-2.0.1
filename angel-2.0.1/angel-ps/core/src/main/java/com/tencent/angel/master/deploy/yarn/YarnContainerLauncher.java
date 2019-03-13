@@ -316,6 +316,7 @@ public class YarnContainerLauncher extends ContainerLauncher {
       return;
     }
     // shutdown any containers that might be left running
+    LOG.info("//////shutdownAllContainers();"); //////
     shutdownAllContainers();
     if (eventHandlingThread != null) {
       eventHandlingThread.interrupt();
