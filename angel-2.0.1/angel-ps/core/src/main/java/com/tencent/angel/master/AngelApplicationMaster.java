@@ -551,6 +551,7 @@ public class AngelApplicationMaster extends CompositeService {
       }
 
       // stop the RPC server
+      LOG.info("masterService.stop()");//////
       masterService.stop();
     } catch (Throwable t) {
       LOG.warn("Graceful stop failed ", t);
