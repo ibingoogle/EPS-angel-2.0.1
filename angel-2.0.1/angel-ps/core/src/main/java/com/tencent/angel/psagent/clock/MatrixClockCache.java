@@ -37,7 +37,11 @@ public class MatrixClockCache {
   /**
    * matrix partition key to clock map
    */
-  private final ConcurrentHashMap<PartitionKey, Integer> partitionClockMap;
+  /* old code */
+  // private final ConcurrentHashMap<PartitionKey, Integer> partitionClockMap;
+  /* new code */
+  public final ConcurrentHashMap<PartitionKey, Integer> partitionClockMap;
+  /* code end */
 
   /**
    * Create a new MatrixClockCache instance.

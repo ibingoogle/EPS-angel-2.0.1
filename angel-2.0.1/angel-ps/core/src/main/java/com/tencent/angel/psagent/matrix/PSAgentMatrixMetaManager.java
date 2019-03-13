@@ -28,6 +28,7 @@ import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.server.data.PSLocation;
 import com.tencent.angel.psagent.PSAgentContext;
 import com.tencent.angel.psagent.clock.ClockCache;
+import com.tencent.angel.psagent.clock.MatrixClockCache;
 import com.tencent.angel.psagent.matrix.transport.adapter.RowIndex;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.commons.logging.Log;
@@ -72,6 +73,107 @@ public class PSAgentMatrixMetaManager {
     this.matrixIdToPartsMap = new ConcurrentHashMap<>();
     this.rowIndexToPartsMap = new ConcurrentHashMap<>();
   }
+
+
+  /* new code */
+  public void print_meta(){
+    LOG.info("");
+    LOG.info("");
+    print_matrixMetaManager();
+    LOG.info("");
+    LOG.info("");
+    print_matrixIdToPartsMap();
+    LOG.info("");
+    LOG.info("");
+    print_rowIndexToPartsMap();
+    LOG.info("");
+    LOG.info("");
+    print_partClockCache();
+    LOG.info("");
+    LOG.info("");
+  }
+
+  public void print_partClockCache(){
+    LOG.info("print_partClockCache");
+    if (partClockCache.matrixClockCacheMap != null) {
+      for (Map.Entry<Integer, MatrixClockCache> entry : partClockCache.matrixClockCacheMap.entrySet()) {
+        LOG.info("matrixId = " + entry.getKey());
+        if (entry.getValue().partitionClockMap != null) {
+          for (Map.Entry<PartitionKey, Integer> entry2 : entry.getValue().partitionClockMap.entrySet()) {
+            LOG.info("  partitionId = " + entry2.getKey().getPartitionId());
+            LOG.info("  clock = " + entry2.getValue());
+          }
+        }
+      }
+    }
+
+  }
+
+  public void print_rowIndexToPartsMap(){
+    LOG.info("print_rowIndexToPartsMap");
+    for (Map.Entry<Integer, Map<Integer, List<PartitionKey>>> entry : rowIndexToPartsMap.entrySet()) {
+      LOG.info("matrixId = " + entry.getKey());
+      for (Map.Entry<Integer, List<PartitionKey>> entry2: entry.getValue().entrySet()) {
+        LOG.info("  rowIndex = " + entry2.getKey());
+        List<PartitionKey> PartitionKeyList= entry2.getValue();
+        if (PartitionKeyList != null) {
+          for (int i = 0; i< PartitionKeyList.size(); i++) {
+            LOG.info("    partitionId = " + PartitionKeyList.get(i).getPartitionId());
+            LOG.info("  partitionKey = " + PartitionKeyList.get(i).toString());
+          }
+        }
+      }
+    }
+  }
+
+
+  public void print_matrixIdToPartsMap(){
+    LOG.info("print_matrixIdToPartsMap");
+    for(Map.Entry<Integer, List<PartitionKey>> entry: matrixIdToPartsMap.entrySet()){
+      LOG.info("matrixId = " + entry.getKey());
+      List<PartitionKey> partitionKeyList = entry.getValue();
+      if (partitionKeyList != null){
+        for (int i = 0; i < partitionKeyList.size(); i++){
+          LOG.info("  partitionId = " + partitionKeyList.get(i).getPartitionId());
+          LOG.info("  partitionKey = " + partitionKeyList.get(i).toString());
+        }
+      }
+    }
+  }
+
+  public void print_matrixMetaManager(){
+    LOG.info("print_matrixMetaManager");
+    // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());
+    Map<Integer, MatrixMeta> matrixIdToMetaMap = matrixMetaManager.getMatrixMetas();
+    for (Map.Entry<Integer, MatrixMeta> entry: matrixIdToMetaMap.entrySet()){
+      LOG.info("matrixId = " + entry.getKey());
+      LOG.info("partitionIdStart = " + entry.getValue().PartitionIdStart);
+      // LOG.info("  MatrixMeta_toString = " + entry.getValue().toString());
+      Map<Integer, PartitionMeta> partitionMetas = entry.getValue().getPartitionMetas();
+      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas.entrySet()){
+        LOG.info("  partitionId = " + entry2.getKey());
+        LOG.info("  PartitionMeta = " + entry2.getValue());
+        /*
+        List<ParameterServerId> storedPs = entry2.getValue().getPss();
+        for (int i = 0; i < storedPs.size(); i++){
+          LOG.info("                  storedPSId[" + i + "] = " + storedPs.get(i).toString());
+        }
+        */
+      }
+      Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
+      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
+        LOG.info("  partitionId_idle = " + entry2.getKey());
+        LOG.info("  PartitionMeta_idle = " + entry2.getValue());
+        /*
+        List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
+        for (int i = 0; i < storedPs_idle.size(); i++){
+          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
+        }
+        */
+      }
+    }
+  }
+  /* code end */
 
   /**
    * Add matrices meta

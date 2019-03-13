@@ -360,6 +360,8 @@ public class RowSplitCombineUtils {
     old code end */
 
     /* new code */
+    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+    PSAgentContext.get().getMatrixMetaManager().print_meta();
     LOG.info("rowIds.length = " + rowIds.length);
     LOG.info("colIds.length = " + colIds.length);
     for (int i = 0; i < colIds.length; i++){
@@ -482,6 +484,8 @@ public class RowSplitCombineUtils {
         }
       }
     }
+    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+    PSAgentContext.get().getMatrixMetaManager().print_meta();
     /* code end */
 
     return vectors;

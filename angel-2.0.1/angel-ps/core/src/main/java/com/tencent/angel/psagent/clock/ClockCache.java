@@ -45,7 +45,11 @@ public class ClockCache {
   /**
    * matrix id to matrix clock cache map
    */
-  private final ConcurrentHashMap<Integer, MatrixClockCache> matrixClockCacheMap;
+  /* old code */
+  // private final ConcurrentHashMap<Integer, MatrixClockCache> matrixClockCacheMap;
+  /* new code */
+  public final ConcurrentHashMap<Integer, MatrixClockCache> matrixClockCacheMap;
+  /* code end */
 
   /**
    * clocks sync thread
@@ -145,7 +149,7 @@ public class ClockCache {
                 int PartId = PK.getPartitionId();
                 // print log every 50 times
                 if(syncNum%50 == 0) {
-                  LOG.info("Update clock cache");
+                  LOG.info("Update clock cache in clockcache.java");
                   LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
                 }
                 cache.update(MatrixId, PK, ClockValue);

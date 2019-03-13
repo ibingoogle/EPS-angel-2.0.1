@@ -438,8 +438,10 @@ public class UserRequestAdapter {
     List<PartitionKey> partitions =
       PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
     int size = partitions.size();
+    LOG.info("partitions.size() in fillPartRequestForClock = " + size); //////
     for (int i = 0; i < size; i++) {
       if (!psUpdateData.containsKey(partitions.get(i))) {
+        LOG.info("partitionId = " + partitions.get(i).getPartitionId()); //////
         psUpdateData.put(partitions.get(i), new ArrayList<>());
       }
     }
@@ -698,6 +700,8 @@ public class UserRequestAdapter {
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPull = " + rmServerPull);
     LOG.info("IndexGetRowsRequest request = " + request);
+    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+    PSAgentContext.get().getMatrixMetaManager().print_meta();
     /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
     Map<PartitionKey, List<Integer>> partToRowIdsMap = PSAgentContext.get().getMatrixMetaManager()
@@ -792,6 +796,9 @@ public class UserRequestAdapter {
       LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
       LOG.info("parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
     }
+
+    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+    PSAgentContext.get().getMatrixMetaManager().print_meta();
     /* code end */
 
     IndexGetRowsCache cache = new IndexGetRowsCache(validSplits.size(), parts);
@@ -911,6 +918,9 @@ public class UserRequestAdapter {
               LOG.info("cache.getProgress() = " + cache.getProgress());
               /* code end */
               workerPool.execute(new IndexRowsMerger((IndexGetRowsRequest) request, cache, result));
+              LOG.info("after executing IndexRowsMerger......");
+              LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+              PSAgentContext.get().getMatrixMetaManager().print_meta();
             }
             break;
 
@@ -1165,6 +1175,8 @@ public class UserRequestAdapter {
     LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPush = " + rmServerPush);
+    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+    PSAgentContext.get().getMatrixMetaManager().print_meta();
     /*code end*/
 
     if (useNewSplit(matrixId, rows)) {
@@ -1189,6 +1201,9 @@ public class UserRequestAdapter {
           }
         }
       }
+      LOG.info("checkpoint.........");
+      LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
+      PSAgentContext.get().getMatrixMetaManager().print_meta();
       /* code end */
 
 
