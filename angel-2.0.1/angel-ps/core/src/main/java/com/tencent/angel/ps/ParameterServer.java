@@ -509,6 +509,7 @@ public class ParameterServer {
     LOG.info("Starting HeartbeatThread, interval is " + heartbeatInterval + " ms");
     heartbeatThread = new Thread(() -> {
       while (!stopped.get() && !Thread.currentThread().isInterrupted()) {
+        LOG.info("begin stopped.get() = " + stopped.get()); //////
         try {
           Thread.sleep(heartbeatInterval);
         } catch (InterruptedException e) {
@@ -528,6 +529,7 @@ public class ParameterServer {
         } catch (Exception e) {
           LOG.error("ERROR IN CONTACTING RM. ", e);
         }
+        LOG.info("end stopped.get() = " + stopped.get()); //////
       }
     });
     heartbeatThread.setName("heartbeatThread");
@@ -605,10 +607,12 @@ public class ParameterServer {
 
       LOG.info("ps hb ret = " + ret); //////
       if (ret.hasNeedSaveMatrices()) {
+        LOG.info("ret.hasNeedSaveMatrices()");
         saver.save(ProtobufUtil.convert(ret.getNeedSaveMatrices()));
       }
 
       if (ret.hasNeedLoadMatrices()) {
+        LOG.info("ret.hasNeedLoadMatrices()");
         loader.load(ProtobufUtil.convert(ret.getNeedLoadMatrices()));
       }
       syncMatrices(ret.getNeedCreateMatricesList(), ret.getNeedReleaseMatrixIdsList(),
