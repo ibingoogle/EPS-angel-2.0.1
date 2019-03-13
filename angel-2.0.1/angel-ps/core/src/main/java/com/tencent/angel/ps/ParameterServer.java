@@ -512,22 +512,33 @@ public class ParameterServer {
         LOG.info("begin stopped.get() = " + stopped.get()); //////
         try {
           Thread.sleep(heartbeatInterval);
+          LOG.info("1 => stopped.get() = " + stopped.get()); //////
         } catch (InterruptedException e) {
+          LOG.info("2 => stopped.get() = " + stopped.get()); //////
           if (!stopped.get()) {
+            LOG.info("3 => stopped.get() = " + stopped.get()); //////
             LOG.warn("Allocated thread interrupted. Returning.", e);
           }
+          LOG.info("4 => stopped.get() = " + stopped.get()); //////
           return;
         }
-
+        LOG.info("5 => stopped.get() = " + stopped.get()); //////
         try {
+          LOG.info("6 => stopped.get() = " + stopped.get()); //////
           if (!stopped.get()) {
+            LOG.info("7 => stopped.get() = " + stopped.get()); //////
             heartbeat();
           }
+          LOG.info("8 => stopped.get() = " + stopped.get()); //////
         } catch (YarnRuntimeException e) {
+          LOG.info("9 => stopped.get() = " + stopped.get()); //////
           LOG.error("Error communicating with AM: " + e.getMessage(), e);
+          LOG.info("10 => stopped.get() = " + stopped.get()); //////
           return;
         } catch (Exception e) {
+          LOG.info("11 => stopped.get() = " + stopped.get()); //////
           LOG.error("ERROR IN CONTACTING RM. ", e);
+          LOG.info("12 => stopped.get() = " + stopped.get()); //////
         }
         LOG.info("end stopped.get() = " + stopped.get()); //////
       }
