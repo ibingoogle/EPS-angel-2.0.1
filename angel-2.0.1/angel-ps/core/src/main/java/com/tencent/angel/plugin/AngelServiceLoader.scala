@@ -83,14 +83,18 @@ object AngelServiceLoader {
   }
 
   def stopService(): Unit = {
+    LOG.info("stopService() in AngelServiceLoader.scala") //////
     if (services != null) {
+      LOG.info("services != null") //////
       services.foreach(service => Try({
+        LOG.info(s" stop plugin service:$service") //////
         service.stop()
         LOG.info(s" stop plugin service:$service")
       }).failed.foreach(throwable => {
         LOG.error(s"failed start plugin service:$service", throwable)
       }))
     }
+    LOG.info("services == null") //////
   }
 
 

@@ -516,7 +516,9 @@ public class AngelApplicationMaster extends CompositeService {
   }
 
   @Override public void serviceStop() throws Exception {
+    LOG.info("serviceStop() in AngelApplicationMaster"); //////
     super.serviceStop();
+    LOG.info("begin to stopService() in AngelServiceLoader"); //////
     AngelServiceLoader.stopService();
   }
 
