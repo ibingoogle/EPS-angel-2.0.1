@@ -130,8 +130,13 @@ public class ClockCache {
   class Syncer extends Thread {
     private final MatrixTransportInterface matrixClient =
       PSAgentContext.get().getMatrixTransportClient();
+    /* old code
     private final ParameterServerId[] serverIds =
       PSAgentContext.get().getLocationManager().getPsIds();
+    /* new code */
+    private ParameterServerId[] serverIds =
+            PSAgentContext.get().getLocationManager().getPsIds();
+    /* code end */
     private final ClockCache cache = PSAgentContext.get().getClockCache();
 
     @SuppressWarnings("unchecked") @Override public void run() {
@@ -142,6 +147,9 @@ public class ClockCache {
       int syncNum = 0;
       while (!stopped.get() && !Thread.interrupted()) {
         startTsMs = System.currentTimeMillis();
+        /* new code */
+        serverIds = PSAgentContext.get().getLocationManager().getPsIds();
+        /* code end */
         // Send request to every ps
         for (int i = 0; i < serverIds.length; i++) {
           try {
