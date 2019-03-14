@@ -427,6 +427,7 @@ object SharedConf {
   }
 
   /*new code*/
+  // about worker elasticity
   def skippedWorkerEpochBoolean: Boolean = {
     get()
 
@@ -470,6 +471,29 @@ object SharedConf {
 
     sc.getInt(MLConf.ML_RM_EXE_EPOCH, MLConf.DEFAULT_ML_RM_EXE_EPOCH)
   }
+
+  def validateBoolean: Boolean = {
+    get()
+
+    sc.getBoolean(MLConf.ML_VALIDATE_BOOLEAN, MLConf.DEFAULT_ML_VALIDATE_BOOLEAN)
+  }
+  def iterSleepSec: Int = {
+    get()
+
+    sc.getInt(MLConf.ML_WORKER_ITERATION_SLEEP_SEC, MLConf.DEFAULT_ML_WORKER_ITERATION_SLEEP_SEC)
+  }
+
+  // about server elasticity
+  def rmServerEpoch: Int = {
+    get()
+
+    sc.getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
+  }
+  def removedParameterServerIndex: Int = {
+    get()
+
+    sc.getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
+  }
   /*code end*/
 
   def modelSize: Long = {
@@ -483,19 +507,6 @@ object SharedConf {
 
     sc.getDouble(MLConf.ML_VALIDATE_RATIO, MLConf.DEFAULT_ML_VALIDATE_RATIO)
   }
-
-  /* new code */
-  def validateBoolean: Boolean = {
-    get()
-
-    sc.getBoolean(MLConf.ML_VALIDATE_BOOLEAN, MLConf.DEFAULT_ML_VALIDATE_BOOLEAN)
-  }
-  def iterSleepSec: Int = {
-    get()
-
-    sc.getInt(MLConf.ML_WORKER_ITERATION_SLEEP_SEC, MLConf.DEFAULT_ML_WORKER_ITERATION_SLEEP_SEC)
-  }
-  /* code end */
 
   def learningRate: Double = {
     get()

@@ -52,6 +52,7 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
   val lr0: Double = SharedConf.learningRate
 
   /*new code*/
+  // about worker elasticity
   val skippedWorkerEpochBoolean: Boolean = SharedConf.skippedWorkerEpochBoolean
   val skippedWorkerEpochStart: Int = SharedConf.skippedWorkerEpochStart
   val skippedWorkerEpochEnd: Int = SharedConf.skippedWorkerEpochEnd
@@ -76,6 +77,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
 
   var valiBoolean: Boolean = true
   var iterSleepMillis: Int = 0
+
+  // about server elasticity
+  var rmServerEpoch: Int = SharedConf.rmServerEpoch
+  var removedParameterServerIndex: Int = SharedConf.removedParameterServerIndex
   /*code end*/
 
   // Init Graph Model
@@ -345,6 +350,11 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         LOG.info("break the execution of this while (ctx.getEpoch < epochNum) at epoch = " + epoch)
         PSAgentContext.get().getMasterClient.taskRemoveExecution(ctx.getTaskIndex)
         break()
+      }
+      LOG.info("rmServerEpoch = " + rmServerEpoch)
+      LOG.info("rmParameterServerIndex = " + removedParameterServerIndex)
+      if (rmServerEpoch == epoch){
+        PSAgentContext.get().getPsAgent.rmOneParameterServer_PSAgent(rmServerEpoch, removedParameterServerIndex)
       }
       /* code end */
     }

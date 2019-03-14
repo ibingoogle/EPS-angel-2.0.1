@@ -357,6 +357,10 @@ public class PSAgent {
     LOG.info("print_clockCache");
     clockCache.print_ClockCache();
   }
+
+  public void rmOneParameterServer_PSAgent(int rmServerEpoch, int removedParameterServerId){
+    LOG.info("rmOneParameterServer_PSAgent");
+  }
   /* code end */
 
   private RunningMode initRunningMode(Configuration conf) {
