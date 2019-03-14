@@ -88,6 +88,8 @@ public class LocationManager {
       newpsIds[i] = psIds[index];
       index++;
     }
+    psIds = null;
+    psIds = newpsIds;
   }
 
 
