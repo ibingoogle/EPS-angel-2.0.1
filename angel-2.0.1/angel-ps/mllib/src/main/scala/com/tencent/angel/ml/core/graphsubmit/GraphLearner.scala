@@ -353,7 +353,8 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       }
       LOG.info("rmServerEpoch = " + rmServerEpoch)
       LOG.info("rmParameterServerIndex = " + removedParameterServerIndex)
-      if (rmServerEpoch == epoch){
+      val nextEpoch: Int = epoch + 1;
+      if (rmServerEpoch == nextEpoch){
         PSAgentContext.get().getPsAgent.rmOneParameterServer_PSAgent(rmServerEpoch, removedParameterServerIndex)
       }
       /* code end */

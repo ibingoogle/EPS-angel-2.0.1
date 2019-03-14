@@ -63,7 +63,54 @@ public class LocationManager {
 
   /* new code */
   public void print_LocationManager(){
+    LOG.info("print_LocationManager");
+    LOG.info("");
+    LOG.info("");
+    if (masterLocation != null) LOG.info("masterLocation.toString()" + masterLocation.toString());
+    LOG.info("");
+    LOG.info("");
+    print_psIdToLocMap();
+    LOG.info("");
+    LOG.info("");
+    print_workerIdToLocMap();
+    LOG.info("");
+    LOG.info("");
+    print_psIds();
+    LOG.info("");
+    LOG.info("");
 
+  }
+
+  public void print_psIdToLocMap(){
+    LOG.info("print_psIdToLocMap");
+    if (psIdToLocMap != null) {
+      for(Map.Entry<ParameterServerId, Location> entry: psIdToLocMap.entrySet()) {
+        LOG.info("  ParameterServerIndex = " + entry.getKey().getIndex());
+        LOG.info("  ParameterServerId.toString() = " + entry.getKey().toString());
+        LOG.info("  location = " + entry.getValue().toString());
+      }
+    }
+  }
+
+  public void print_workerIdToLocMap(){
+    LOG.info("print_workerIdToLocMap");
+    if (workerIdToLocMap != null) {
+      for(Map.Entry<WorkerId, Location> entry: workerIdToLocMap.entrySet()) {
+        LOG.info("  WorkerIndex = " + entry.getKey().getIndex());
+        LOG.info("  WorkerId.toString() = " + entry.getKey().toString());
+        LOG.info("  location = " + entry.getValue().toString());
+      }
+    }
+  }
+
+  public void print_psIds(){
+    LOG.info("print_psIds");
+    if (psIds != null && psIds.length > 0){
+      for (int i = 0; i< psIds.length; i++){
+        LOG.info("  ParameterServerIndex = " + psIds[i].getIndex());
+        LOG.info("  ParameterServerId.toString() = " + psIds[i].toString());
+      }
+    }
   }
   /* code end */
 

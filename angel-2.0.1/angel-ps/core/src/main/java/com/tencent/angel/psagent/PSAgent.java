@@ -168,6 +168,7 @@ public class PSAgent {
   /**
    * matrix partitions clock cache
    */
+  ////// this clockCache is same as partClockCache in matrixMetaManager !!!!!!
   private volatile ClockCache clockCache;
 
   /**
@@ -301,7 +302,7 @@ public class PSAgent {
     LOG.info("----------------");
     LOG.info("----------------");
     LOG.info("");
-    LOG.info("print_PSAgent");
+    LOG.info("print_PSAgent in ");
     LOG.info("");
     LOG.info("----------------");
     LOG.info("----------------");
