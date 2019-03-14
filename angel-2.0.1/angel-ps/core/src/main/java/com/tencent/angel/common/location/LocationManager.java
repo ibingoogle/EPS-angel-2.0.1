@@ -40,7 +40,11 @@ public class LocationManager {
   /**
    * PS locations
    */
+  /* old code
   private final Map<ParameterServerId, Location> psIdToLocMap;
+  /* new code */
+  public final Map<ParameterServerId, Location> psIdToLocMap;
+  /* code end */
 
   /**
    * Worker locations
@@ -50,7 +54,11 @@ public class LocationManager {
   /**
    * All ps ids
    */
+  /* old code
   private volatile ParameterServerId[] psIds;
+  /* new code */
+  public volatile ParameterServerId[] psIds;
+  /* code end */
 
   /**
    * Create a location manager
@@ -62,6 +70,27 @@ public class LocationManager {
   }
 
   /* new code */
+
+  public void rmOneParameterServer_LocationManager(int removedParameterServerIndex){
+    LOG.info("rmOneParameterServer_LocationManager");
+    for (Map.Entry<ParameterServerId, Location> entry : psIdToLocMap.entrySet()){
+      if (entry.getKey().getIndex() == removedParameterServerIndex) {
+        psIdToLocMap.remove(entry.getKey());
+        break;
+      }
+    }
+    ParameterServerId[] newpsIds = new ParameterServerId[psIds.length - 1];
+    int index = 0;
+    for (int i = 0; i < newpsIds.length; i++){
+      if (psIds[index].getIndex() == removedParameterServerIndex) {
+        index++;
+      }
+      newpsIds[i] = psIds[index];
+      index++;
+    }
+  }
+
+
   public void print_LocationManager(){
     LOG.info("print_LocationManager");
     LOG.info("");

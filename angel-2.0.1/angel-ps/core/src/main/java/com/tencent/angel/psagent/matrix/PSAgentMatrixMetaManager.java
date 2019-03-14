@@ -76,6 +76,45 @@ public class PSAgentMatrixMetaManager {
 
 
   /* new code */
+
+  public void rmOneParameterServer_PSAgentMatrixMetaManager(int removedParameterServerIndex){
+    LOG.info("rmOneParameterServer_PSAgentMatrixMetaManager");
+    // 1
+    for (Map.Entry<Integer, MatrixMeta>  entry : matrixMetaManager.getMatrixMetas().entrySet()) {
+      for (Map.Entry<Integer, PartitionMeta> entry2: entry.getValue().getPartitionMetas().entrySet()){
+        if (getMasterPS(entry2.getValue().getPartitionKey()).getIndex() == removedParameterServerIndex){
+          entry2.getValue().getPartitionKey().status = false;
+        }
+      }
+    }
+
+    // 2
+    for (Map.Entry<Integer, List<PartitionKey>> entry : matrixIdToPartsMap.entrySet()){
+      if (entry.getValue() != null) {
+        for (int i = 0; i < entry.getValue().size(); i++) {
+          if (getMasterPS(entry.getValue().get(i)).getIndex() == removedParameterServerIndex){
+            entry.getValue().get(i).status = false;
+          }
+        }
+      }
+    }
+    // 3
+    for (Map.Entry<Integer, Map<Integer, List<PartitionKey>>> entry : rowIndexToPartsMap.entrySet()) {
+      if (entry.getValue() != null){
+        for (Map.Entry<Integer, List<PartitionKey>> entry2 : entry.getValue().entrySet()) {
+          if (entry2.getValue() != null) {
+            for (int i = 0; i < entry2.getValue().size(); i++) {
+              if (getMasterPS(entry2.getValue().get(i)).getIndex() == removedParameterServerIndex){
+                entry2.getValue().get(i).status = false;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
   public void print_PSAgentMatrixMetaManager(){
     LOG.info("");
     LOG.info("");
@@ -105,7 +144,7 @@ public class PSAgentMatrixMetaManager {
         if (PartitionKeyList != null) {
           for (int i = 0; i< PartitionKeyList.size(); i++) {
             LOG.info("    partitionId = " + PartitionKeyList.get(i).getPartitionId());
-            LOG.info("  partitionKey = " + PartitionKeyList.get(i).toString());
+            LOG.info("    partitionKey = " + PartitionKeyList.get(i).toString());
           }
         }
       }

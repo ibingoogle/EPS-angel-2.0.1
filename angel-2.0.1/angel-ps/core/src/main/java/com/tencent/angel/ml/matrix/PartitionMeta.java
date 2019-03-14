@@ -263,6 +263,7 @@ public class PartitionMeta {
     for (int i = 0; i < size; i++) {
       sb.append(storedPs.get(i)).append(",");
     }
+    sb.append("partKey status = " + partitionKey.status);//////
     sb.append("\n");
 
     return sb.toString();

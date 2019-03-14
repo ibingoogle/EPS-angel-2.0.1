@@ -43,6 +43,10 @@ public class PartitionKey implements Comparable<PartitionKey>, Serialize {
   int endRow = 0;
   long endCol = 0;
 
+  /* new code */
+  public boolean status = true;
+  /* code end */
+
   public PartitionKey() {
   }
 
@@ -70,6 +74,7 @@ public class PartitionKey implements Comparable<PartitionKey>, Serialize {
     builder.append("startCol=").append(startCol).append(", ");
     builder.append("endRow=").append(endRow).append(", ");
     builder.append("endCol=").append(endCol).append(")");
+    builder.append("status=").append(status).append(")"); //////
     return builder.toString();
   }
 

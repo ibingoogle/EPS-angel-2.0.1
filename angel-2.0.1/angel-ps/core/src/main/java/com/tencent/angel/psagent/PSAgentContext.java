@@ -420,8 +420,12 @@ public class PSAgentContext {
         LOG.info("partId = " + pkeys.get(i).getPartitionId() + ", clock = " + cache.getClock(matrixId, pkeys.get(i)));
       }
       /*code end*/
+      /* old code
       if (cache.getClock(matrixId, pkeys.get(0)) < clock) {
+      /* new code */
+      if (cache.getClock(matrixId, pkeys.get(0)) < clock && pkeys.get(0).status) {
         LOG.info("sync = false");//////
+      /* code end */
         sync = false;
       }
 

@@ -61,6 +61,13 @@ public class PSAgentLocationManager {
 
 
   /* new code */
+
+  public void rmOneParameterServer_PSAgentLocationManager(int removedParameterServerIndex){
+    LOG.info("rmOneParameterServer_PSAgentLocationManager");
+    locationManager.rmOneParameterServer_LocationManager(removedParameterServerIndex);
+    serverStateChange = true;
+  }
+
   public void print_PSAgentLocationManager(){
     LOG.info("print_PSAgentLocationManager");
     locationManager.print_LocationManager();

@@ -72,6 +72,18 @@ public class ClockCache {
   }
 
   /* new code */
+
+  public void rmOneParameterServer_ClockCache(int removedParameterServerIndex){
+    LOG.info("rmOneParameterServer_ClockCache");
+    for (Map.Entry<Integer, MatrixClockCache> entry : matrixClockCacheMap.entrySet()){
+      for(Map.Entry<PartitionKey, Integer> entry2 : entry.getValue().partitionClockMap.entrySet()){
+        if (PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry2.getKey()).getIndex() == removedParameterServerIndex){
+          entry.getValue().partitionClockMap.put(entry2.getKey(), Integer.MAX_VALUE);
+        }
+      }
+    }
+  }
+
   public void print_ClockCache(){
     LOG.info("print_ClockCache");
     if (matrixClockCacheMap != null) {

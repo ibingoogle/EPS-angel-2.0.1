@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
  *
  * https://opensource.org/licenses/Apache-2.0
@@ -703,11 +703,13 @@ public class UserRequestAdapter {
     LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get(IndexGetRowsRequest request) from pullGradient");
     PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
+
     checkParams(request.getMatrixId(), request.getRowIds());
     Map<PartitionKey, List<Integer>> partToRowIdsMap = PSAgentContext.get().getMatrixMetaManager()
       .getPartitionToRowsMap(request.getMatrixId(), request.getRowIds());
     List<PartitionKey> row0Parts =
       PSAgentContext.get().getMatrixMetaManager().getPartitions(request.getMatrixId(), 0);
+
     /* new code */
     LOG.info("partToRowIdsMap =>");
     for(Map.Entry<PartitionKey, List<Integer>> entry: partToRowIdsMap.entrySet()){
@@ -766,8 +768,10 @@ public class UserRequestAdapter {
       // validSplits.put(entry.getKey(), indicesView);
       // }
       /* new code */
-      ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
+      // ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());
       if (indicesView != null) {
+        validSplits.put(entry.getKey(), indicesView);
+        /*
         if (serverId.getIndex() != removedParameterServerIndex || currentEpoch != rmServerEpoch) {
           validSplits.put(entry.getKey(), indicesView);
         }else if (!rmServerPull) {
@@ -776,32 +780,47 @@ public class UserRequestAdapter {
           PartitionKey removedPartKey = entry.getKey();
           LOG.info("removed Part Key Id in pullParameter = " + removedPartKey.getPartitionId());
         }
+        */
+
       }
       /* code end */
     }
 
     /* new code */
-    for (int i = 0; i < parts.size(); i++) {
-      ParameterServerId serverId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(parts.get(i));
-      if (serverId.getIndex() == removedParameterServerIndex && currentEpoch == rmServerEpoch){
+    /*
+    int size = parts.size();
+    for (int i = 0; i < size;) {
+      if (!parts.get(i).status){
+        LOG.info("in parts, removed Part Key Id = " + parts.get(i).getPartitionId() + ", status = " + parts.get(i).status);
         parts.remove(i);
-        break;
+        size--;
+      }else {
+        i++;
       }
     }
+    */
+    int active_validSplits_size = 0;
     for (Map.Entry<PartitionKey, IndicesView> entry: validSplits.entrySet()){
       LOG.info("validSplits~~~~~~partitionKey = " + entry.getKey().toString());
       LOG.info("validSplits~~~~~~partitionId = " + entry.getKey().getPartitionId());
       LOG.info("IndicesView.startPos = " + entry.getValue().startPos);
       LOG.info("IndicesView.endPos = " + entry.getValue().endPos);
       LOG.info("IndicesView.start-end = " + (entry.getValue().endPos - entry.getValue().startPos));
+      if (entry.getKey().status) active_validSplits_size++;
     }
     for (int i = 0; i< parts.size(); i++){
-      LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
-      LOG.info("parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
+      LOG.info("real parts~~~~~~partitionKey = " + parts.get(i).toString());
+      LOG.info("real parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
     }
+    LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get");
+    PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
 
+    /* old code
     IndexGetRowsCache cache = new IndexGetRowsCache(validSplits.size(), parts);
+    /* new code */
+    IndexGetRowsCache cache = new IndexGetRowsCache(active_validSplits_size, parts);
+    /* code end */
     int requestId = request.getRequestId();
     requestIdToSubresponsMap.put(requestId, cache);
     requestIdToResultMap.put(requestId, result);
@@ -811,8 +830,17 @@ public class UserRequestAdapter {
     MatrixTransportClient matrixClient = PSAgentContext.get().getMatrixTransportClient();
 
     for (Entry<PartitionKey, IndicesView> entry : validSplits.entrySet()) {
+      /* old code
       matrixClient.indexGetRows(requestId, request.getMatrixId(), entry.getKey(),
         partToRowIdsMap.get(entry.getKey()), validSplits.get(entry.getKey()), request.getFunc());
+      /* new code */
+      if (entry.getKey().status){
+        matrixClient.indexGetRows(requestId, request.getMatrixId(), entry.getKey(),
+                partToRowIdsMap.get(entry.getKey()), validSplits.get(entry.getKey()), request.getFunc());
+      }else {
+        LOG.info("get => removed partKey Id = " + entry.getKey().getPartitionId());
+      }
+      /* code end */
     }
     return result;
   }
@@ -1191,6 +1219,7 @@ public class UserRequestAdapter {
         PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
 
       /* new code */
+      /*
       if (currentEpoch == rmServerEpoch && rmServerPush) {
         for (PartitionKey partKey: partitions){
           if (partKey.getPartitionId() == removedParameterServerIndex){
@@ -1199,13 +1228,22 @@ public class UserRequestAdapter {
           }
         }
       }
+      */
       LOG.info("checkpoint.........");
       PSAgentContext.get().getPsAgent().print_PSAgent();
+      int active_partitions_size = 0;
+      for (int i = 0; i < partitions.size(); i++){
+        if (partitions.get(i).status) active_partitions_size++;
+      }
       /* code end */
 
 
       UpdateRowsRequest request = new UpdateRowsRequest(matrixId, op);
+      /* old code
       UpdateMatrixCache cache = new UpdateMatrixCache(partitions.size());
+      /* new code */
+      UpdateMatrixCache cache = new UpdateMatrixCache(active_partitions_size);
+      /* code end */
       FutureResult<VoidResult> result = new FutureResult<>();
       int requestId = request.getRequestId();
       requestIdToSubresponsMap.put(requestId, cache);
@@ -1216,12 +1254,19 @@ public class UserRequestAdapter {
       long colNum = PSAgentContext.get().getMatrixMetaManager().getMatrixMeta(matrixId).getColNum();
       LOG.info("colNum = " + colNum); //////
       for (PartitionKey partKey : partitions) {
-        /*new code*/
-        LOG.info("update clock = -1");
-        LOG.info("partKey = " + partKey);
-        /*code end*/
+        /* old code
         RowsViewUpdateItem item = new RowsViewUpdateItem(partKey, rows, colNum);
         matrixClient.update(requestId, request.getMatrixId(), partKey, item, null, -1, false, op);
+        /*new code*/
+        LOG.info("update clock = -1");
+        LOG.info("partKey = " + partKey.toString());
+        if (partKey.status) {
+          RowsViewUpdateItem item = new RowsViewUpdateItem(partKey, rows, colNum);
+          matrixClient.update(requestId, request.getMatrixId(), partKey, item, null, -1, false, op);
+        }else {
+          LOG.info("update => removed PartKey index = " + partKey.getPartitionId());
+        }
+        /*code end*/
       }
       return result;
     } else {

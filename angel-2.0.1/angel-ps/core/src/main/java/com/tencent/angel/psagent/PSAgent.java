@@ -19,6 +19,7 @@
 package com.tencent.angel.psagent;
 
 import com.google.protobuf.ServiceException;
+import com.tencent.angel.PartitionKey;
 import com.tencent.angel.RunningMode;
 import com.tencent.angel.common.location.Location;
 import com.tencent.angel.common.location.LocationManager;
@@ -30,6 +31,7 @@ import com.tencent.angel.ipc.TConnectionManager;
 import com.tencent.angel.ml.matrix.MatrixContext;
 import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.MatrixMetaManager;
+import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.protobuf.generated.PSAgentMasterServiceProtos.PSAgentCommandProto;
 import com.tencent.angel.protobuf.generated.PSAgentMasterServiceProtos.PSAgentRegisterResponse;
 import com.tencent.angel.protobuf.generated.PSAgentMasterServiceProtos.PSAgentReportResponse;
@@ -37,6 +39,7 @@ import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.psagent.client.MasterClient;
 import com.tencent.angel.psagent.client.PSControlClientManager;
 import com.tencent.angel.psagent.clock.ClockCache;
+import com.tencent.angel.psagent.clock.MatrixClockCache;
 import com.tencent.angel.psagent.consistency.ConsistencyController;
 import com.tencent.angel.psagent.executor.Executor;
 import com.tencent.angel.psagent.matrix.MatrixClient;
@@ -53,8 +56,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
+import scala.xml.PrettyPrinter;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -359,17 +364,18 @@ public class PSAgent {
     clockCache.print_ClockCache();
   }
 
-  public void rmOneParameterServer_PSAgent(int rmServerEpoch, int removedParameterServerId){
+  public void rmOneParameterServer_PSAgent(int removedParameterServerIndex){
+    LOG.info("before rmOneParameterServer_PSAgent");
+    print_PSAgent();
     LOG.info("rmOneParameterServer_PSAgent");
-    /*
-    locationManager;
-    matrixMetaManager;
-    clockCache
-    */
-
-
-
-    locationManager.serverStateChange = true;
+    // matrixMetaManager;
+    matrixMetaManager.rmOneParameterServer_PSAgentMatrixMetaManager(removedParameterServerIndex);
+    // clockCache
+    clockCache.rmOneParameterServer_ClockCache(removedParameterServerIndex);
+    // locationManager
+    locationManager.rmOneParameterServer_PSAgentLocationManager(removedParameterServerIndex);
+    LOG.info("after rmOneParameterServer_PSAgent");
+    print_PSAgent();
   }
   /* code end */
 
