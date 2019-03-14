@@ -166,7 +166,7 @@ public class ClockCache {
                 int MatrixId = entry.getKey().getMatrixId();
                 int PartId = PK.getPartitionId();
                 // print log every 50 times
-                if(syncNum%50 == 0) {
+                if(syncNum%20 == 0) {
                   LOG.info("Update clock cache in clockcache.java");
                   LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
                 }
@@ -194,6 +194,12 @@ public class ClockCache {
           if (useTimeMs < syncTimeIntervalMS) {
             Thread.sleep(syncTimeIntervalMS - useTimeMs);
           }
+
+          /* new code */
+          if(syncNum%20 == 0) {
+            LOG.info("useTimeMs = " + useTimeMs);
+          }
+          /* code end */
 
           syncNum++;
         } catch (InterruptedException ie) {
