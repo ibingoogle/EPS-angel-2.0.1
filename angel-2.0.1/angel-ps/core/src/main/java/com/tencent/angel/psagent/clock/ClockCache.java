@@ -148,7 +148,15 @@ public class ClockCache {
       while (!stopped.get() && !Thread.interrupted()) {
         startTsMs = System.currentTimeMillis();
         /* new code */
-        serverIds = PSAgentContext.get().getLocationManager().getPsIds();
+        if (PSAgentContext.get().getLocationManager().serverStateChange) {
+          PSAgentContext.get().getLocationManager().serverStateChange = false;
+          serverIds = PSAgentContext.get().getLocationManager().getPsIds();
+          if (serverIds != null){
+            for (int i = 0; i< serverIds.length;i++) {
+              LOG.info("clockcache => parameterServerIndex = " + serverIds[i].getIndex());
+            }
+          }
+        }
         /* code end */
         // Send request to every ps
         for (int i = 0; i < serverIds.length; i++) {
@@ -174,7 +182,7 @@ public class ClockCache {
                 int MatrixId = entry.getKey().getMatrixId();
                 int PartId = PK.getPartitionId();
                 // print log every 50 times
-                if(syncNum%20 == 0) {
+                if(syncNum%50 == 0) {
                   LOG.info("Update clock cache in clockcache.java");
                   LOG.info("MatrixId = " + MatrixId + ", PartId = " + PartId + ", Clock = " + ClockValue);
                 }
@@ -202,12 +210,6 @@ public class ClockCache {
           if (useTimeMs < syncTimeIntervalMS) {
             Thread.sleep(syncTimeIntervalMS - useTimeMs);
           }
-
-          /* new code */
-          if(syncNum%20 == 0) {
-            LOG.info("useTimeMs = " + useTimeMs);
-          }
-          /* code end */
 
           syncNum++;
         } catch (InterruptedException ie) {

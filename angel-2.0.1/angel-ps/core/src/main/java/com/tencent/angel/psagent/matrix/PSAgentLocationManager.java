@@ -40,6 +40,8 @@ public class PSAgentLocationManager {
   // private final LocationManager locationManager;
   /* new code */
   public final LocationManager locationManager;
+
+  public boolean serverStateChange = false;
   /* code end */
 
   /**

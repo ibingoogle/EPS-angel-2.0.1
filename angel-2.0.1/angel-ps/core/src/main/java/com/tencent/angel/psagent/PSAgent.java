@@ -361,6 +361,15 @@ public class PSAgent {
 
   public void rmOneParameterServer_PSAgent(int rmServerEpoch, int removedParameterServerId){
     LOG.info("rmOneParameterServer_PSAgent");
+    /*
+    locationManager;
+    matrixMetaManager;
+    clockCache
+    */
+
+
+
+    locationManager.serverStateChange = true;
   }
   /* code end */
 
