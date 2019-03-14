@@ -19,6 +19,8 @@
 package com.tencent.angel.ml.matrix;
 
 import com.tencent.angel.ps.ParameterServerId;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The matrix meta manager.
  */
 public class MatrixMetaManager {
+  private static final Log LOG = LogFactory.getLog(MatrixMetaManager.class); //////
   /**
    * Matrix id to matrix meta map
    */
@@ -47,6 +50,40 @@ public class MatrixMetaManager {
     this.matrixNameToIdMap = new ConcurrentHashMap<>();
   }
 
+
+  /* new code */
+  public void print_MatrixMetaManager(){
+    LOG.info("print_MatrixMetaManager");
+    // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());
+    for (Map.Entry<Integer, MatrixMeta> entry: matrixIdToMetaMap.entrySet()){
+      LOG.info("matrixId = " + entry.getKey());
+      LOG.info("partitionIdStart = " + entry.getValue().PartitionIdStart);
+      // LOG.info("  MatrixMeta_toString = " + entry.getValue().toString());
+      Map<Integer, PartitionMeta> partitionMetas = entry.getValue().getPartitionMetas();
+      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas.entrySet()){
+        LOG.info("  partitionId = " + entry2.getKey());
+        LOG.info("  PartitionMeta = " + entry2.getValue());
+        /*
+        List<ParameterServerId> storedPs = entry2.getValue().getPss();
+        for (int i = 0; i < storedPs.size(); i++){
+          LOG.info("                  storedPSId[" + i + "] = " + storedPs.get(i).toString());
+        }
+        */
+      }
+      Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
+      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
+        LOG.info("  partitionId_idle = " + entry2.getKey());
+        LOG.info("  PartitionMeta_idle = " + entry2.getValue());
+        /*
+        List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
+        for (int i = 0; i < storedPs_idle.size(); i++){
+          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
+        }
+        */
+      }
+    }
+  }
+  /* code end */
   /**
    * Add matrixes.
    *

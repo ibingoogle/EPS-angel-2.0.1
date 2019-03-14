@@ -295,6 +295,70 @@ public class PSAgent {
     PSAgentContext.get().setPsAgent(this);
   }
 
+  /* new code */
+  public void print_PSAgent(){
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+    LOG.info("print_PSAgent");
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+    print_locaion();
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+    print_masterLocaion();
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+    print_locationManager();
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+    print_matrixMetaManager();
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+    print_clockCache();
+    LOG.info("");
+    LOG.info("----------------");
+    LOG.info("----------------");
+    LOG.info("");
+  }
+
+  public void print_locaion(){
+    LOG.info("print_locaion");
+    LOG.info("location.toString() = " + location.toString());
+  }
+
+  public void print_masterLocaion(){
+    LOG.info("print_masterLocaion");
+    LOG.info("masterLocation.toString() = " + masterLocation.toString());
+  }
+
+  public void print_locationManager(){
+    LOG.info("print_locationManager");
+    locationManager.print_PSAgentLocationManager();
+  }
+
+  public void print_matrixMetaManager(){
+    LOG.info("print_matrixMetaManager");
+    matrixMetaManager.print_PSAgentMatrixMetaManager();
+  }
+
+  public void print_clockCache(){
+    LOG.info("print_clockCache");
+    clockCache.print_ClockCache();
+  }
+  /* code end */
+
   private RunningMode initRunningMode(Configuration conf) {
     String mode = conf.get(AngelConf.ANGEL_RUNNING_MODE, AngelConf.DEFAULT_ANGEL_RUNNING_MODE);
 

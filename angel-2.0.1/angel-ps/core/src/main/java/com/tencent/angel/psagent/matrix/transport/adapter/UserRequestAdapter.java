@@ -700,8 +700,8 @@ public class UserRequestAdapter {
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPull = " + rmServerPull);
     LOG.info("IndexGetRowsRequest request = " + request);
-    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
-    PSAgentContext.get().getMatrixMetaManager().print_meta();
+    LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get(IndexGetRowsRequest request) from pullGradient");
+    PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
     checkParams(request.getMatrixId(), request.getRowIds());
     Map<PartitionKey, List<Integer>> partToRowIdsMap = PSAgentContext.get().getMatrixMetaManager()
@@ -772,6 +772,9 @@ public class UserRequestAdapter {
           validSplits.put(entry.getKey(), indicesView);
         }else if (!rmServerPull) {
           validSplits.put(entry.getKey(), indicesView);
+        }else {
+          PartitionKey removedPartKey = entry.getKey();
+          LOG.info("removed Part Key Id in pullParameter = " + removedPartKey.getPartitionId());
         }
       }
       /* code end */
@@ -796,9 +799,6 @@ public class UserRequestAdapter {
       LOG.info("parts~~~~~~partitionKey = " + parts.get(i).toString());
       LOG.info("parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
     }
-
-    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
-    PSAgentContext.get().getMatrixMetaManager().print_meta();
     /* code end */
 
     IndexGetRowsCache cache = new IndexGetRowsCache(validSplits.size(), parts);
@@ -918,9 +918,6 @@ public class UserRequestAdapter {
               LOG.info("cache.getProgress() = " + cache.getProgress());
               /* code end */
               workerPool.execute(new IndexRowsMerger((IndexGetRowsRequest) request, cache, result));
-              LOG.info("after executing IndexRowsMerger......");
-              LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
-              PSAgentContext.get().getMatrixMetaManager().print_meta();
             }
             break;
 
@@ -1175,8 +1172,8 @@ public class UserRequestAdapter {
     LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPush = " + rmServerPush);
-    LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
-    PSAgentContext.get().getMatrixMetaManager().print_meta();
+    LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent(); in update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) from pushGradient");
+    PSAgentContext.get().getPsAgent().print_PSAgent();
     /*code end*/
 
     if (useNewSplit(matrixId, rows)) {
@@ -1197,13 +1194,13 @@ public class UserRequestAdapter {
       if (currentEpoch == rmServerEpoch && rmServerPush) {
         for (PartitionKey partKey: partitions){
           if (partKey.getPartitionId() == removedParameterServerId){
+            LOG.info("removed PartKey Id in pushGradient = " + partKey.getPartitionId());
             partitions.remove(partKey);
           }
         }
       }
       LOG.info("checkpoint.........");
-      LOG.info("PSAgentContext.get().getMatrixMetaManager().print_meta()");
-      PSAgentContext.get().getMatrixMetaManager().print_meta();
+      PSAgentContext.get().getPsAgent().print_PSAgent();
       /* code end */
 
 

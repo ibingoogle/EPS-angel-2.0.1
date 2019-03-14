@@ -21,6 +21,8 @@ package com.tencent.angel.common.location;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.psagent.PSAgentId;
 import com.tencent.angel.worker.WorkerId;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Location manager
  */
 public class LocationManager {
+  private static final Log LOG = LogFactory.getLog(LocationManager.class); //////
   /**
    * Master location
    */
@@ -57,6 +60,12 @@ public class LocationManager {
     this.psIdToLocMap = new ConcurrentHashMap<>();
     this.workerIdToLocMap = new ConcurrentHashMap<>();
   }
+
+  /* new code */
+  public void print_LocationManager(){
+
+  }
+  /* code end */
 
   /**
    * Get master location

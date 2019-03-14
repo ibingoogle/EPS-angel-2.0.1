@@ -71,6 +71,24 @@ public class ClockCache {
     stopped = new AtomicBoolean(false);
   }
 
+  /* new code */
+  public void print_ClockCache(){
+    LOG.info("print_ClockCache");
+    if (matrixClockCacheMap != null) {
+      for (Map.Entry<Integer, MatrixClockCache> entry : matrixClockCacheMap.entrySet()) {
+        LOG.info("matrixId = " + entry.getKey());
+        if (entry.getValue().partitionClockMap != null) {
+          for (Map.Entry<PartitionKey, Integer> entry2 : entry.getValue().partitionClockMap.entrySet()) {
+            LOG.info("  partitionId = " + entry2.getKey().getPartitionId());
+            LOG.info("  clock = " + entry2.getValue());
+          }
+        }
+      }
+    }
+
+  }
+  /* code end */
+
   /**
    * Start sync thread
    */

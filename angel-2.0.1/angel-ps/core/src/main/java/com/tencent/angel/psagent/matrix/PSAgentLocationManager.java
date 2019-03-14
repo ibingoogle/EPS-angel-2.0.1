@@ -23,6 +23,8 @@ import com.tencent.angel.common.location.Location;
 import com.tencent.angel.common.location.LocationManager;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.psagent.PSAgentContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Map;
 
@@ -30,10 +32,15 @@ import java.util.Map;
  * PSAgent location manager
  */
 public class PSAgentLocationManager {
+  private static final Log LOG = LogFactory.getLog(PSAgentLocationManager.class); //////
   /**
    * Location manager
    */
-  private final LocationManager locationManager;
+  /* old code
+  // private final LocationManager locationManager;
+  /* new code */
+  public final LocationManager locationManager;
+  /* code end */
 
   /**
    * PSAgent context
@@ -50,6 +57,13 @@ public class PSAgentLocationManager {
     this.context = context;
   }
 
+
+  /* new code */
+  public void print_PSAgentLocationManager(){
+    LOG.info("print_PSAgentLocationManager");
+    locationManager.print_LocationManager();
+  }
+  /* code end */
   /**
    * Get PS location
    *

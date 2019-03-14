@@ -76,10 +76,10 @@ public class PSAgentMatrixMetaManager {
 
 
   /* new code */
-  public void print_meta(){
+  public void print_PSAgentMatrixMetaManager(){
     LOG.info("");
     LOG.info("");
-    print_matrixMetaManager();
+    matrixMetaManager.print_MatrixMetaManager();
     LOG.info("");
     LOG.info("");
     print_matrixIdToPartsMap();
@@ -88,26 +88,12 @@ public class PSAgentMatrixMetaManager {
     print_rowIndexToPartsMap();
     LOG.info("");
     LOG.info("");
-    print_partClockCache();
+    partClockCache.print_ClockCache();
     LOG.info("");
     LOG.info("");
   }
 
-  public void print_partClockCache(){
-    LOG.info("print_partClockCache");
-    if (partClockCache.matrixClockCacheMap != null) {
-      for (Map.Entry<Integer, MatrixClockCache> entry : partClockCache.matrixClockCacheMap.entrySet()) {
-        LOG.info("matrixId = " + entry.getKey());
-        if (entry.getValue().partitionClockMap != null) {
-          for (Map.Entry<PartitionKey, Integer> entry2 : entry.getValue().partitionClockMap.entrySet()) {
-            LOG.info("  partitionId = " + entry2.getKey().getPartitionId());
-            LOG.info("  clock = " + entry2.getValue());
-          }
-        }
-      }
-    }
 
-  }
 
   public void print_rowIndexToPartsMap(){
     LOG.info("print_rowIndexToPartsMap");
@@ -140,39 +126,6 @@ public class PSAgentMatrixMetaManager {
       }
     }
   }
-
-  public void print_matrixMetaManager(){
-    LOG.info("print_matrixMetaManager");
-    // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());
-    Map<Integer, MatrixMeta> matrixIdToMetaMap = matrixMetaManager.getMatrixMetas();
-    for (Map.Entry<Integer, MatrixMeta> entry: matrixIdToMetaMap.entrySet()){
-      LOG.info("matrixId = " + entry.getKey());
-      LOG.info("partitionIdStart = " + entry.getValue().PartitionIdStart);
-      // LOG.info("  MatrixMeta_toString = " + entry.getValue().toString());
-      Map<Integer, PartitionMeta> partitionMetas = entry.getValue().getPartitionMetas();
-      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas.entrySet()){
-        LOG.info("  partitionId = " + entry2.getKey());
-        LOG.info("  PartitionMeta = " + entry2.getValue());
-        /*
-        List<ParameterServerId> storedPs = entry2.getValue().getPss();
-        for (int i = 0; i < storedPs.size(); i++){
-          LOG.info("                  storedPSId[" + i + "] = " + storedPs.get(i).toString());
-        }
-        */
-      }
-      Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
-      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
-        LOG.info("  partitionId_idle = " + entry2.getKey());
-        LOG.info("  PartitionMeta_idle = " + entry2.getValue());
-        /*
-        List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
-        for (int i = 0; i < storedPs_idle.size(); i++){
-          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
-        }
-        */
-      }
-    }
-  }
   /* code end */
 
   /**
@@ -193,6 +146,7 @@ public class PSAgentMatrixMetaManager {
    * @param matrixMeta matrix meta
    */
   public void addMatrix(MatrixMeta matrixMeta) {
+    matrixMeta.PartitionIdStart = matrixMeta.getPartitionMetas().size(); //////
     matrixMetaManager.addMatrix(matrixMeta);
     List<PartitionKey> partitions = getPartitions(matrixMeta.getId());
     partClockCache.addMatrix(matrixMeta.getId(), partitions);
