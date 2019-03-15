@@ -458,6 +458,7 @@ public class RowSplitCombineUtils {
         LOG.info("vector.min = " + vector.min());
         LOG.info("vector.average = " + vector.average());
         LOG.info("vector rowId = " + vector.getRowId());
+        LOG.info("vector Class() = " + vector.getClass());
       }
     }
 
@@ -491,7 +492,7 @@ public class RowSplitCombineUtils {
                   IndicesView colIdView = matrixStorage.rowIdToPartKeyToView.get(i).get(partKey);
                   LOG.info("colIdView.startPos = " + colIdView.startPos);
                   LOG.info("colIdView.endPos = " + colIdView.endPos);
-                  LOG.info("colIdView.startPos - colIdView.endPos = " + (colIdView.startPos - colIdView.endPos));
+                  LOG.info("colIdView.endPos - colIdView.startPos = " + (colIdView.endPos - colIdView.startPos));
                 }
                 LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
               }

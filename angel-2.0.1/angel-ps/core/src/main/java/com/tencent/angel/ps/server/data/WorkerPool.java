@@ -661,7 +661,7 @@ public class WorkerPool {
           LOG.info("           ret_rowStorage.class = " + ret.getStorage().getClass());
           IntFloatVector real_ret = (IntFloatVector)ret;
           IntFloatDenseVectorStorage real_storage = (IntFloatDenseVectorStorage) real_ret.getStorage();
-          LOG.info("real_storage size = " + real_storage.size());
+          LOG.info("           real_storage size = " + real_storage.size());
           if (real_storage.size() > 0) {
             for (int index = 0; index < 200; index++) {
               LOG.info("value[" + index + "] = " + real_storage.get(index) + " || " + real_storage.getValues()[index]);
