@@ -405,8 +405,19 @@ public class RowSplitCombineUtils {
           } else {
             IndicesView colIdView = result.getColIds();
             float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
+            /* new code */
+            LOG.info("colIdView.startPos = " + colIdView.startPos);
+            LOG.info("colIdView.endPos = " + colIdView.endPos);
+            LOG.info("colIdView.startPos - colIdView.endPos = " + (colIdView.startPos - colIdView.endPos));
+            /* code end */
             for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
               vector.set(colIds[j], values[j - colIdView.startPos]);
+              /* new code */
+              if ((j - colIdView.startPos) < 50){
+                LOG.info("colIds[" + j + "] = " + colIds[j]);
+                LOG.info("values[" + (j -colIdView.startPos) + " = " + values[j - colIdView.startPos]);
+              }
+              /* code end */
             }
 
             if (!matrixStorage.rowIdToPartKeyToFloats.get(i).containsKey(partKey)) {
