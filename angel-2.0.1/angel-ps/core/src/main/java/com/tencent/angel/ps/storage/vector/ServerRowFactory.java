@@ -88,7 +88,7 @@ public class ServerRowFactory {
 
   public static ServerRow createServerRow(int rowIndex, RowType rowType, long startCol, long endCol,
     int estEleNum) {
-    LOG.info("           createServerRow in ServerRowFactory.java"); //////
+    LOG.info("           createServerRow in ServerRowFactory.java, rowType = " + rowType); //////
     switch (rowType) {
       case T_DOUBLE_DENSE:
       case T_DOUBLE_DENSE_COMPONENT:

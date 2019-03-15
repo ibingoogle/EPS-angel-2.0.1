@@ -137,6 +137,7 @@ public class ServerPartition implements Serialize {
   private ServerRow initRow(int rowIndex, RowType rowType, long startCol, long endCol,
     double estSparsity) {
     LOG.info("           initRow in ServerPartition.java, RowIndex = " + rowIndex + ", RowType = " + rowType + ", startCol = " + startCol + ", endCol = " + endCol); //////
+    LOG.info("estSparsity = " + estSparsity); //////
     int estEleNum = (int) ((endCol - startCol) * estSparsity);
     LOG.info("           estEleNum = " + estEleNum); //////
     return ServerRowFactory.createServerRow(rowIndex, rowType, startCol, endCol, estEleNum);

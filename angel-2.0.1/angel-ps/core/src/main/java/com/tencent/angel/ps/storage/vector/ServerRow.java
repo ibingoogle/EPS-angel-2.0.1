@@ -583,6 +583,7 @@ public abstract class ServerRow implements Serialize {
     LOG.info("           ret_ToString = " + ret.toString());
     LOG.info("           ret_rowId = " + ret.getRowId());
     LOG.info("           ret_rowType = " + ret.getType());
+    LOG.info("           ret_rowClass = " + ret.getClass());
     LOG.info("           ret_rowSize = " + ret.getSize());
     LOG.info("           ret_rowStorage.class = " + ret.getStorage().getClass());
     LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
