@@ -413,9 +413,8 @@ public class RowSplitCombineUtils {
             for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
               vector.set(colIds[j], values[j - colIdView.startPos]);
               /* new code */
-              if ((j - colIdView.startPos) < 50){
-                LOG.info("colIds[" + j + "] = " + colIds[j]);
-                LOG.info("values[" + (j -colIdView.startPos) + " = " + values[j - colIdView.startPos]);
+              if ((j - colIdView.startPos) < 20 || (colIdView.endPos - j) <= 20 ){
+                LOG.info("colIds[" + j + "] = " + colIds[j] + ";  values[" + (j -colIdView.startPos) + "] = " + values[j - colIdView.startPos]);
               }
               /* code end */
             }
