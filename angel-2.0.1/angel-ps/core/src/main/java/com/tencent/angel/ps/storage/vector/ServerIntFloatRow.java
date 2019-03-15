@@ -428,6 +428,7 @@ public class ServerIntFloatRow extends ServerFloatRow {
   @Override
   public void indexGet(IndexType indexType, int indexSize, ByteBuf in, ByteBuf out, InitFunc func)
     throws IOException {
+    LOG.info("indexGet(IndexType = " + indexType + ", indexSize = " + indexSize + " in ServerIntFloatRow.java"); //////
     if (func != null) {
       if (indexType == IndexType.INT) {
         for (int i = 0; i < indexSize; i++) {

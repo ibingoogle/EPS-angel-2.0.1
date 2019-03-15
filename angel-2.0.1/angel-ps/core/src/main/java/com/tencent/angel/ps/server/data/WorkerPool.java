@@ -22,6 +22,8 @@ import com.google.protobuf.ServiceException;
 import com.tencent.angel.PartitionKey;
 import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.exception.WaitLockTimeOutException;
+import com.tencent.angel.ml.math2.storage.IntFloatDenseVectorStorage;
+import com.tencent.angel.ml.math2.vector.IntFloatVector;
 import com.tencent.angel.ml.math2.vector.Vector;
 import com.tencent.angel.ml.matrix.PartitionLocation;
 import com.tencent.angel.ml.matrix.RowType;
@@ -648,7 +650,8 @@ public class WorkerPool {
           /* new code */
           Vector ret = row.getSplit();
           LOG.info("row size = " + row.size());
-          LOG.info("row class = " + row);
+          LOG.info("row to string  = " + row.toString());
+          LOG.info("row class  = " + row.getClass());
           LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           LOG.info("           ret_ToString = " + ret.toString());
           LOG.info("           ret_rowId = " + ret.getRowId());
@@ -656,7 +659,20 @@ public class WorkerPool {
           LOG.info("           ret_rowClass = " + ret.getClass());
           LOG.info("           ret_rowSize = " + ret.getSize());
           LOG.info("           ret_rowStorage.class = " + ret.getStorage().getClass());
+          IntFloatVector real_ret = (IntFloatVector)ret;
+          IntFloatDenseVectorStorage real_storage = (IntFloatDenseVectorStorage) real_ret.getStorage();
+          LOG.info("real_storage size = " + real_storage.size());
+          if (real_storage.size() > 0) {
+            LOG.info("real_storage[2192516] in server 2 = " + real_storage.get(192516));
+            LOG.info("real_storage[680526] in server 0 = " + real_storage.get(680526));
+            LOG.info("real_storage[1232498] in server 1 = " + real_storage.get(232498));
+            LOG.info("real_storage[908] in server 0 = " + real_storage.get(908));
+            LOG.info("real_storage[2919317] in server 2= " + real_storage.get(919317));
+            LOG.info("real_storage[71076] in server 0 = " + real_storage.get(71976));
+            LOG.info("real_storage[105918] = " + real_storage.get(5918));
+          }
           LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+          LOG.info("request.getFunc() = " + request.getFunc());
           /* code end */
           resultBuf.writeInt(rowIds.get(i));
           if(request.getFunc() == null) {
