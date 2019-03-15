@@ -24,6 +24,8 @@ import com.tencent.angel.ml.matrix.psf.update.base.PartitionUpdateParam;
 import com.tencent.angel.ml.matrix.psf.update.base.UpdateParam;
 import com.tencent.angel.psagent.PSAgentContext;
 import io.netty.buffer.ByteBuf;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,7 @@ import java.util.List;
  * `MMUpdateParam` is Parameter class for `MMUpdateFunc`
  */
 public class MMUpdateParam extends UpdateParam {
+  private static final Log LOG = LogFactory.getLog(MMUpdateParam.class); //////
 
   private final int[] rowIds;
   private final double[] scalars;
@@ -58,6 +61,7 @@ public class MMUpdateParam extends UpdateParam {
   }
 
   @Override public List<PartitionUpdateParam> split() {
+    LOG.info("List<PartitionUpdateParam> split() in MMUpdateParam.java"); //////
     List<PartitionKey> parts = PSAgentContext.get().getMatrixMetaManager().getPartitions(matrixId);
     int size = parts.size();
     List<PartitionUpdateParam> partParams = new ArrayList<PartitionUpdateParam>(size);

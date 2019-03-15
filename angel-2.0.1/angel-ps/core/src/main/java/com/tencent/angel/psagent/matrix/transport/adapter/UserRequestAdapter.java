@@ -364,9 +364,26 @@ public class UserRequestAdapter {
     // Split the param use matrix partitions
     List<PartitionUpdateParam> partParams = param.split();
 
+
+    /* old code
     int size = partParams.size();
+    /* new code */
+    int active_partParams_size = 0;
+    for (int i = 0; i < partParams.size(); i++){
+      if (partParams.get(i).getPartKey().status){
+        active_partParams_size++;
+      }
+    }
+    LOG.info("active_partParams_size = " + active_partParams_size);
+    /* code end */
+
+
     UpdatePSFRequest request = new UpdatePSFRequest(updateFunc);
+    /* old code
     UpdaterResponseCache cache = new UpdaterResponseCache(size);
+    /* new code */
+    UpdaterResponseCache cache = new UpdaterResponseCache(active_partParams_size);
+    /* code end */
     FutureResult<VoidResult> result = new FutureResult<>();
     int requestId = request.getRequestId();
 
@@ -375,9 +392,19 @@ public class UserRequestAdapter {
     requestIdToResultMap.put(requestId, result);
 
     // Send request to PSS
+    /* old code
     for (int i = 0; i < size; i++) {
       matrixClient.update(request.getRequestId(), updateFunc, partParams.get(i));
     }
+    /* new code */
+    for (int i = 0; i < partParams.size(); i++) {
+      if (partParams.get(i).getPartKey().status) {
+        matrixClient.update(request.getRequestId(), updateFunc, partParams.get(i));
+      }else {
+        LOG.info("update in worker 0 => removed partitionId = " + partParams.get(i).getPartKey().getPartitionId());
+      }
+    }
+    /* code end */
 
     return result;
   }
@@ -700,8 +727,8 @@ public class UserRequestAdapter {
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPull = " + rmServerPull);
     LOG.info("IndexGetRowsRequest request = " + request);
-    LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get(IndexGetRowsRequest request) from pullGradient");
-    PSAgentContext.get().getPsAgent().print_PSAgent();
+    //LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get(IndexGetRowsRequest request) from pullGradient");
+    //PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
 
     checkParams(request.getMatrixId(), request.getRowIds());
@@ -808,11 +835,12 @@ public class UserRequestAdapter {
       LOG.info("IndicesView.start-end = " + (entry.getValue().endPos - entry.getValue().startPos));
       if (entry.getKey().status) active_validSplits_size++;
     }
+    LOG.info("active_validSplits_size = " + active_validSplits_size);
     for (int i = 0; i< parts.size(); i++){
       LOG.info("real parts~~~~~~partitionKey = " + parts.get(i).toString());
       LOG.info("real parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
     }
-    LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get");
+    LOG.info("pullParam....checkpoint.........PSAgentContext.get().getPsAgent().print_PSAgent()");
     PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
 
@@ -1200,8 +1228,8 @@ public class UserRequestAdapter {
     LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPush = " + rmServerPush);
-    LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent(); in update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) from pushGradient");
-    PSAgentContext.get().getPsAgent().print_PSAgent();
+    // LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent(); in update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) from pushGradient");
+    // PSAgentContext.get().getPsAgent().print_PSAgent();
     /*code end*/
 
     if (useNewSplit(matrixId, rows)) {
@@ -1229,12 +1257,13 @@ public class UserRequestAdapter {
         }
       }
       */
-      LOG.info("checkpoint.........");
+      LOG.info("pushGrad.....checkpoint.........PSAgentContext.get().getPsAgent().print_PSAgent();");
       PSAgentContext.get().getPsAgent().print_PSAgent();
       int active_partitions_size = 0;
       for (int i = 0; i < partitions.size(); i++){
         if (partitions.get(i).status) active_partitions_size++;
       }
+      LOG.info("active_partitions_size" + active_partitions_size);
       /* code end */
 
 
