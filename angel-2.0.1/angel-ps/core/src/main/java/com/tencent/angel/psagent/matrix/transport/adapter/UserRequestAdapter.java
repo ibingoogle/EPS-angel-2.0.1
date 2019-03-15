@@ -448,7 +448,18 @@ public class UserRequestAdapter {
       fillPartRequestForClock(matrixId, psUpdateData, taskContext);
     }
 
+    /* old code
     FlushResponseCache cache = new FlushResponseCache(psUpdateData.size());
+    /* new code */
+    int active_psUpdateData_size = 0;
+    for (Map.Entry<PartitionKey, List<RowUpdateSplit>> entry :psUpdateData.entrySet()){
+      if (entry.getKey().status) active_psUpdateData_size++;
+    }
+    LOG.info("active_psUpdateData_size = " + active_psUpdateData_size);
+    FlushResponseCache cache = new FlushResponseCache(active_psUpdateData_size);
+    /* code end */
+
+
     FutureResult<VoidResult> result = new FutureResult<>();
     int requestId = request.getRequestId();
     requestIdToSubresponsMap.put(requestId, cache);
@@ -470,6 +481,7 @@ public class UserRequestAdapter {
     for (int i = 0; i < size; i++) {
       if (!psUpdateData.containsKey(partitions.get(i))) {
         LOG.info("partitionId = " + partitions.get(i).getPartitionId()); //////
+        LOG.info("partitionKey status" + partitions.get(i).status); //////
         psUpdateData.put(partitions.get(i), new ArrayList<>());
       }
     }
@@ -497,15 +509,19 @@ public class UserRequestAdapter {
       */
       /*new code*/
       PartitionKey Pkey = partUpdateEntry.getKey();
-      matrixClient.update(requestId, matrixId, Pkey,
-              new RowSplitsUpdateItem(partUpdateEntry.getValue()), taskContext, clock, updateClock,
-              UpdateOp.PLUS);
-      LOG.info(i);
-      LOG.info("go to matrixClient.update(*) with clock = " + clock + " updateClock = " + updateClock);
-      LOG.info("requestId = " + requestId);
-      LOG.info("matrixId = " + matrixId);
-      LOG.info("PartitionKe = " + Pkey.toString());
-      i++;
+      if (Pkey.status) {
+        matrixClient.update(requestId, matrixId, Pkey,
+                new RowSplitsUpdateItem(partUpdateEntry.getValue()), taskContext, clock, updateClock,
+                UpdateOp.PLUS);
+        LOG.info(i);
+        LOG.info("go to matrixClient.update(*) with clock = " + clock + " updateClock = " + updateClock);
+        LOG.info("requestId = " + requestId);
+        LOG.info("matrixId = " + matrixId);
+        LOG.info("PartitionKe = " + Pkey.toString());
+        i++;
+      }else {
+        LOG.info("clock => removed partitionKey index = " + Pkey.getPartitionId());
+      }
       /*code end*/
     }
   }
@@ -987,6 +1003,7 @@ public class UserRequestAdapter {
 
           case FLUSH:
             if (cache.canMerge()) {
+              LOG.info("cache.canMerge in FLUSH"); //////
               result.set(new VoidResult(ResponseType.SUCCESS));
               updateMasterClock((FlushRequest) request);
             }

@@ -396,11 +396,10 @@ public class MatrixOpLogCache {
             LOG.info("clock opLogs for " + matrixId + ", oplog=" + opLogs.get(matrixId));//////
             if (message.getType() == OpLogMessageType.CLOCK) {
               ClockMessage clockMessage = (ClockMessage) message;
+              LOG.info("clockMessage.isFlushFirst() = " + clockMessage.isFlushFirst()); //////
               if (!clockMessage.isFlushFirst()) {
-                LOG.info(clockMessage.isFlushFirst());//////
                 clock(clockMessage, null);
               } else {
-                LOG.info(clockMessage.isFlushFirst());//////
                 clock(clockMessage, opLogs.remove(matrixId));
               }
             } else {
@@ -472,6 +471,7 @@ public class MatrixOpLogCache {
     }
 
     private void clock(OpLogMessage message, MatrixOpLog opLog) {
+      LOG.info("clock(OpLogMessage message, MatrixOpLog opLog) in MatrixOpLogCache.java");
       workerPool.execute(new Flusher(message, opLog));
     }
   }
