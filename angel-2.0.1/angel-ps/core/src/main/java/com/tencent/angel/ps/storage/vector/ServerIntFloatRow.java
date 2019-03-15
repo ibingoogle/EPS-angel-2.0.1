@@ -295,12 +295,12 @@ public class ServerIntFloatRow extends ServerFloatRow {
         /* new code */
         float gradient = buf.readFloat();
         if (index < 200){
-          LOG.info("intFloatRow.get(" + i + ") = " + intFloatRow.get(index) + " || " + intFloatRow.getStorage().getValues()[index]);
-          LOG.info("index = " + index + ", gradient = " + gradient);
+          LOG.info("i = " + i + "intFloatRow.get(" + index + ") = " + intFloatRow.get(index) + " || " + intFloatRow.getStorage().getValues()[index]);
+          LOG.info("gradient = " + gradient);
         }
         intFloatRow.set(index, intFloatRow.get(index) + gradient);
         if (index < 200){
-          LOG.info("intFloatRow.get(" + i + ") = " + intFloatRow.get(index) + " || " + intFloatRow.getStorage().getValues()[index]);
+          LOG.info("intFloatRow.get(" + index + ") = " + intFloatRow.get(index) + " || " + intFloatRow.getStorage().getValues()[index]);
           LOG.info("__________________________");
         }
         /* code end */

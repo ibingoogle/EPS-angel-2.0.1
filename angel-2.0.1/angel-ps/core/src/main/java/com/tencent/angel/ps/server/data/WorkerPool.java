@@ -832,6 +832,7 @@ public class WorkerPool {
       /* code end */
 
       case UPDATE_PSF: {
+        LOG.info("UPDATE_PSF");//////
         if (state == ServerState.BUSY) {
           result = new UpdaterResponse(ResponseType.SERVER_IS_BUSY, log);
         } else {
