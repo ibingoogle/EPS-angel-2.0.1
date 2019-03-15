@@ -256,9 +256,9 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
           LOG.info("real_weight_values.length = " + weight_values.length)
           var i = 0
           while (i < weight_values.length) {
-            if (i % 5000 == 0) LOG.info("real_weightGrad_values[" + i + "] = " + weight_values(i))
+            if (i % 5000 == 0) LOG.info("real_weight_values[" + i + "] = " + weight_values(i))
             if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
-              LOG.info("real_weightGrad_values[" + i + "] = " + weight_values(i))
+              LOG.info("real_weight_values[" + i + "] = " + weight_values(i))
             }
             i = i + 1;
           }
