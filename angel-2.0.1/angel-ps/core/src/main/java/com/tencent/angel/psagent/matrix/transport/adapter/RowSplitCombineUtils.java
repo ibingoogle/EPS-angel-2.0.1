@@ -362,11 +362,13 @@ public class RowSplitCombineUtils {
     /* new code */
     LOG.info("rowIds.length = " + rowIds.length);
     LOG.info("colIds.length = " + colIds.length);
+    /*
     for (int i = 0; i < colIds.length; i++){
       if (i%5000 == 0){
         LOG.info("colIds[" + i + "] = " + colIds[i]);
       }
     }
+    */
     LOG.info("partKeyToResultMap.size = " + partKeyToResultMap.size());
     for (Map.Entry<PartitionKey, IndexPartGetRowsResult> entry : partKeyToResultMap.entrySet()){
       LOG.info("      partitionKey = " + entry.getKey().toString());

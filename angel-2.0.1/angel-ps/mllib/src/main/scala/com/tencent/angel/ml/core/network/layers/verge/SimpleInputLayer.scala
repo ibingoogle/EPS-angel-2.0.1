@@ -146,15 +146,19 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               val Feats = graph.placeHolder.getFeats // Matrix
               LOG.info("Feats.getNumRows => " + Feats.getNumRows)
               LOG.info("Feats.class = " + Feats.getClass)
+              /*
               for (i <- 0 until 10){
                   LOG.info("row[" + i + "] => " + Feats.getRow(i).getSize + ", type = " + Feats.getRow(i).getType + ", RowId = " + Feats.getRow(i).getRowId)
               }
+              */
               LOG.info("NumRows in weight => " + weight.getNumRows)
               // intFloatMatrix
               LOG.info("weight getClass => " + weight.getClass)
+              /*
               for (i <- 0 until weight.getNumRows){
                 LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
               }
+              */
               val getRow_colId = weight.getRow(colId) // Vector
               LOG.info("getRow_colId getSize= " + getRow_colId.getSize)
               LOG.info("getRow_colId getRowId= " + getRow_colId.getRowId)
@@ -310,9 +314,11 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
                   val Feats = graph.placeHolder.getFeats // Matrix
                   LOG.info("Feats.getNumRows in pushGradient => " + Feats.getNumRows)
                   LOG.info("Feats.class in pushGradient = " + Feats.getClass)
+                  /*
                   for (i <- 0 until 10){
                     LOG.info("row[" + i + "] => " + Feats.getRow(i).getSize + ", type = " + Feats.getRow(i).getType + ", RowId = " + Feats.getRow(i).getRowId)
                   }
+                  */
                   val getCol_colId = backward.asInstanceOf[BlasFloatMatrix].getCol(colId) // Vector
                   LOG.info("getCol_colId getSize= " + getCol_colId.getSize)
                   LOG.info("getCol_colId getRowId= " + getCol_colId.getRowId)
