@@ -511,68 +511,54 @@ public class ParameterServer {
     LOG.info("Starting HeartbeatThread, interval is " + heartbeatInterval + " ms");
     heartbeatThread = new Thread(() -> {
       while (!stopped.get() && !Thread.currentThread().isInterrupted()) {
-        LOG.info("begin stopped.get() = " + stopped.get()); //////
-        LOG.info("begin Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-        LOG.info("begin stopped.get() = " + stopped.get()); //////
-        LOG.info("begin Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-        LOG.info("begin stopped.get() = " + stopped.get()); //////
-        LOG.info("begin Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-        LOG.info("begin stopped.get() = " + stopped.get()); //////
-        LOG.info("begin Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-        LOG.info("begin stopped.get() = " + stopped.get()); //////
-        LOG.info("begin Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+        //LOG.info("begin stopped.get() = " + stopped.get()); //////
+        //LOG.info("begin Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
         try {
-          LOG.info("0 => stopped.get() = " + stopped.get()); //////
-          LOG.info("0 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-          LOG.info("heartbeatInterval = " + heartbeatInterval); //////
-
+          //LOG.info("0 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("0 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           Thread.sleep(heartbeatInterval);
-          LOG.info("1 => stopped.get() = " + stopped.get()); //////
-          LOG.info("1 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("1 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("1 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
         } catch (InterruptedException e) {
-          LOG.info("2 => stopped.get() = " + stopped.get()); //////
-          LOG.info("2 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("2 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("2 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           if (!stopped.get()) {
-            LOG.info("3 => stopped.get() = " + stopped.get()); //////
-            LOG.info("3 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+            //LOG.info("3 => stopped.get() = " + stopped.get()); //////
+            //LOG.info("3 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
             LOG.warn("Allocated thread interrupted. Returning.", e);
           }
-          LOG.info("4 => stopped.get() = " + stopped.get()); //////
-          LOG.info("4 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("4 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("4 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           return;
         }
-        LOG.info("5 => stopped.get() = " + stopped.get()); //////
-        LOG.info("5 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+        //LOG.info("5 => stopped.get() = " + stopped.get()); //////
+        //LOG.info("5 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
         try {
-          LOG.info("6 => stopped.get() = " + stopped.get()); //////
-          LOG.info("6 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("6 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("6 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           if (!stopped.get()) {
-            LOG.info("7 => stopped.get() = " + stopped.get()); //////
-            LOG.info("7 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+            //LOG.info("7 => stopped.get() = " + stopped.get()); //////
+            //LOG.info("7 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
             heartbeat();
           }
-          LOG.info("8 => stopped.get() = " + stopped.get()); //////
-          LOG.info("8 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("8 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("8 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
         } catch (YarnRuntimeException e) {
-          LOG.info("9 => stopped.get() = " + stopped.get()); //////
-          LOG.info("9 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("9 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("9 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           LOG.error("Error communicating with AM: " + e.getMessage(), e);
-          LOG.info("10 => stopped.get() = " + stopped.get()); //////
-          LOG.info("10 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("10 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("10 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           return;
         } catch (Exception e) {
-          LOG.info("11 => stopped.get() = " + stopped.get()); //////
-          LOG.info("11 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("11 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("11 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
           LOG.error("ERROR IN CONTACTING RM. ", e);
-          LOG.info("12 => stopped.get() = " + stopped.get()); //////
-          LOG.info("12 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+          //LOG.info("12 => stopped.get() = " + stopped.get()); //////
+          //LOG.info("12 Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
         }
-        LOG.info("end stopped.get() = " + stopped.get()); //////
-        LOG.info("end stopped.get() = " + stopped.get()); //////
-        LOG.info("end stopped.get() = " + stopped.get()); //////
-        LOG.info("end Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-        LOG.info("end Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
-        LOG.info("end Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
+        //LOG.info("end stopped.get() = " + stopped.get()); //////
+        //LOG.info("end Thread.currentThread().isInterrupted() = " + Thread.currentThread().isInterrupted()); //////
       }
     });
     heartbeatThread.setName("heartbeatThread");

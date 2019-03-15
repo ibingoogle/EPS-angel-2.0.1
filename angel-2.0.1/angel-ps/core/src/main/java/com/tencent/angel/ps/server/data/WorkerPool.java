@@ -786,7 +786,7 @@ public class WorkerPool {
       }
 
       case GET_CLOCKS: {
-        LOG.info("GET_CLOCKS"); //////
+        // LOG.info("GET_CLOCKS"); //////
         GetClocksRequest request = new GetClocksRequest();
         request.deserialize(in);
         result = getClocks(request);

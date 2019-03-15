@@ -255,10 +255,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
 
     /* new code */
     if (context.getMatrixMetaManager().active_servers.contains(psAttemptId.getPsId().getIndex())) {
-      LOG.info("active_servers.contain " + psAttemptId.getPsId().getIndex());
+      // LOG.info("active_servers.contain " + psAttemptId.getPsId().getIndex());
       resBuilder.setPsStatus(0);
     }else {
-      LOG.info("active_servers do not contain " + psAttemptId.getPsId().getIndex());
+      // LOG.info("active_servers do not contain " + psAttemptId.getPsId().getIndex());
       resBuilder.setPsStatus(-1);
     }
     /* code end */

@@ -841,8 +841,8 @@ public class UserRequestAdapter {
       LOG.info("real parts~~~~~~partitionKey = " + parts.get(i).toString());
       LOG.info("real parts~~~~~~partitionId = " + parts.get(i).getPartitionId());
     }
-    LOG.info("pullParam....checkpoint.........PSAgentContext.get().getPsAgent().print_PSAgent()");
-    PSAgentContext.get().getPsAgent().print_PSAgent();
+    //LOG.info("pullParam....checkpoint.........PSAgentContext.get().getPsAgent().print_PSAgent()");
+    //PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
 
     /* old code
@@ -1258,8 +1258,8 @@ public class UserRequestAdapter {
         }
       }
       */
-      LOG.info("pushGrad.....checkpoint.........PSAgentContext.get().getPsAgent().print_PSAgent();");
-      PSAgentContext.get().getPsAgent().print_PSAgent();
+      // LOG.info("pushGrad.....checkpoint.........PSAgentContext.get().getPsAgent().print_PSAgent();");
+      // PSAgentContext.get().getPsAgent().print_PSAgent();
       int active_partitions_size = 0;
       for (int i = 0; i < partitions.size(); i++){
         if (partitions.get(i).status) active_partitions_size++;
