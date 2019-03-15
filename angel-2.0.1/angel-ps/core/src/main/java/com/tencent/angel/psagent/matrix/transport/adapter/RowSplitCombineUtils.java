@@ -403,16 +403,17 @@ public class RowSplitCombineUtils {
             LOG.info("result ================================================= null");
             continue;
           } else {
+            LOG.info("result !!!!!!!!!!!!!!!!!!!!!!!!!!!======================= null");
             IndicesView colIdView = result.getColIds();
             float[] values = ((IndexPartGetRowsFloatResult) result).getValues().get(rowIds[i]);
-            /* new code */
+            /* new code
             LOG.info("colIdView.startPos = " + colIdView.startPos);
             LOG.info("colIdView.endPos = " + colIdView.endPos);
             LOG.info("colIdView.startPos - colIdView.endPos = " + (colIdView.startPos - colIdView.endPos));
             /* code end */
             for (int j = colIdView.startPos; j < colIdView.endPos; j++) {
               vector.set(colIds[j], values[j - colIdView.startPos]);
-              /* new code */
+              /* new code
               if ((j - colIdView.startPos) < 20 || (colIdView.endPos - j) <= 20 ){
                 LOG.info("colIds[" + j + "] = " + colIds[j] + ";  values[" + (j -colIdView.startPos) + "] = " + values[j - colIdView.startPos]);
               }

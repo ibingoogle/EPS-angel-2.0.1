@@ -273,6 +273,7 @@ object PSMatrixUtils {
     }
     */
     /* new code */
+    /*
     System.out.println("vectors.size = " + vectors.length)
     for (i <- 0 until vectors.length) {
       System.out.println("i = " + i)
@@ -305,9 +306,7 @@ object PSMatrixUtils {
         i = i + 1;
       }
     }
-
-
-
+    */
     // intFloatVector
     System.out.println("vectors.head = " + vectors.head.toString)
 

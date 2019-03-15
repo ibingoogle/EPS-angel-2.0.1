@@ -294,15 +294,19 @@ public class ServerIntFloatRow extends ServerFloatRow {
         intFloatRow.set(index, intFloatRow.get(index) + buf.readFloat());
         /* new code */
         float gradient = buf.readFloat();
+        /*
         if (index < 200){
           LOG.info("i = " + i + "intFloatRow.get(" + index + ") = " + intFloatRow.get(index) + " || " + intFloatRow.getStorage().getValues()[index]);
           LOG.info("gradient = " + gradient);
         }
+        */
         intFloatRow.set(index, intFloatRow.get(index) + gradient);
+        /*
         if (index < 200){
           LOG.info("intFloatRow.get(" + index + ") = " + intFloatRow.get(index) + " || " + intFloatRow.getStorage().getValues()[index]);
           LOG.info("__________________________");
         }
+        */
         /* code end */
       }
     } else {
@@ -462,9 +466,11 @@ public class ServerIntFloatRow extends ServerFloatRow {
           int index = in.readInt();
           float value = get(index);
           out.writeFloat(value);
+          /*
           if (i < 200){
             LOG.info("i = " + i + " => index = " + index + ", value = " + value);
           }
+          */
           /* code end */
         }
       } else {

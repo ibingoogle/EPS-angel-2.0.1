@@ -652,6 +652,7 @@ public class WorkerPool {
           LOG.info("row size = " + row.size());
           LOG.info("row to string  = " + row.toString());
           LOG.info("row class  = " + row.getClass());
+          /*
           LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           LOG.info("           ret_ToString = " + ret.toString());
           LOG.info("           ret_rowId = " + ret.getRowId());
@@ -667,6 +668,7 @@ public class WorkerPool {
               LOG.info("value[" + index + "] = " + real_storage.get(index) + " || " + real_storage.getValues()[index]);
             }
           }
+          */
           LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           LOG.info("request.getFunc() = " + request.getFunc());
           /* code end */

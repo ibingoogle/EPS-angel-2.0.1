@@ -176,9 +176,11 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         /* new code */
         LOG.info("output class = " + output.getClass)
         LOG.info("output numRows = " + output.getNumRows)
+        /*
         for (i <- 0 until 10){
           LOG.info("row[" + i + "] => " + output.getRow(i).getSize + ", type = " + output.getRow(i).getType + ", RowId = " + output.getRow(i).getRowId)
         }
+        */
         /* code end */
         status = STATUS.Forward
       case _ =>
@@ -199,9 +201,11 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         /* new code */
         LOG.info("backward class = " + backward.getClass)
         LOG.info("rowsNum in backward = " + backward.getNumRows)
+        /*
         for (i <- 0 until 10) {
           LOG.info("row[" + i + "].size = " + backward.getRow(i).getSize + ", type = " + backward.getRow(i).getType + ", storage Type = " + backward.getRow(i).getStorage.getType)
         }
+        */
         /* code end */
 
         status = STATUS.Backward
@@ -234,6 +238,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         LOG.info("NumRows in weight => " + weight.getNumRows)
         // intFloatMatrix
         LOG.info("weight getClass => " + weight.getClass)
+        /*
         for (i <- 0 until weight.getNumRows){
           LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
         }
@@ -263,9 +268,9 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
             i = i + 1;
           }
         }
-
-
+        */
         /* code end */
+
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
         val indices = graph.placeHolder.getIndices
         // the shape of weight matrix is (outputDim, inputDim)
@@ -327,7 +332,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               weightRowGrad.setMatrixId(weight.getMatrixId)
               weightRowGrad.setRowId(outputDim * numSlot + colId)
               weightRowGrad.setClock(weight.getClock)
-              /* new code */
+              /* new code
               LOG.info("weightRowGrad getSize in pushGradient= " + weightRowGrad.getSize)
               LOG.info("weightRowGrad getRowId in pushGradient= " + weightRowGrad.getRowId)
               LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
@@ -376,7 +381,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
                 }
               }
 
-              /* code end */
+              code end */
 
 
               weightRowGrad
