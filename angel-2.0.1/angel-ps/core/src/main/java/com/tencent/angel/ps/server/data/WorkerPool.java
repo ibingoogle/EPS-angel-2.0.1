@@ -22,6 +22,7 @@ import com.google.protobuf.ServiceException;
 import com.tencent.angel.PartitionKey;
 import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.exception.WaitLockTimeOutException;
+import com.tencent.angel.ml.math2.vector.Vector;
 import com.tencent.angel.ml.matrix.PartitionLocation;
 import com.tencent.angel.ml.matrix.RowType;
 import com.tencent.angel.ml.matrix.psf.get.base.GetFunc;
@@ -638,10 +639,25 @@ public class WorkerPool {
         resultBuf.writeInt(rowNum);
         resultBuf.writeInt(colNum);
         int markPos = in.readerIndex();
+        LOG.info("rowNum = " + rowNum); //////
         for (int i = 0; i < rowNum; i++) {
+          LOG.info(" i = " + i); //////
           in.readerIndex(markPos);
           ServerRow row = context.getMatrixStorageManager()
             .getRow(request.getMatrixId(), rowIds.get(i), partKey.getPartitionId());
+          /* new code */
+          Vector ret = row.getSplit();
+          LOG.info("row size = " + row.size());
+          LOG.info("row class = " + row);
+          LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+          LOG.info("           ret_ToString = " + ret.toString());
+          LOG.info("           ret_rowId = " + ret.getRowId());
+          LOG.info("           ret_rowType = " + ret.getType());
+          LOG.info("           ret_rowClass = " + ret.getClass());
+          LOG.info("           ret_rowSize = " + ret.getSize());
+          LOG.info("           ret_rowStorage.class = " + ret.getStorage().getClass());
+          LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+          /* code end */
           resultBuf.writeInt(rowIds.get(i));
           if(request.getFunc() == null) {
             row.startRead();
