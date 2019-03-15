@@ -89,7 +89,7 @@ message FetchMinClockResponse {
   required int32 minClock = 1;
 }
 
-message AgentDoneRequest{
+message PSAgentDoneRequest{
   required int32 psAgentId = 1;
 }
 
