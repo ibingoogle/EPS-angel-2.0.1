@@ -279,6 +279,7 @@ object PSMatrixUtils {
       System.out.println("vector.getSize = " + vectors.apply(i).getSize)
       System.out.println("vector.getRowId = " + vectors.apply(i).getRowId)
     }
+
     val almost_real_weight = vectors.apply(0).asInstanceOf[IntFloatVector]
     val weight_indices = almost_real_weight.getStorage.getIndices
     val weight_values = almost_real_weight.getStorage.getValues
@@ -304,6 +305,7 @@ object PSMatrixUtils {
         i = i + 1;
       }
     }
+
 
 
     // intFloatVector

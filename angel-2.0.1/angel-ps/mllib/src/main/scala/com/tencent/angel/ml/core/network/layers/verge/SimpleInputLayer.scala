@@ -237,6 +237,34 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         for (i <- 0 until weight.getNumRows){
           LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
         }
+
+        val realweight = weight.getRow(0).asInstanceOf[IntFloatVector]
+        val weight_indices = realweight.getStorage.getIndices
+        val weight_values = realweight.getStorage.getValues
+        if (weight_indices != null) {
+          LOG.info("real_weight_indices.length = " + weight_indices.length)
+          var i = 0
+          while (i < weight_indices.length) {
+            if (i % 5000 == 0) LOG.info("real_weight_indices[" + i + "] = " + weight_indices(i))
+            if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
+              LOG.info("real_weight_indices[" + i + "] = " + weight_indices(i))
+            }
+            i = i + 1;
+          }
+        }
+        if (weight_values != null) {
+          LOG.info("real_weight_values.length = " + weight_values.length)
+          var i = 0
+          while (i < weight_values.length) {
+            if (i % 5000 == 0) LOG.info("real_weightGrad_values[" + i + "] = " + weight_values(i))
+            if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
+              LOG.info("real_weightGrad_values[" + i + "] = " + weight_values(i))
+            }
+            i = i + 1;
+          }
+        }
+
+
         /* code end */
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
         val indices = graph.placeHolder.getIndices
@@ -303,47 +331,51 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               LOG.info("weightRowGrad getSize in pushGradient= " + weightRowGrad.getSize)
               LOG.info("weightRowGrad getRowId in pushGradient= " + weightRowGrad.getRowId)
               LOG.info("weightRowGrad get class in pushGradient= " + weightRowGrad.getClass)
-              val realweight = weightRowGrad.asInstanceOf[IntFloatVector]
-              LOG.info("map in realweight size = " + realweight.getStorage.size())
-              for (i <- 0 until realweight.size()){
+              val realweightGrad = weightRowGrad.asInstanceOf[IntFloatVector]
+              LOG.info("map in realweight size = " + realweightGrad.getStorage.size())
+
+              for (i <- 0 until realweightGrad.size()){
                 if (i%5000 == 0) {
-                  LOG.info("weight at " + i + " = " + realweight.get(i))
+                  LOG.info("weight Grad at " + i + " = " + realweightGrad.get(i))
                 }
               }
-              LOG.info("weight average = " + realweight.average())
 
-              LOG.info("weight argmin = " + realweight.argmin())
-              LOG.info("weight argmax = " + realweight.argmax())
+              LOG.info("weight Grad average = " + realweightGrad.average())
 
-              LOG.info("weight min = " + realweight.min())
-              LOG.info("weight max = " + realweight.max())
+              LOG.info("weight Grad argmin = " + realweightGrad.argmin())
+              LOG.info("weight Grad argmax = " + realweightGrad.argmax())
 
-              LOG.info("weight isDense = " + realweight.isDense)
-              LOG.info("weight isSparse = " + realweight.isSparse)
-              val weight_indices = realweight.getStorage.getIndices
-              val weight_values = realweight.getStorage.getValues
-              if (weight_indices != null) {
-                LOG.info("real_weight_indices.length = " + weight_indices.length)
+              LOG.info("weight Grad min = " + realweightGrad.min())
+              LOG.info("weight Grad max = " + realweightGrad.max())
+
+              LOG.info("weight Grad isDense = " + realweightGrad.isDense)
+              LOG.info("weight GradisSparse = " + realweightGrad.isSparse)
+
+              val weightGrad_indices = realweightGrad.getStorage.getIndices
+              val weightGrad_values = realweightGrad.getStorage.getValues
+              if (weightGrad_indices != null) {
+                LOG.info("real_weightGrad_indices.length = " + weightGrad_indices.length)
                 var i = 0
-                while (i < weight_indices.length) {
-                  if (i % 5000 == 0) LOG.info("real_weight_indices[" + i + "] = " + weight_indices(i))
-                  if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
-                    LOG.info("real_weight_indices[" + i + "] = " + weight_indices(i))
+                while (i < weightGrad_indices.length) {
+                  if (i % 5000 == 0) LOG.info("real_weightGrad_indices[" + i + "] = " + weightGrad_indices(i))
+                  if (weightGrad_indices(i) < 200 || (1000000 <= weightGrad_indices(i) && weightGrad_indices(i)< 1000200) || (2000000 <= weightGrad_indices(i) && weightGrad_indices(i)< 2000200) || (3000000 <= weightGrad_indices(i) && weightGrad_indices(i)< 3000200)) {
+                    LOG.info("real_weightGrad_indices[" + i + "] = " + weightGrad_indices(i))
                   }
                   i = i + 1;
                 }
               }
-              if (weight_values != null) {
-                LOG.info("real_weight_values.length = " + weight_values.length)
+              if (weightGrad_values != null) {
+                LOG.info("real_weightGrad_values.length = " + weightGrad_values.length)
                 var i = 0
-                while (i < weight_values.length) {
-                  if (i % 5000 == 0) LOG.info("real_weight_values[" + i + "] = " + weight_values(i))
-                  if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
-                    LOG.info("real_weight_values[" + i + "] = " + weight_values(i))
+                while (i < weightGrad_values.length) {
+                  if (i % 5000 == 0) LOG.info("real_weightGrad_values[" + i + "] = " + weightGrad_values(i))
+                  if (weightGrad_indices(i) < 200 || (1000000 <= weightGrad_indices(i) && weightGrad_indices(i)< 1000200) || (2000000 <= weightGrad_indices(i) && weightGrad_indices(i)< 2000200) || (3000000 <= weightGrad_indices(i) && weightGrad_indices(i)< 3000200)) {
+                    LOG.info("real_weightGrad_values[" + i + "] = " + weightGrad_values(i))
                   }
                   i = i + 1;
                 }
               }
+
               /* code end */
 
 

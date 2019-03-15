@@ -165,7 +165,7 @@ public class ServerPartition implements Serialize {
         rowId = buf.readInt();
         LOG.info("rowId = " + rowId); //////
         rowType = RowType.valueOf(buf.readInt());
-        LOG.info("rowType = " + rowType.toString()); //////
+        LOG.info("rowType = " + rowType.toString()); ////// T_FLOAT_SPARSE
         ServerRow row = getRow(rowId);
         LOG.info("row.update(rowType, buf, op);"); //////
         row.update(rowType, buf, op);

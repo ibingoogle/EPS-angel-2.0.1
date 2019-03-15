@@ -237,11 +237,14 @@ public class ServerIntFloatRow extends ServerFloatRow {
   }
 
   private void updateUseIntFloatDense(ByteBuf buf, UpdateOp op) {
-    LOG.info("updateUseIntFloatDense(ByteBuf buf, UpdateOp op)");//////
+    // LOG.info("updateUseIntFloatDense(ByteBuf buf, UpdateOp op)");
     int size = buf.readInt();
     if (op == UpdateOp.PLUS) {
-      LOG.info("op == UpdateOp.PLUS");//////
-      LOG.info("size = " + size);//////
+      /*
+      LOG.info("op == UpdateOp.PLUS");
+      LOG.info("size = " + size);
+      LOG.info("length = " + intFloatRow.getStorage().getValues().length);
+      */
       for (int i = 0; i < size; i++) {
         intFloatRow.set(i, intFloatRow.get(i) + buf.readFloat());
       }
@@ -287,7 +290,19 @@ public class ServerIntFloatRow extends ServerFloatRow {
       LOG.info("size = " + size);//////
       for (int i = 0; i < size; i++) {
         int index = buf.readInt();
+        /* old code
         intFloatRow.set(index, intFloatRow.get(index) + buf.readFloat());
+        /* new code */
+        float gradient = buf.readFloat();
+        if (i < 200){
+          LOG.info("intFloatRow.get( + " + i + ") = " + intFloatRow.get(i) + " || " + intFloatRow.getStorage().getValues()[i]);
+          LOG.info("gradient = " + gradient);
+        }
+        intFloatRow.set(index, intFloatRow.get(index) + gradient);
+        if (i < 200){
+          LOG.info("intFloatRow.get( + " + i + ") = " + intFloatRow.get(i) + " || " + intFloatRow.getStorage().getValues()[i]);
+        }
+        /* code end */
       }
     } else {
       for (int i = 0; i < size; i++) {
@@ -440,7 +455,16 @@ public class ServerIntFloatRow extends ServerFloatRow {
     } else {
       if (indexType == IndexType.INT) {
         for (int i = 0; i < indexSize; i++) {
+          /* old code
           out.writeFloat(get(in.readInt()));
+          /* new code */
+          int index = in.readInt();
+          float value = get(index);
+          out.writeFloat(value);
+          if (i < 200){
+            LOG.info("i = " + i + " => index = " + index + ", value = " + value);
+          }
+          /* code end */
         }
       } else {
         throw new IOException(this.getClass().getName() + " only support int type index now");
