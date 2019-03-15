@@ -23,7 +23,7 @@ import java.util.{ArrayList => JArrayList, List => JList}
 import com.tencent.angel.exception.AngelException
 import com.tencent.angel.ml.math2.matrix._
 import com.tencent.angel.ml.math2.storage._
-import com.tencent.angel.ml.math2.vector._
+import com.tencent.angel.ml.math2.vector.{IntFloatVector, _}
 import com.tencent.angel.ml.math2.{MFactory, VFactory}
 import com.tencent.angel.ml.matrix.psf.get.getrows.{GetRows, GetRowsParam, GetRowsResult}
 import com.tencent.angel.ml.matrix.{MatrixContext, RowType}
@@ -279,6 +279,33 @@ object PSMatrixUtils {
       System.out.println("vector.getSize = " + vectors.apply(i).getSize)
       System.out.println("vector.getRowId = " + vectors.apply(i).getRowId)
     }
+    val almost_real_weight = vectors.apply(0).asInstanceOf[IntFloatVector]
+    val weight_indices = almost_real_weight.getStorage.getIndices
+    val weight_values = almost_real_weight.getStorage.getValues
+    if (weight_indices != null) {
+      System.out.println("almost_real_weight_indices.length = " + weight_indices.length)
+      var i = 0
+      while (i < weight_indices.length) {
+        if (i % 5000 == 0) System.out.println("almost_real_weight_indices[" + i + "] = " + weight_indices(i))
+        if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
+          System.out.println("almost_real_weight_indices[" + i + "] = " + weight_indices(i))
+        }
+        i = i + 1;
+      }
+    }
+    if (weight_values != null) {
+      System.out.println("almost_real_weight_values.length = " + weight_values.length)
+      var i = 0
+      while (i < weight_values.length) {
+        if (i % 5000 == 0) System.out.println("almost_real_weight_values[" + i + "] = " + weight_values(i))
+        if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
+          System.out.println("almost_real_weight_values[" + i + "] = " + weight_values(i))
+        }
+        i = i + 1;
+      }
+    }
+
+
     // intFloatVector
     System.out.println("vectors.head = " + vectors.head.toString)
 

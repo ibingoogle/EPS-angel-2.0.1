@@ -323,23 +323,23 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
               val weight_indices = realweight.getStorage.getIndices
               val weight_values = realweight.getStorage.getValues
               if (weight_indices != null) {
-                LOG.info("weight_indices.length = " + weight_indices.length)
+                LOG.info("real_weight_indices.length = " + weight_indices.length)
                 var i = 0
                 while (i < weight_indices.length) {
-                  if (i % 5000 == 0) LOG.info("weight_indices[" + i + "] = " + weight_indices(i))
+                  if (i % 5000 == 0) LOG.info("real_weight_indices[" + i + "] = " + weight_indices(i))
                   if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
-                    LOG.info("weight_indices[" + i + "] = " + weight_indices(i))
+                    LOG.info("real_weight_indices[" + i + "] = " + weight_indices(i))
                   }
                   i = i + 1;
                 }
               }
               if (weight_values != null) {
-                LOG.info("weight_values.length = " + weight_values.length)
+                LOG.info("real_weight_values.length = " + weight_values.length)
                 var i = 0
                 while (i < weight_values.length) {
-                  if (i % 5000 == 0) LOG.info("weight_values[" + i + "] = " + weight_values(i))
+                  if (i % 5000 == 0) LOG.info("real_weight_values[" + i + "] = " + weight_values(i))
                   if (weight_indices(i) < 200 || (1000000 <= weight_indices(i) && weight_indices(i)< 1000200) || (2000000 <= weight_indices(i) && weight_indices(i)< 2000200) || (3000000 <= weight_indices(i) && weight_indices(i)< 3000200)) {
-                    LOG.info("weight_values[" + i + "] = " + weight_values(i))
+                    LOG.info("real_weight_values[" + i + "] = " + weight_values(i))
                   }
                   i = i + 1;
                 }
