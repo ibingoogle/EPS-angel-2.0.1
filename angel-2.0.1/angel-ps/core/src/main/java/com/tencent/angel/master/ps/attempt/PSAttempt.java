@@ -408,6 +408,7 @@ public class PSAttempt implements EventHandler<PSAttemptEvent> {
     private final PSAttemptStateInternal finishState;
 
     PSAttemptFinishedTransition(PSAttemptStateInternal finishState) {
+      LOG.info("PSAttemptFinishedTransition(PSAttemptStateInternal finishState) = " + finishState); //////
       this.finishState = finishState;
     }
 

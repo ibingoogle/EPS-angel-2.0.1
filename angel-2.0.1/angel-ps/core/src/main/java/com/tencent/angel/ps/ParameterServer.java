@@ -626,9 +626,17 @@ public class ParameterServer {
     PSReportRequest request = builder.build();
     LOG.debug("ps hb = " + request);
     try {
-      LOG.info("heartbeat() in ParameterServer.java"); //////
       ret = master.psReport(request);
-      LOG.info("ret.getPsCommand() = " + ret.getPsCommand()); //////
+      /* new code */
+      LOG.info("heartbeat() in ParameterServer.java");
+      int status = ret.getPsStatus();
+      if (status == -1){
+        done();
+        return;
+      }
+      LOG.info("status from heartbeat = " + status);
+      LOG.info("ret.getPsCommand() = " + ret.getPsCommand());
+      /* code end */
       switch (ret.getPsCommand()) {
         case PSCOMMAND_REGISTER:
           try {

@@ -74,7 +74,8 @@ message PSAgentRegisterResponse{
   required PSAgentCommandProto command = 1 [default = PSAGENT_SUCCESS];
 }
 
-message GetAllMatrixMetaRequest {
+message
+GetAllMatrixMetaRequest {
 }
 
 message GetAllMatrixMetaResponse {
@@ -88,7 +89,7 @@ message FetchMinClockResponse {
   required int32 minClock = 1;
 }
 
-message PSAgentDoneRequest{
+message AgentDoneRequest{
   required int32 psAgentId = 1;
 }
 

@@ -365,8 +365,8 @@ public class UserRequestAdapter {
     List<PartitionUpdateParam> partParams = param.split();
 
 
-    /* old code
-    int size = partParams.size();
+    /* old code */
+    // int size = partParams.size();
     /* new code */
     int active_partParams_size = 0;
     for (int i = 0; i < partParams.size(); i++){
@@ -379,8 +379,8 @@ public class UserRequestAdapter {
 
 
     UpdatePSFRequest request = new UpdatePSFRequest(updateFunc);
-    /* old code
-    UpdaterResponseCache cache = new UpdaterResponseCache(size);
+    /* old code */
+    // UpdaterResponseCache cache = new UpdaterResponseCache(size);
     /* new code */
     UpdaterResponseCache cache = new UpdaterResponseCache(active_partParams_size);
     /* code end */
@@ -396,6 +396,7 @@ public class UserRequestAdapter {
     for (int i = 0; i < size; i++) {
       matrixClient.update(request.getRequestId(), updateFunc, partParams.get(i));
     }
+    */
     /* new code */
     for (int i = 0; i < partParams.size(); i++) {
       if (partParams.get(i).getPartKey().status) {
