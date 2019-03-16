@@ -648,10 +648,15 @@ public class WorkerPool {
           ServerRow row = context.getMatrixStorageManager()
             .getRow(request.getMatrixId(), rowIds.get(i), partKey.getPartitionId());
           /* new code */
-          Vector ret = row.getSplit();
+          IntFloatVector ret = (IntFloatVector) row.getSplit();
           LOG.info("row size = " + row.size());
           LOG.info("row to string  = " + row.toString());
           LOG.info("row class  = " + row.getClass());
+
+          LOG.info("ret size = " + ret.size());
+          LOG.info("ret storage size = " + ret.getStorage().size());
+          LOG.info("ret class = " + ret.getClass());
+          LOG.info("ret storage class = " + ret.getStorage().getClass());
           /*
           LOG.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           LOG.info("           ret_ToString = " + ret.toString());

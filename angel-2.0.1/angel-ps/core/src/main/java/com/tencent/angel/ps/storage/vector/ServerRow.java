@@ -591,6 +591,11 @@ public abstract class ServerRow implements Serialize {
     IntFloatVector real_ret = (IntFloatVector)ret;
     IntFloatDenseVectorStorage real_storage = (IntFloatDenseVectorStorage) real_ret.getStorage();
     LOG.info("real_storage size = " + real_storage.size());
+    if (real_storage.size() > 0) {
+      for (int i = 0; i < 200; i++){
+        LOG.info("real_storage.get(" + i + ") = " + real_storage.get(i));
+      }
+    }
     /*
     LOG.info("real_storage[2192516] in server 2 = " + real_storage.get(192516));
     LOG.info("real_storage[680526] in server 0 = " + real_storage.get(680526));

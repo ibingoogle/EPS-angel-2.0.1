@@ -242,7 +242,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         LOG.info("NumRows in weight => " + weight.getNumRows)
         // intFloatMatrix
         LOG.info("weight getClass => " + weight.getClass)
-        /*
+
         for (i <- 0 until weight.getNumRows){
           LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
         }
@@ -272,7 +272,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
             i = i + 1;
           }
         }
-        */
+        
         /* code end */
 
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
