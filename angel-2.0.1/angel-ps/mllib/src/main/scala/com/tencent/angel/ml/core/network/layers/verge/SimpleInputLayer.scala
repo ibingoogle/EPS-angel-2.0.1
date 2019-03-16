@@ -272,7 +272,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
             i = i + 1;
           }
         }
-        
+
         /* code end */
 
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model

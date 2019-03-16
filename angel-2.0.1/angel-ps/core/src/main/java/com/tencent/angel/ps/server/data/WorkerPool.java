@@ -839,7 +839,7 @@ public class WorkerPool {
       /* code end */
 
       case UPDATE_PSF: {
-        LOG.info("UPDATE_PSF");//////
+        LOG.info("before UPDATE_PSF"); //////
         if (state == ServerState.BUSY) {
           result = new UpdaterResponse(ResponseType.SERVER_IS_BUSY, log);
         } else {
@@ -851,6 +851,7 @@ public class WorkerPool {
             result = new UpdaterResponse(ResponseType.SERVER_HANDLE_FATAL, StringUtils.stringifyException(x));
           }
         }
+        LOG.info("after UPDATE_PSF"); //////
         break;
       }
 
@@ -1019,6 +1020,23 @@ public class WorkerPool {
     PartitionKey partKey = request.getPartKey();
     ServerPartition part =
       context.getMatrixStorageManager().getPart(partKey.getMatrixId(), partKey.getPartitionId());
+    /* new code */
+    LOG.info("before ........................");
+    ServerRow row = part.getRow(1);
+    Vector ret = row.getSplit();
+    IntFloatVector real_ret = (IntFloatVector)ret;
+    IntFloatDenseVectorStorage real_storage = (IntFloatDenseVectorStorage) real_ret.getStorage();
+    LOG.info("before real_storage size = " + real_storage.size());
+    if (real_storage.size() > 0) {
+      for (int i = 0; i < 200; i++){
+        if (i < real_storage.size()) {
+          LOG.info("before real_storage.get(" + i + ") = " + real_storage.get(i));
+        }
+      }
+    }
+    LOG.info("................................");
+    /* code end */
+
     if (part == null) {
       String log = "update " + request + " failed. The partition " + partKey + " does not exist";
       LOG.fatal(log);
@@ -1074,6 +1092,24 @@ public class WorkerPool {
           // TODO
           // context.getPS2PSPusher().put(request, in, partLoc);
         }
+
+        /* new code */
+        LOG.info("after ........................");
+        ServerRow row2 = part.getRow(1);
+        Vector ret2 = row2.getSplit();
+        IntFloatVector real_ret2 = (IntFloatVector)ret2;
+        IntFloatDenseVectorStorage real_storage2 = (IntFloatDenseVectorStorage) real_ret2.getStorage();
+        LOG.info("after real_storage2 size = " + real_storage2.size());
+        if (real_storage2.size() > 0) {
+          for (int i = 0; i < 200; i++){
+            if (i < real_storage2.size()) {
+              LOG.info("after real_storage2.get(" + i + ") = " + real_storage2.get(i));
+            }
+          }
+        }
+        LOG.info("................................");
+    /* code end */
+
         return new UpdaterResponse(ResponseType.SUCCESS);
       } catch (WaitLockTimeOutException wx) {
         LOG.error("wait lock timeout ", wx);

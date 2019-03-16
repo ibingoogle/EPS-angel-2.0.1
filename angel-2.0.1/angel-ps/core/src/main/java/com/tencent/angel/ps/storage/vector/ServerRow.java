@@ -593,7 +593,9 @@ public abstract class ServerRow implements Serialize {
     LOG.info("real_storage size = " + real_storage.size());
     if (real_storage.size() > 0) {
       for (int i = 0; i < 200; i++){
-        LOG.info("real_storage.get(" + i + ") = " + real_storage.get(i));
+        if (i < real_storage.size()) {
+          LOG.info("real_storage.get(" + i + ") = " + real_storage.get(i));
+        }
       }
     }
     /*
