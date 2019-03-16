@@ -1022,15 +1022,27 @@ public class WorkerPool {
       context.getMatrixStorageManager().getPart(partKey.getMatrixId(), partKey.getPartitionId());
     /* new code */
     LOG.info("before ........................");
-    ServerRow row = part.getRow(1);
+    ServerRow row = part.getRow(0);
     Vector ret = row.getSplit();
     IntFloatVector real_ret = (IntFloatVector)ret;
     IntFloatDenseVectorStorage real_storage = (IntFloatDenseVectorStorage) real_ret.getStorage();
-    LOG.info("before real_storage size = " + real_storage.size());
+    LOG.info("000 before real_storage size = " + real_storage.size());
     if (real_storage.size() > 0) {
       for (int i = 0; i < 200; i++){
         if (i < real_storage.size()) {
-          LOG.info("before real_storage.get(" + i + ") = " + real_storage.get(i));
+          LOG.info("000 before real_storage.get(" + i + ") = " + real_storage.get(i));
+        }
+      }
+    }
+    row = part.getRow(1);
+    ret = row.getSplit();
+    real_ret = (IntFloatVector)ret;
+    real_storage = (IntFloatDenseVectorStorage) real_ret.getStorage();
+    LOG.info("111 before real_storage size = " + real_storage.size());
+    if (real_storage.size() > 0) {
+      for (int i = 0; i < 200; i++){
+        if (i < real_storage.size()) {
+          LOG.info("111 before real_storage.get(" + i + ") = " + real_storage.get(i));
         }
       }
     }
@@ -1095,20 +1107,32 @@ public class WorkerPool {
 
         /* new code */
         LOG.info("after ........................");
-        ServerRow row2 = part.getRow(1);
+        ServerRow row2 = part.getRow(0);
         Vector ret2 = row2.getSplit();
         IntFloatVector real_ret2 = (IntFloatVector)ret2;
         IntFloatDenseVectorStorage real_storage2 = (IntFloatDenseVectorStorage) real_ret2.getStorage();
-        LOG.info("after real_storage2 size = " + real_storage2.size());
+        LOG.info("000 after real_storage2 size = " + real_storage2.size());
         if (real_storage2.size() > 0) {
           for (int i = 0; i < 200; i++){
             if (i < real_storage2.size()) {
-              LOG.info("after real_storage2.get(" + i + ") = " + real_storage2.get(i));
+              LOG.info("000 after real_storage2.get(" + i + ") = " + real_storage2.get(i));
+            }
+          }
+        }
+        row2 = part.getRow(1);
+        ret2 = row2.getSplit();
+        real_ret2 = (IntFloatVector)ret2;
+        real_storage2 = (IntFloatDenseVectorStorage) real_ret2.getStorage();
+        LOG.info("111 after real_storage2 size = " + real_storage2.size());
+        if (real_storage2.size() > 0) {
+          for (int i = 0; i < 200; i++){
+            if (i < real_storage2.size()) {
+              LOG.info("111 after real_storage2.get(" + i + ") = " + real_storage2.get(i));
             }
           }
         }
         LOG.info("................................");
-    /* code end */
+        /* code end */
 
         return new UpdaterResponse(ResponseType.SUCCESS);
       } catch (WaitLockTimeOutException wx) {
