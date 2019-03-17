@@ -1021,6 +1021,7 @@ public class WorkerPool {
     ServerPartition part =
       context.getMatrixStorageManager().getPart(partKey.getMatrixId(), partKey.getPartitionId());
     /* new code */
+    /*
     LOG.info("before ........................");
     ServerRow row = part.getRow(0);
     Vector ret = row.getSplit();
@@ -1047,6 +1048,7 @@ public class WorkerPool {
       }
     }
     LOG.info("................................");
+    */
     /* code end */
 
     if (part == null) {
@@ -1106,6 +1108,7 @@ public class WorkerPool {
         }
 
         /* new code */
+        /*
         LOG.info("after ........................");
         ServerRow row2 = part.getRow(0);
         Vector ret2 = row2.getSplit();
@@ -1132,6 +1135,7 @@ public class WorkerPool {
           }
         }
         LOG.info("................................");
+        */
         /* code end */
 
         return new UpdaterResponse(ResponseType.SUCCESS);

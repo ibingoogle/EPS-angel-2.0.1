@@ -246,7 +246,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         for (i <- 0 until weight.getNumRows){
           LOG.info("row[" + i + "] => " + weight.getRow(i).getSize + ", type = "+ weight.getRow(i).getType + ", RowId = " + weight.getRow(i).getRowId)
         }
-
+        /*
         val realweight = weight.getRow(0).asInstanceOf[IntFloatVector]
         val weight_indices = realweight.getStorage.getIndices
         val weight_values = realweight.getStorage.getValues
@@ -272,7 +272,7 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
             i = i + 1;
           }
         }
-
+        */
         /* code end */
 
       case ("libsvm" | "dummy", "sparse" | "component_sparse") => // sparse data, sparse model
