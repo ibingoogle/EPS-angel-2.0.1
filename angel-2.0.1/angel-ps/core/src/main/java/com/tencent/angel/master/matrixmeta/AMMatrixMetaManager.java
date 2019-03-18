@@ -333,8 +333,6 @@ public class AMMatrixMetaManager {
     rePartition_PartitionMetas(matrixId2PartMeta);
 
     // change serverStatus_workers to notify all active workers
-    readLock.lock();
-    writeLock.lock();
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
     LOG.info("workerIndexes.size = " + workerIndexes.size());
     serverStatus_workers.clear();
@@ -348,8 +346,6 @@ public class AMMatrixMetaManager {
       LOG.info("workerIndex = " + entry.getKey() + ", status = " + entry.getValue());
     }
     serverStatus_change = true;
-    writeLock.unlock();
-    readLock.unlock();
   }
 
   public void rePartition_PartitionMetas(Map<Integer, PartitionMeta> matrixId2PartMeta) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
