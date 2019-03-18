@@ -256,12 +256,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
     /* new code */
     if (context.getMatrixMetaManager().active_servers.contains(psAttemptId.getPsId().getIndex())) {
       // LOG.info("active_servers.contain " + psAttemptId.getPsId().getIndex());
-      LOG.info("context.getMatrixMetaManager().serversStatus_change_servers = " + context.getMatrixMetaManager().serversStatus_change_servers);
+      // LOG.info("context.getMatrixMetaManager().serversStatus_change_servers = " + context.getMatrixMetaManager().serversStatus_change_servers);
       if (context.getMatrixMetaManager().serversStatus_change_servers){
         if (context.getMatrixMetaManager().serverStatus_servers.containsKey(psAttemptId.getPsId().getIndex())) {
           // set status
           int Status = context.getMatrixMetaManager().serverStatus_servers.get(psAttemptId.getPsId().getIndex());
-          LOG.info("Status in psReport = " + Status);
+          // LOG.info("Status in psReport = " + Status);
           resBuilder.setPsStatus(Status);
           // need add partitions
           if (Status == 1){
@@ -280,21 +280,9 @@ public class MasterService extends AbstractService implements MasterProtocol {
             }
             LOG.info("MatrixMetaList_idle1 size = " + MatrixMetaList_idle1.size());
             for (int i = 0; i< MatrixMetaList_idle1.size(); i++){
-              LOG.info("MatrixMeta idle1 = " + MatrixMetaList_idle1.get(i).toString());
+              LOG.info("idle partitionMeta size  = " + MatrixMetaList_idle1.get(i).partitionMetas_idle.size());
               resBuilder
                       .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle1.get(i)));
-            }
-            // second solution
-            for (Map.Entry<Integer, MatrixMeta> entry : context.getMatrixMetaManager().matrixPartitionsOnPS.get(psAttemptId.getPsId()).entrySet()) {
-              if (entry.getValue().partitionMetas_idle != null && entry.getValue().partitionMetas_idle.size() > 0) {
-                MatrixMetaList_idle1.add(entry.getValue());
-              }
-            }
-            LOG.info("MatrixMetaList_idle2 size =  " + MatrixMetaList_idle2.size());
-            for (int i = 0; i< MatrixMetaList_idle2.size(); i++){
-              LOG.info("MatrixMeta idle2 = " + MatrixMetaList_idle2.get(i).toString());
-              resBuilder
-                      .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle2.get(i)));
             }
           }
           // remove status

@@ -371,18 +371,20 @@ public class AMMatrixMetaManager {
     for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()){
       serverIndexes.add(entry.getKey().getIndex());
     }
-    LOG.info("serverIndexes.size = " + serverIndexes.size());
+    // LOG.info("serverIndexes.size = " + serverIndexes.size());
     serverStatus_servers.clear();
     for (int serverindex : serverIndexes){
-      LOG.info("serverStatus_servers.put(" + serverindex+ ", 1)");
+      // LOG.info("serverStatus_servers.put(" + serverindex+ ", 1)");
       serverStatus_servers.put(serverindex, 1);
-      LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
+      // LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
     }
 
+    /*
     LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
     for(Entry<Integer, Integer> entry : serverStatus_servers.entrySet()){
       LOG.info("serverIndex = " + entry.getKey() + ", status = " + entry.getValue());
     }
+    */
     serversStatus_change_servers = true;
   }
 
