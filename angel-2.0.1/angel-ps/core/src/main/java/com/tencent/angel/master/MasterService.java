@@ -863,6 +863,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
           context.getMatrixMetaManager().reSetServerStatus_change();
         }
       }
+      return builder.build();
       /* code end */
     }
   }
