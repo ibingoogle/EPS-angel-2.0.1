@@ -291,7 +291,7 @@ public class AMMatrixMetaManager {
 
 
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
-    print_Meta();
+    print_AMMatrixMetaManager();
     // change active_servers to notify the removed server
     active_servers.remove(rmParameterServerIndex);
     Map<Integer, PartitionMeta> matrixId2PartMeta = new HashMap<Integer, PartitionMeta>();
@@ -327,7 +327,7 @@ public class AMMatrixMetaManager {
       }
     }
     matrixPartitionsOnPS.remove(rmParameterServerId);
-    print_Meta();
+    print_AMMatrixMetaManager();
 
     // re-partition
     rePartition_PartitionMetas(matrixId2PartMeta);
@@ -339,6 +339,9 @@ public class AMMatrixMetaManager {
     serverStatus_workers.clear();
     for (int workerindex : workerIndexes){
       serverStatus_workers.put(workerindex, 1);
+    }
+    for(Entry<Integer, Integer> entry : serverStatus_workers.entrySet()){
+      LOG.info("workerIndex = " + entry.getKey() + ", status = " + entry.getValue());
     }
     serverStatus_change = true;
     writeLock.unlock();
@@ -365,11 +368,13 @@ public class AMMatrixMetaManager {
         }
       }
     }
-    print_Meta();
+    print_AMMatrixMetaManager();
   }
 
 
-  public void print_Meta(){
+  public void print_AMMatrixMetaManager(){
+    LOG.info("print_AMMatrixMetaManager");
+    LOG.info("");
     LOG.info("");
     print_MatrixMetaManager();
     LOG.info("");

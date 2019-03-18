@@ -146,6 +146,7 @@ public class MasterClient {
    */
   public List<MatrixMeta> getMatrices_idle()
           throws InterruptedException, ServiceException, ClassNotFoundException {
+    LOG.info("getMatrices_idle()");
     GetAllMatrixMetaResponse response =
             master.getAllMatrixMeta(null, GetAllMatrixMetaRequest.newBuilder().build());
     List<MatrixMetaProto> matrixMetaProtos = response.getMatrixMetasList();
