@@ -96,6 +96,16 @@ public class MatrixMetaManager {
     }
   }
 
+  /* new code */
+  public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) {
+    int size = matrixMetas_idle.size();
+    for (int i = 0; i < size; i++) {
+      addMatrix_idle(matrixMetas_idle.get(i));
+    }
+  }
+  /* code end */
+
+
   /**
    * Add matrix.
    *
@@ -105,6 +115,19 @@ public class MatrixMetaManager {
     this.matrixIdToMetaMap.putIfAbsent(matrixMeta.getId(), matrixMeta);
     this.matrixNameToIdMap.putIfAbsent(matrixMeta.getName(), matrixMeta.getId());
   }
+
+  /* new code */
+  public void addMatrix_idle(MatrixMeta matrixMeta_idle) {
+    LOG.info("matrixMeta_idle.getName() = " + matrixMeta_idle.getName());
+    LOG.info("matrixMeta_idle.getId() = " + matrixMeta_idle.getId());
+    this.matrixNameToIdMap.putIfAbsent(matrixMeta_idle.getName(), matrixMeta_idle.getId());
+    if (!this.matrixIdToMetaMap.containsKey(matrixMeta_idle.getId())){
+      this.matrixIdToMetaMap.putIfAbsent(matrixMeta_idle.getId(), matrixMeta_idle);
+    }
+    this.matrixIdToMetaMap.get(matrixMeta_idle.getId()).partitionMetas_idle = matrixMeta_idle.partitionMetas_idle;
+  }
+
+  /* code end */
 
   /**
    * Remove a matrix

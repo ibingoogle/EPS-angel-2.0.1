@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -55,6 +56,17 @@ public class MatrixStorageManager {
     recover = new SnapshotRecover(context);
   }
 
+  /* new code */
+  public void print_MatrixStorageManager(){
+    LOG.info("print_MatrixStorageManager");
+    for (Map.Entry<Integer, ServerMatrix> entry : matrixIdToDataMap.entrySet()) {
+      LOG.info("matrixId = " + entry.getKey());
+      entry.getValue().print_ServerMatrix();
+    }
+  }
+
+  /* code end */
+
   /**
    * Get matrix use matrix id
    *
@@ -78,6 +90,27 @@ public class MatrixStorageManager {
       addMatrix(matrixMetas.get(i));
     }
   }
+
+  /* new code */
+  public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) throws IOException {
+    int size = matrixMetas_idle.size();
+    LOG.info("add Matrices_idle in MatrixStorageManager.java");
+    for (int i = 0; i < size; i++) {
+      addMatrix_idle(matrixMetas_idle.get(i));
+    }
+  }
+
+  public void addMatrix_idle(MatrixMeta matrixMeta_idle) throws IOException {
+    int matrixId = matrixMeta_idle.getId();
+    if (!matrixIdToDataMap.containsKey(matrixId)) {
+      ServerMatrix serverMatrix = new ServerMatrix(matrixMeta_idle, context);
+      serverMatrix.init();
+      matrixIdToDataMap.put(matrixId, serverMatrix);
+      LOG.info("MatrixId [" + matrixId + "] added.");
+    }
+    matrixIdToDataMap.get(matrixId).init_idle();
+  }
+  /* code end */
 
   /**
    * Add a matrixto parameter server.

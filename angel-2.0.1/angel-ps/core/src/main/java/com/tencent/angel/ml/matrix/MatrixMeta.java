@@ -178,6 +178,12 @@ public class MatrixMeta {
     return partitionMetas;
   }
 
+  /* new code */
+  public Map<Integer, PartitionMeta> getPartitionMetas_idle() {
+    return partitionMetas_idle;
+  }
+  /* code end */
+
   /**
    * Get matrix context
    *

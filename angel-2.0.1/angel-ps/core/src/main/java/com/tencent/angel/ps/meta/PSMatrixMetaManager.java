@@ -27,6 +27,8 @@ import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.ps.PSContext;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.server.data.PSLocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.Map;
  * PS Matrix meta manager
  */
 public class PSMatrixMetaManager {
+  private static final Log LOG = LogFactory.getLog(PSMatrixMetaManager.class); //////
   /**
    * Matrix meta manager
    */
@@ -56,6 +59,17 @@ public class PSMatrixMetaManager {
     this.matrixMetaManager = new MatrixMetaManager();
   }
 
+  /* new code */
+  public void print_PSMatrixMetaManager(){
+    LOG.info("print_PSMatrixMetaManager");
+    LOG.info("");
+    matrixMetaManager.print_MatrixMetaManager();
+  }
+
+
+  /* code end */
+
+
   /**
    * Add matrices meta
    *
@@ -64,6 +78,14 @@ public class PSMatrixMetaManager {
   public void addMatrices(List<MatrixMeta> matrices) {
     matrixMetaManager.addMatrices(matrices);
   }
+
+  /* new code */
+  public void addMatrices_idle(List<MatrixMeta> matrices_idle) {
+    matrixMetaManager.addMatrices_idle(matrices_idle);
+  }
+
+
+  /* code end */
 
   /**
    * Add matrix meta

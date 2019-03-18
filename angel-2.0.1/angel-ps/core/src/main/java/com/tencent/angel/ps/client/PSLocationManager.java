@@ -23,11 +23,14 @@ import com.tencent.angel.common.location.Location;
 import com.tencent.angel.common.location.LocationManager;
 import com.tencent.angel.ps.PSContext;
 import com.tencent.angel.ps.ParameterServerId;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * PS location manager
  */
 public class PSLocationManager {
+  private static final Log LOG = LogFactory.getLog(PSLocationManager.class); //////
   /**
    * Location manager
    */
@@ -56,6 +59,14 @@ public class PSLocationManager {
   public Location getMasterLocation() {
     return locationManager.getMasterLocation();
   }
+
+  /* new code */
+  public void print_PSLocationManager(){
+    LOG.info("print_PSLocationManager");
+    locationManager.print_LocationManager();
+  }
+  /* code end */
+
 
   /**
    * Set master location

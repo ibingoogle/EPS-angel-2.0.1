@@ -112,6 +112,17 @@ public class ServerPartition implements Serialize {
     this(null, RowType.T_DOUBLE_DENSE, 1.0);
   }
 
+  /* new code */
+  public void print_ServerPartition() {
+    LOG.info("print_ServerPartition");
+    for (int i = 0; i < rows.rowNum(); i++){
+      LOG.info("rowindex = " + i + ", class = " + rows.getRow(i).getClass() + ", toString = " + rows.getRow(i).toString());
+    }
+  }
+
+  /* code end */
+
+
   /**
    * Init partition
    */

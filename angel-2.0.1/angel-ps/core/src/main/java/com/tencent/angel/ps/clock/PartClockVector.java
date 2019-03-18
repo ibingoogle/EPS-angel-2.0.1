@@ -67,6 +67,18 @@ public class PartClockVector {
     lock = new ReentrantReadWriteLock();
   }
 
+  /* new code */
+  public void print_PartClockVector() {
+    LOG.info("print_PartClockVector");
+    for (Int2IntMap.Entry entry : taskIndexToClockMap.int2IntEntrySet()) {
+      LOG.info("taskIndex = " + entry.getIntKey() + " clock = " + entry.getIntValue());
+    }
+    LOG.info("minClock = " + minClock);
+  }
+
+  /* code end */
+
+
   /**
    * Update a task clock value
    *

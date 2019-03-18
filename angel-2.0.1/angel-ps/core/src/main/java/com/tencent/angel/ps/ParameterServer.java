@@ -228,6 +228,28 @@ public class ParameterServer {
     this.context = new PSContext(this);
   }
 
+  /* new code */
+  public void print_ParameterServer(){
+    LOG.info("print_ParameterServer");
+    LOG.info("");
+    LOG.info("");
+    matrixMetaManager.print_PSMatrixMetaManager();
+    LOG.info("");
+    LOG.info("");
+    clockVectorManager.print_ClockVectorManager();
+    LOG.info("");
+    LOG.info("");
+    matrixStorageManager.print_MatrixStorageManager();
+    LOG.info("");
+    LOG.info("");
+    locationManager.print_PSLocationManager();
+    LOG.info("");
+    LOG.info("");
+  }
+
+  /* code end */
+
+
   /**
    * Gets matrix partition manager.
    *
@@ -632,6 +654,7 @@ public class ParameterServer {
             }
           }
         }
+        createMatrices_idle(matrixMetas_idle);
       }
       LOG.info("status from heartbeat = " + status);
       LOG.info("ret.getPsCommand() = " + ret.getPsCommand());
@@ -727,6 +750,19 @@ public class ParameterServer {
     matrixStorageManager.addMatrices(matrixMetas);
     initMatricesData(matrixMetas);
   }
+
+  /* new code */
+  private void createMatrices_idle(List<MatrixMeta> matrixMetas_idle) throws IOException {
+    LOG.info("before createMatrices_idle......");
+    print_ParameterServer();
+    matrixMetaManager.addMatrices_idle(matrixMetas_idle);
+    clockVectorManager.addMatrices_idle(matrixMetas_idle);
+    matrixStorageManager.addMatrices_idle(matrixMetas_idle);
+    LOG.info("after createMatrices_idle......");
+    print_ParameterServer();
+  }
+
+  /* code end */
 
   private void initMatricesData(final List<MatrixMeta> matrixMetas) throws IOException {
     LOG.info("initMatricesData(final List<MatrixMeta> matrixMetas)......"); //////

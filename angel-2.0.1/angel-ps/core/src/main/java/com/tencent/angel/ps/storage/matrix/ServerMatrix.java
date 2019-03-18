@@ -40,6 +40,10 @@ public class ServerMatrix {
    */
   private final HashMap<Integer, ServerPartition> partitionMaps;
 
+  /* new code */
+  private final HashMap<Integer, ServerPartition> partitionMaps_idle;
+  /* code end */
+
   private final int matrixId;
 
   private final String matrixName;
@@ -62,9 +66,42 @@ public class ServerMatrix {
     LOG.info(
       "Creating a Server Matrix, id: " + matrixMeta.getId() + ", name: " + matrixMeta.getName());
     partitionMaps = new HashMap<>(matrixMeta.getPartitionMetas().size());
+    partitionMaps_idle = new HashMap<>(); //////
     matrixId = matrixMeta.getId();
     matrixName = matrixMeta.getName();
   }
+
+  /* new code */
+  public void print_ServerMatrix(){
+    LOG.info("print_ServerMatrix");
+    for (Map.Entry<Integer, ServerPartition> entry : partitionMaps.entrySet()) {
+      LOG.info("partitionId = " + entry.getKey());
+      entry.getValue().print_ServerPartition();
+    }
+    for (Map.Entry<Integer, ServerPartition> entry : partitionMaps_idle.entrySet()) {
+      LOG.info("partitionId_idle = " + entry.getKey());
+      entry.getValue().print_ServerPartition();
+    }
+  }
+
+
+  public void init_idle() {
+    LOG.info("init_idle() ServerMatirx.java, MatrixId = " + matrixId + ", name = " + matrixName);
+    MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
+    Map<Integer, PartitionMeta> partMetas_idle = matrixMeta.getPartitionMetas_idle();
+
+    String sourceClass = matrixMeta.getAttribute(AngelConf.ANGEL_PS_PARTITION_SOURCE_CLASS,
+            AngelConf.DEFAULT_ANGEL_PS_PARTITION_SOURCE_CLASS);
+    LOG.info("sourceClass in init_idle() = " + sourceClass);
+    for (PartitionMeta partMeta_idle : partMetas_idle.values()) {
+      ServerPartition part = new ServerPartition(partMeta_idle.getPartitionKey(), matrixMeta.getRowType(),
+              matrixMeta.getEstSparsity(), sourceClass);
+      partitionMaps_idle.put(partMeta_idle.getPartId(), part);
+      part.init();
+      part.setState(PartitionState.READ_AND_WRITE);
+    }
+  }
+  /* code end */
 
   public void init() {
     LOG.info("init() ServerMatirx.java, MatrixId = " + matrixId + ", name = " + matrixName); //////
@@ -73,6 +110,8 @@ public class ServerMatrix {
 
     String sourceClass = matrixMeta.getAttribute(AngelConf.ANGEL_PS_PARTITION_SOURCE_CLASS,
         AngelConf.DEFAULT_ANGEL_PS_PARTITION_SOURCE_CLASS);
+
+    LOG.info("sourceClass in idle() = " + sourceClass); //////
 
     for (PartitionMeta partMeta : partMetas.values()) {
       ServerPartition part = new ServerPartition(partMeta.getPartitionKey(), matrixMeta.getRowType(),
