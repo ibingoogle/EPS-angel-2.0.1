@@ -256,7 +256,59 @@ public class MasterService extends AbstractService implements MasterProtocol {
     /* new code */
     if (context.getMatrixMetaManager().active_servers.contains(psAttemptId.getPsId().getIndex())) {
       // LOG.info("active_servers.contain " + psAttemptId.getPsId().getIndex());
-      resBuilder.setPsStatus(0);
+      LOG.info("context.getMatrixMetaManager().serversStatus_change_servers = " + context.getMatrixMetaManager().serversStatus_change_servers);
+      if (context.getMatrixMetaManager().serversStatus_change_servers){
+        if (context.getMatrixMetaManager().serverStatus_servers.containsKey(psAttemptId.getPsId().getIndex())) {
+          // set status
+          int Status = context.getMatrixMetaManager().serverStatus_servers.get(psAttemptId.getPsId().getIndex());
+          LOG.info("Status in psReport = " + Status);
+          resBuilder.setPsStatus(Status);
+          // need add partitions
+          if (Status == 1){
+            List<MatrixMeta> MatrixMetaList_idle1 = new ArrayList<>();
+            List<MatrixMeta> MatrixMetaList_idle2 = new ArrayList<>();
+            // first solution
+            for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : context.getMatrixMetaManager().matrixPartitionsOnPS.entrySet()) {
+              if (entry.getKey().getIndex() == psAttemptId.getPsId().getIndex()) {
+                for (Map.Entry<Integer, MatrixMeta> entry2 : entry.getValue().entrySet()) {
+                  if (entry2.getValue().partitionMetas_idle != null && entry2.getValue().partitionMetas_idle.size() > 0) {
+                    MatrixMetaList_idle1.add(entry2.getValue());
+                  }
+                }
+                break;
+              }
+            }
+            LOG.info("MatrixMetaList_idle1 size = " + MatrixMetaList_idle1.size());
+            for (int i = 0; i< MatrixMetaList_idle1.size(); i++){
+              LOG.info("MatrixMeta idle1 = " + MatrixMetaList_idle1.get(i).toString());
+              resBuilder
+                      .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle1.get(i)));
+            }
+            // second solution
+            for (Map.Entry<Integer, MatrixMeta> entry : context.getMatrixMetaManager().matrixPartitionsOnPS.get(psAttemptId.getPsId()).entrySet()) {
+              if (entry.getValue().partitionMetas_idle != null && entry.getValue().partitionMetas_idle.size() > 0) {
+                MatrixMetaList_idle1.add(entry.getValue());
+              }
+            }
+            LOG.info("MatrixMetaList_idle2 size =  " + MatrixMetaList_idle2.size());
+            for (int i = 0; i< MatrixMetaList_idle2.size(); i++){
+              LOG.info("MatrixMeta idle2 = " + MatrixMetaList_idle2.get(i).toString());
+              resBuilder
+                      .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle2.get(i)));
+            }
+          }
+          // remove status
+          context.getMatrixMetaManager().serverStatus_servers.remove(psAttemptId.getPsId().getIndex());
+          // reset if needed
+          if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
+            context.getMatrixMetaManager().reSetServersStatus_change_servers();
+          }
+        }else {
+          resBuilder.setPsStatus(0);
+        }
+      }else {
+        resBuilder.setPsStatus(0);
+      }
     }else {
       // LOG.info("active_servers do not contain " + psAttemptId.getPsId().getIndex());
       resBuilder.setPsStatus(-1);
@@ -852,19 +904,19 @@ public class MasterService extends AbstractService implements MasterProtocol {
       builder.setActiveTaskNum(context.getWorkerManager().getActiveTaskNum());
       builder.setCommand(WorkerCommandProto.W_SUCCESS).build();
       int workerIndex = workerAttemptId.getWorkerId().getIndex();
-      LOG.info("context.getMatrixMetaManager().serverStatus_change = " + context.getMatrixMetaManager().serverStatus_change);
-      if (context.getMatrixMetaManager().serverStatus_change){
+      // LOG.info("context.getMatrixMetaManager().serverStatus_change = " + context.getMatrixMetaManager().serverStatus_change);
+      if (context.getMatrixMetaManager().serversStatus_change_workers){
         if (context.getMatrixMetaManager().serverStatus_workers.containsKey(workerIndex)){
           int Status = context.getMatrixMetaManager().serverStatus_workers.get(workerIndex);
-          LOG.info("workerIndex = " + workerIndex + ", Status = " + Status + " in MasterService.java");
+          // LOG.info("workerIndex = " + workerIndex + ", Status = " + Status + " in MasterService.java");
           builder.setServersStatus(Status);
           context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
-        }else {
-          builder.setServersStatus(0);
         }
         if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
-          context.getMatrixMetaManager().reSetServerStatus_change();
+          context.getMatrixMetaManager().reSetServersStatus_change_workers();
         }
+      }else {
+        builder.setServersStatus(0);
       }
       return builder.build();
       /* code end */

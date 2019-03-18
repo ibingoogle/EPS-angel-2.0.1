@@ -68,7 +68,11 @@ public class AMMatrixMetaManager {
   /**
    * inverted index, psId--->Map( matrixId---->List<PartitionMeta>), used for PS
    */
-  private final Map<ParameterServerId, Map<Integer, MatrixMeta>> matrixPartitionsOnPS;
+  /* old code */
+  // private final Map<ParameterServerId, Map<Integer, MatrixMeta>> matrixPartitionsOnPS;
+  /* new code */
+  public final ConcurrentHashMap<ParameterServerId, Map<Integer, MatrixMeta>> matrixPartitionsOnPS;
+  /* code end */
 
   /**
    * ps id to matrices on this ps map
@@ -93,9 +97,12 @@ public class AMMatrixMetaManager {
   /* new code */
   public int initial_serverNum = 0;
   public HashSet<Integer> active_servers = null;
-  // workerindex to status (not contain means normal, 1 means add partitions to each server, -1 means remove partitions to each server)
+  // workerindex to status (not contain means normal, 1 means add partitions to each server, -1 means remove partitions from each server)
   public ConcurrentHashMap<Integer, Integer> serverStatus_workers = new ConcurrentHashMap<Integer, Integer>();
-  public boolean serverStatus_change = false;
+  public boolean serversStatus_change_workers = false;
+  // serverIndex to status (not contain means normal, 1 means add partitions to each server, -2 means remove partitions from each server)
+  public ConcurrentHashMap<Integer, Integer> serverStatus_servers = new ConcurrentHashMap<Integer, Integer>();
+  public boolean serversStatus_change_servers = false;
 
   public List<MatrixContext> matrixContexts;
 
@@ -106,7 +113,7 @@ public class AMMatrixMetaManager {
   public AMMatrixMetaManager(AMContext context) {
     this.context = context;
     matrixMetaManager = new MatrixMetaManager();
-    matrixPartitionsOnPS = new HashMap<>();
+    matrixPartitionsOnPS = new ConcurrentHashMap<>();
     matrixIdToPSSetMap = new HashMap<>();
     psIdToMatrixIdsMap = new HashMap<>();
     psIdToRecoverPartsMap = new ConcurrentHashMap<>();
@@ -283,12 +290,17 @@ public class AMMatrixMetaManager {
     serverStatus_workers.remove(workerIndex);
   }
 
-  public void reSetServerStatus_change(){
+  public void reSetServersStatus_change_workers(){
     writeLock.lock();
-    serverStatus_change = false;
+    serversStatus_change_workers = false;
     writeLock.unlock();
   }
 
+  public void reSetServersStatus_change_servers(){
+    writeLock.lock();
+    serversStatus_change_servers = false;
+    writeLock.unlock();
+  }
 
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
     print_AMMatrixMetaManager();
@@ -332,20 +344,46 @@ public class AMMatrixMetaManager {
     // re-partition
     rePartition_PartitionMetas(matrixId2PartMeta);
 
+    // notify workers and servers
+    notify_workers_servers();
+  }
+
+  public void notify_workers_servers(){
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
-    LOG.info("workerIndexes.size = " + workerIndexes.size());
+    // LOG.info("workerIndexes.size = " + workerIndexes.size());
     serverStatus_workers.clear();
     for (int workerindex : workerIndexes){
-      LOG.info("serverStatus_workers.put(" + workerindex+ ", 1)");
+      // LOG.info("serverStatus_workers.put(" + workerindex+ ", 1)");
       serverStatus_workers.put(workerindex, 1);
-      LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
+      // LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
     }
+    /*
     LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
     for(Entry<Integer, Integer> entry : serverStatus_workers.entrySet()){
       LOG.info("workerIndex = " + entry.getKey() + ", status = " + entry.getValue());
     }
-    serverStatus_change = true;
+    */
+    serversStatus_change_workers = true;
+
+    // change serverStatus_workers to notify all active workers
+    HashSet<Integer> serverIndexes = new HashSet<Integer>();
+    for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()){
+      serverIndexes.add(entry.getKey().getIndex());
+    }
+    LOG.info("serverIndexes.size = " + serverIndexes.size());
+    serverStatus_servers.clear();
+    for (int serverindex : serverIndexes){
+      LOG.info("serverStatus_servers.put(" + serverindex+ ", 1)");
+      serverStatus_servers.put(serverindex, 1);
+      LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
+    }
+
+    LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
+    for(Entry<Integer, Integer> entry : serverStatus_servers.entrySet()){
+      LOG.info("serverIndex = " + entry.getKey() + ", status = " + entry.getValue());
+    }
+    serversStatus_change_servers = true;
   }
 
   public void rePartition_PartitionMetas(Map<Integer, PartitionMeta> matrixId2PartMeta) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
@@ -364,7 +402,7 @@ public class AMMatrixMetaManager {
             psMatrixMeta = new MatrixMeta(matrixContexts.get(matrixId));
             matrixPartitionsOnPS.get(psId).put(matrixId, psMatrixMeta);
           }
-          psMatrixMeta.addPartitionMeta(partitions.get(i).getPartId(), partitions.get(i));
+          psMatrixMeta.addPartitionMeta_idle(partitions.get(i).getPartId(), partitions.get(i));
         }
       }
     }
@@ -438,6 +476,17 @@ public class AMMatrixMetaManager {
             LOG.info("        storedPSId[" + i + "] = " + storedPs.get(i).toString());
           }
           */
+        }
+        Map<Integer, PartitionMeta> partitionMetas_idle = entry2.getValue().partitionMetas_idle;
+        for (Map.Entry<Integer, PartitionMeta> entry3 : partitionMetas_idle.entrySet()){
+          LOG.info("  partitionId_idle = " + entry3.getKey());
+          LOG.info("  PartitionMeta_idle = " + entry3.getValue());
+        /*
+        List<ParameterServerId> storedPs_idle = entry3.getValue().getPss();
+        for (int i = 0; i < storedPs_idle.size(); i++){
+          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
+        }
+        */
         }
       }
     }
@@ -794,8 +843,7 @@ public class AMMatrixMetaManager {
         LOG.debug(
           "matrix in master " + psMatrixEntry.getKey() + ", " + psMatrixEntry.getValue().getName());
         /* new code */
-        LOG.info(
-                "matrix in master " + psMatrixEntry.getKey() + ", " + psMatrixEntry.getValue().getName());
+        LOG.info("matrix in master " + psMatrixEntry.getKey() + ", " + psMatrixEntry.getValue().getName());
         /* code end */
         if (!matrixIdInPSSet.contains(psMatrixEntry.getKey())) {
           LOG.info("matrix " + psMatrixEntry.getKey() + " need create"); //////

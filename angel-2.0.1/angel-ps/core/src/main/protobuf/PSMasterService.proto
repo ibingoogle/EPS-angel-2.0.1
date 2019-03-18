@@ -78,7 +78,8 @@ message PSReportResponse {
   optional PSMatricesLoadContextProto needLoadMatrices = 7;
   repeated RecoverPartKeyProto needRecoverParts = 8;
   optional ExecuteUnitDesc executeUnitDesc = 9;
-  required int32 psStatus = 10; ////// 1 means add new parameters, 0 means keep current status, -1 means done
+  required int32 psStatus = 10; ////// 1 means add new parameters, 0 means keep current status, -1 means done, -2 means delete one parameters
+  repeated MatrixMetaProto needIdleMatrices = 11; //////
 }
 
 message PSMatricesSaveContextProto {

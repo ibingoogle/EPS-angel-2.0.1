@@ -619,6 +619,19 @@ public class ParameterServer {
       if (status == -1){
         done();
         return;
+      }else if (status == 1){
+        LOG.info("status == 1");
+        List<MatrixMeta> matrixMetas_idle = ProtobufUtil.convertToMatricesMeta(ret.getNeedIdleMatricesList());
+        if (matrixMetas_idle != null) {
+          LOG.info("matrixMetas_idle size = " + matrixMetas_idle.size());
+          // only care about public Map<Integer, PartitionMeta> partitionMetas_idle in MatrixMeta
+          for (int i = 0; i < matrixMetas_idle.size(); i++) {
+            LOG.info("matrixId = " + matrixMetas_idle.get(i).getMatrixContext().getMatrixId());
+            for (Map.Entry<Integer, PartitionMeta> entry: matrixMetas_idle.get(i).partitionMetas_idle.entrySet()){
+              LOG.info("PartitionMeta_idle toString = " + entry.getValue().toString());
+            }
+          }
+        }
       }
       LOG.info("status from heartbeat = " + status);
       LOG.info("ret.getPsCommand() = " + ret.getPsCommand());

@@ -370,8 +370,8 @@ public class Worker implements Executor {
           /* new code */
           int ServersStatus = 0;
           ServersStatus = response.getServersStatus();
-          LOG.info("ServersStatus = " + ServersStatus);
           if (ServersStatus != 0){
+            LOG.info("ServersStatus = " + ServersStatus);
             if (ServersStatus == 1){
               psAgent.getMasterClient().getMatrices_idle();
             }
