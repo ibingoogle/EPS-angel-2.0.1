@@ -367,6 +367,17 @@ public class Worker implements Executor {
             setActiveTaskNum(activeTaskNum);
           }
           // SUCCESS, do nothing
+          /* new code */
+          int ServersStatus = 0;
+          ServersStatus = response.getServersStatus();
+          if (ServersStatus != 0){
+            LOG.info("ServersStatus = " + ServersStatus);
+            if (ServersStatus == 1){
+              psAgent.getMasterClient().getMatrices_idle();
+            }
+          }
+
+          /* code end */
       }
       // heartbeatFailedTime = 0;
     } catch (Exception netException) {

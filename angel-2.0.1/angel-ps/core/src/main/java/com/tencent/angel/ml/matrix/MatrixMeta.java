@@ -197,6 +197,21 @@ public class MatrixMeta {
     partitionMetas.put(id, meta);
   }
 
+  /* new code */
+  /**
+   * Add meta for a partition for partition_idle
+   *
+   * @param id   partition id
+   * @param meta partition meta
+   */
+  public void addPartitionMeta_idle(int id, PartitionMeta meta) {
+    if (partitionMetas_idle == null) {
+      partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
+    }
+    partitionMetas_idle.put(id, meta);
+  }
+  /* code end */
+
   /**
    * Get meta for a partition
    *

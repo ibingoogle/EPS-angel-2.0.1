@@ -484,6 +484,28 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
     }
   }
 
+  /* new code *
+  /**
+   * get workerIndexes Set
+   *
+   * @param workerId worker id
+   * @return AMWorker worker
+   */
+  public HashSet<Integer> getWorkerIndexes() {
+    try {
+      readLock.lock();
+      HashSet<Integer> res = new HashSet<>();
+      for (Entry<WorkerId, AMWorker> entry: workersMap.entrySet()){
+        int index = entry.getKey().getIndex();
+        res.add(index);
+      }
+      return res;
+    } finally {
+      readLock.unlock();
+    }
+  }
+  /* code end */
+
   /**
    * get worker group use worker group id
    *

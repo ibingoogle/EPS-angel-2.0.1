@@ -26,6 +26,7 @@ import com.tencent.angel.master.MasterProtocol;
 import com.tencent.angel.ml.matrix.MatrixContext;
 import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.PartitionLocation;
+import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.ml.metric.Metric;
 import com.tencent.angel.protobuf.ProtobufUtil;
 import com.tencent.angel.protobuf.RequestConverter;
@@ -133,6 +134,33 @@ public class MasterClient {
       matrixMetas.add(ProtobufUtil.convertToMatrixMeta(matrixMetaProtos.get(i)));
     }
 
+    return matrixMetas;
+  }
+
+  /**
+   * Get the meta data and partitions for the repartitioned partitionKeys, it will wait until the matrices are ready
+   *
+   * @return GetAllMatrixInfoResponse the meta data and repartitioned partitions
+   * @throws InterruptedException interrupted when sleep for next try
+   * @throws ServiceException     rpc failed
+   */
+  public List<MatrixMeta> getMatrices_idle()
+          throws InterruptedException, ServiceException, ClassNotFoundException {
+    GetAllMatrixMetaResponse response =
+            master.getAllMatrixMeta(null, GetAllMatrixMetaRequest.newBuilder().build());
+    List<MatrixMetaProto> matrixMetaProtos = response.getMatrixMetasList();
+    int size = matrixMetaProtos.size();
+    List<MatrixMeta> matrixMetas = new ArrayList<>(size);
+    for (int i = 0; i < size; i++) {
+      matrixMetas.add(ProtobufUtil.convertToMatrixMeta(matrixMetaProtos.get(i)));
+    }
+    // only care about public Map<Integer, PartitionMeta> partitionMetas_idle in MatrixMeta
+    for (int i = 0; i < matrixMetas.size(); i++) {
+      LOG.info("matrixId = " + matrixMetas.get(i).getMatrixContext().getMatrixId());
+      for (Map.Entry<Integer, PartitionMeta> entry: matrixMetas.get(i).partitionMetas_idle.entrySet()){
+        LOG.info("PartitionMeta_idle toString = " + entry.getValue().toString());
+      }
+    }
     return matrixMetas;
   }
 

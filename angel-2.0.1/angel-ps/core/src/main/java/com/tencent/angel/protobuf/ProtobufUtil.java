@@ -387,6 +387,16 @@ public final class ProtobufUtil {
     for (Entry<Integer, PartitionMeta> entry : matrixMetas.entrySet()) {
       builder.addPartMetas(convertToParitionMetaProto(entry.getValue()));
     }
+
+    // add public Map<Integer, PartitionMeta> partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
+    /* new code */
+    Map<Integer, PartitionMeta> partitionMetasIdle = matrixMeta.partitionMetas_idle;
+    if (partitionMetasIdle != null) {
+      for (Entry<Integer, PartitionMeta> entry: partitionMetasIdle.entrySet()) {
+        builder.addPartMetasIdle(convertToParitionMetaProto(entry.getValue()));
+      }
+    }
+    /* code end */
     return builder.build();
   }
 
@@ -442,6 +452,15 @@ public final class ProtobufUtil {
       matrixMeta.addPartitionMeta(partMetaProtos.get(i).getPartitionId(),
         convertToParitionMeta(matrixContext.getMatrixId(), partMetaProtos.get(i)));
     }
+    /* new code */
+    // care about public Map<Integer, PartitionMeta> partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
+    List<PartitionMetaProto> partMetaIdleProtos = matrixMetaProto.getPartMetasIdleList();
+    int sizeIdle = partMetaIdleProtos.size();
+    for (int i = 0; i < sizeIdle; i++){
+      matrixMeta.addPartitionMeta_idle(partMetaIdleProtos.get(i).getPartitionId(),
+              convertToParitionMeta(matrixContext.getMatrixId(), partMetaIdleProtos.get(i)));
+    }
+    /* code end */
     return matrixMeta;
   }
 

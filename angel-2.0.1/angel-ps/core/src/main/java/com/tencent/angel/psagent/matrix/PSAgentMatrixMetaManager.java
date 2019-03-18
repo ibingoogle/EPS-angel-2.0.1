@@ -62,6 +62,11 @@ public class PSAgentMatrixMetaManager {
    */
   private final ClockCache partClockCache;
 
+  /* new code */
+  public List<MatrixMeta> matrixMetas_idle;
+  /* code end */
+
+
   /**
    * Create PSAgentMatrixMetaManager
    *
@@ -76,7 +81,6 @@ public class PSAgentMatrixMetaManager {
 
 
   /* new code */
-
   public void rmOneParameterServer_PSAgentMatrixMetaManager(int removedParameterServerIndex){
     LOG.info("rmOneParameterServer_PSAgentMatrixMetaManager");
     // 1
@@ -130,9 +134,18 @@ public class PSAgentMatrixMetaManager {
     partClockCache.print_ClockCache();
     LOG.info("");
     LOG.info("");
+    print_matrixMetas_idle();
+    LOG.info("");
+    LOG.info("");
   }
 
 
+  public void print_matrixMetas_idle(){
+    LOG.info("print_matrixMetas_idle");
+    if (matrixMetas_idle != null) {
+
+    }
+  }
 
   public void print_rowIndexToPartsMap(){
     LOG.info("print_rowIndexToPartsMap");

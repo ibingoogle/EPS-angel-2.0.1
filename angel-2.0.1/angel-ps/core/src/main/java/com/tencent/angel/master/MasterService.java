@@ -843,9 +843,27 @@ public class MasterService extends AbstractService implements MasterProtocol {
     } else {
       context.getEventHandler().handle(new WorkerAttemptStateUpdateEvent(workerAttemptId, request));
       context.getWorkerManager().alive(workerAttemptId);
+      /* old code
       return WorkerReportResponse.newBuilder()
         .setActiveTaskNum(context.getWorkerManager().getActiveTaskNum())
         .setCommand(WorkerCommandProto.W_SUCCESS).build();
+      /* new code */
+      WorkerReportResponse.Builder builder = WorkerReportResponse.newBuilder();
+      builder.setActiveTaskNum(context.getWorkerManager().getActiveTaskNum());
+      builder.setCommand(WorkerCommandProto.W_SUCCESS).build();
+      int workerIndex = workerAttemptId.getWorkerId().getIndex();
+      if (context.getMatrixMetaManager().serverStatus_change){
+        if (context.getMatrixMetaManager().serverStatus_workers.containsKey(workerIndex)){
+          builder.setServersStatus(context.getMatrixMetaManager().serverStatus_workers.get(workerIndex));
+          context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
+        }else {
+          builder.setServersStatus(0);
+        }
+        if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
+          context.getMatrixMetaManager().reSetServerStatus_change();
+        }
+      }
+      /* code end */
     }
   }
 

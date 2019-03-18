@@ -84,12 +84,13 @@ message PartitionMetaProto{
   required int64 startCol = 3;
   required int32 endRow = 4;
   required int64 endCol = 5;
-  repeated PSIdProto storedPs = 6;;
+  repeated PSIdProto storedPs = 6;
 }
 
 message MatrixMetaProto {
   required MatrixContextProto matrixContext = 1;
   repeated PartitionMetaProto partMetas = 2;
+  repeated PartitionMetaProto partMetasIdle = 3; //////
 }
 
 message MatrixClock{

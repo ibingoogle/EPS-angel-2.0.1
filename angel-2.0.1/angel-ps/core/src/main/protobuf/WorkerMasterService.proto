@@ -54,6 +54,7 @@ enum WorkerCommandProto {
 message WorkerReportResponse { 
   required WorkerCommandProto command = 1 [default = W_SUCCESS];
   optional int32 activeTaskNum = 2;
+  optional int32 serversStatus = 3; //////
 }
 
 message WorkerRegisterRequest{

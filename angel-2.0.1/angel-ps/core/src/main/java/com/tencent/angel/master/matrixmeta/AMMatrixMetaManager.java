@@ -93,6 +93,10 @@ public class AMMatrixMetaManager {
   /* new code */
   public int initial_serverNum = 0;
   public HashSet<Integer> active_servers = null;
+  // workerindex to status (not contain means normal, 1 means add partitions to each server, -1 means remove partitions to each server)
+  public ConcurrentHashMap<Integer, Integer> serverStatus_workers = new ConcurrentHashMap<Integer, Integer>();
+  public boolean serverStatus_change = false;
+
   public List<MatrixContext> matrixContexts;
 
   public int rmParameterServerIndex = -1;
@@ -275,8 +279,20 @@ public class AMMatrixMetaManager {
 
 
   /* new code */
+  public void rmServerStatus_workers(int workerIndex){
+    serverStatus_workers.remove(workerIndex);
+  }
+
+  public void reSetServerStatus_change(){
+    writeLock.lock();
+    serverStatus_change = false;
+    writeLock.unlock();
+  }
+
+
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
     print_Meta();
+    // change active_servers to notify the removed server
     active_servers.remove(rmParameterServerIndex);
     Map<Integer, PartitionMeta> matrixId2PartMeta = new HashMap<Integer, PartitionMeta>();
 
@@ -313,11 +329,23 @@ public class AMMatrixMetaManager {
     matrixPartitionsOnPS.remove(rmParameterServerId);
     print_Meta();
 
-    // re-assign
-    reAssignPartitionMetas(matrixId2PartMeta);
+    // re-partition
+    rePartition_PartitionMetas(matrixId2PartMeta);
+
+    // change serverStatus_workers to notify all active workers
+    readLock.lock();
+    writeLock.lock();
+    HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
+    serverStatus_workers.clear();
+    for (int workerindex : workerIndexes){
+      serverStatus_workers.put(workerindex, 1);
+    }
+    serverStatus_change = true;
+    writeLock.unlock();
+    readLock.unlock();
   }
 
-  public void reAssignPartitionMetas(Map<Integer, PartitionMeta> matrixId2PartMeta) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
+  public void rePartition_PartitionMetas(Map<Integer, PartitionMeta> matrixId2PartMeta) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
     for (Map.Entry<Integer, PartitionMeta> entry : matrixId2PartMeta.entrySet()){
       int matrixIdwithIdle = entry.getKey();
       List<PartitionMeta> partitions = initIdlePartitionMeta(matrixIdwithIdle, entry.getValue());
