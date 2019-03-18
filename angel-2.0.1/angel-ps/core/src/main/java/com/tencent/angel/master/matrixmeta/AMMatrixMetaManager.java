@@ -336,10 +336,14 @@ public class AMMatrixMetaManager {
     readLock.lock();
     writeLock.lock();
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
+    LOG.info("workerIndexes.size = " + workerIndexes.size());
     serverStatus_workers.clear();
     for (int workerindex : workerIndexes){
+      LOG.info("serverStatus_workers.put(" + workerindex+ ", 1)");
       serverStatus_workers.put(workerindex, 1);
+      LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
     }
+    LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
     for(Entry<Integer, Integer> entry : serverStatus_workers.entrySet()){
       LOG.info("workerIndex = " + entry.getKey() + ", status = " + entry.getValue());
     }

@@ -852,6 +852,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
       builder.setActiveTaskNum(context.getWorkerManager().getActiveTaskNum());
       builder.setCommand(WorkerCommandProto.W_SUCCESS).build();
       int workerIndex = workerAttemptId.getWorkerId().getIndex();
+      LOG.info("context.getMatrixMetaManager().serverStatus_change = " + context.getMatrixMetaManager().serverStatus_change);
       if (context.getMatrixMetaManager().serverStatus_change){
         if (context.getMatrixMetaManager().serverStatus_workers.containsKey(workerIndex)){
           int Status = context.getMatrixMetaManager().serverStatus_workers.get(workerIndex);
