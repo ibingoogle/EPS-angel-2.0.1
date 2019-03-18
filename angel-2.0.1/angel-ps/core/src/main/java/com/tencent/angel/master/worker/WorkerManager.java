@@ -492,22 +492,17 @@ public class WorkerManager implements EventHandler<WorkerManagerEvent> {
    * @return AMWorker worker
    */
   public HashSet<Integer> getWorkerIndexes() {
-    try {
-      readLock.lock();
-      LOG.info("workersMap.size() = " + workersMap.size());
-      HashSet<Integer> res = new HashSet<>();
-      for (Entry<WorkerId, AMWorker> entry: workersMap.entrySet()){
-        int index = entry.getKey().getIndex();
-        LOG.info("index = " + index);
-        if (!entry.getValue().isFinished()){
-          LOG.info("res.add(" + index + ")");
-          res.add(index);
-        }
+    LOG.info("workersMap.size() = " + workersMap.size());
+    HashSet<Integer> res = new HashSet<>();
+    for (Entry<WorkerId, AMWorker> entry: workersMap.entrySet()){
+      int index = entry.getKey().getIndex();
+      LOG.info("index = " + index);
+      if (!entry.getValue().isFinished()){
+        LOG.info("res.add(" + index + ")");
+        res.add(index);
       }
-      return res;
-    } finally {
-      readLock.unlock();
     }
+    return res;
   }
   /* code end */
 
