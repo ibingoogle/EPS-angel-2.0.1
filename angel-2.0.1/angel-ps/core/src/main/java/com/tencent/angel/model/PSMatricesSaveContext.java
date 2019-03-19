@@ -18,12 +18,16 @@
 
 package com.tencent.angel.model;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.List;
 
 /**
  * PS matrices save context, it contains all need save matrices that are stored in this PS
  */
 public class PSMatricesSaveContext {
+  private static final Log LOG = LogFactory.getLog(PSMatricesSaveContext.class); //////
   /**
    * Global save request id
    */
@@ -52,6 +56,20 @@ public class PSMatricesSaveContext {
     this.subRequestId = subRequestId;
     this.matrixSaveContexts = matrixSaveContexts;
   }
+
+  /* new code */
+  public void print_PSMatricesSaveContext(){
+    LOG.info("print_PSMatricesSaveContext");
+    LOG.info("requestId = " + requestId + " => subRequestId = " + subRequestId);
+    LOG.info("matrixSaveContexts = ");
+    if (matrixSaveContexts != null){
+      for (int i = 0; i<matrixSaveContexts.size(); i++){
+        LOG.info(i + "th PSMatrixSaveContext in matrixSaveContexts");
+        matrixSaveContexts.get(i).print_PSMatrixSaveContext();
+      }
+    }
+  }
+  /* code end */
 
   /**
    * Get global save request id

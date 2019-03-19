@@ -95,10 +95,10 @@ public class ClockVectorManager {
     }
     // 2
     for (Map.Entry<PartitionKey, Integer> entry : partKeyToClockMap.entrySet()) {
-      LOG.info("partitionId = " + entry.getKey().getPartitionId() + ", clock = " + entry.getValue());
+      LOG.info("partitionKey = " + entry.getKey().toString() + ", clock = " + entry.getValue());
     }
     for (Map.Entry<PartitionKey, Integer> entry : partKeyToClockMap_idle.entrySet()) {
-      LOG.info("partitionId_idle = " + entry.getKey().getPartitionId() + ", clock = " + entry.getValue());
+      LOG.info("partitionKey_idle = " + entry.getKey().toString() + ", clock = " + entry.getValue());
     }
   }
 

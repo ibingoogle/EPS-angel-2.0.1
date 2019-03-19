@@ -274,6 +274,15 @@ public class AngelConf extends Configuration {
    */
   public static final String ANGEL_JOB_OUTPUT_PATH = ANGEL_PREFIX + "output.path";
 
+  /* new code */
+  /**
+   * parameters of removed server output directory
+   */
+  public static final String ANGEL_RM_SERVERS_FINAL_OUTPUT_PATH = ANGEL_PREFIX + "rm.servers.final.output.path";
+  public static final String ANGEL_RM_SERVERS_TMP_OUTPUT_PATH = ANGEL_PREFIX + "rm.servers.tmp.output.path";
+  public static final String ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH = ANGEL_PREFIX + "rm.servers.save.output.path";
+  /* code end */
+
   /**
    * Angel application temporary result output directory, this parameter is used by Angel itself.
    */

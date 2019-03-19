@@ -242,6 +242,42 @@ public class AMModelSaver extends AbstractService {
     }
   }
 
+  /* new code */
+  /**
+   * save parameters stored on the removed server
+   */
+  public void saveParametersOnRmPS(int rmParameterServerIndex){
+    String rmServersPath_final = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_FINAL_OUTPUT_PATH);
+    String rmServersPath_tmp = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_TMP_OUTPUT_PATH);
+    String rmServersPath_save = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH);
+    rmServersPath_final = rmServersPath_final + "/" + String.valueOf(rmParameterServerIndex);
+    rmServersPath_tmp = rmServersPath_tmp + "/" + String.valueOf(rmParameterServerIndex);
+    LOG.info("rmServersPath_final = " + rmServersPath_final);
+    LOG.info("rmServersPath_tmp = " + rmServersPath_tmp);
+    // init
+    ModelSaveContext saveContext = new ModelSaveContext(rmServersPath_final);
+    HashMap<String, MatrixMeta> MatrixName2Meta = new HashMap<String, MatrixMeta>();
+    // set tmp path
+    saveContext.setTmpSavePath(rmServersPath_tmp);
+    // add matrices corresponding to the removed server from context.getMatrixMetaManager().matrixPartitionsOnPS
+    for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry: context.getMatrixMetaManager().matrixPartitionsOnPS.entrySet()){
+      if (entry.getKey().getIndex() == rmParameterServerIndex) {
+        for (Map.Entry<Integer, MatrixMeta> entry2 : entry.getValue().entrySet()){
+          saveContext.addMatrix(new MatrixSaveContext(entry2.getValue().getName()));
+          MatrixName2Meta.put(entry2.getValue().getName(), entry2.getValue());
+        }
+        break;
+      }
+    }
+    // split
+    int requestId_removedServer = -1;
+    PSMatricesSaveContext psMatricesSaveContext_RMS = split_removedServer(requestId_removedServer,
+            saveContext, MatrixName2Meta, rmParameterServerIndex, rmServersPath_save);
+    LOG.info("print_psMatricesSaveContext_RMS");
+    psMatricesSaveContext_RMS.print_PSMatricesSaveContext();
+  }
+  /* code end */
+
   /**
    * Save model
    *
@@ -304,6 +340,7 @@ public class AMModelSaver extends AbstractService {
 
       // Split the user request to sub-requests to pss
       currentSubSaveContexts = split(currentRequestId, saveContext);
+      print_currentSubSaveContexts(); //////
       subResults = new HashMap<>(currentSubSaveContexts.size());
       for (Map.Entry<ParameterServerId, PSMatricesSaveContext> entry : currentSubSaveContexts
         .entrySet()) {
@@ -315,6 +352,17 @@ public class AMModelSaver extends AbstractService {
       lock.unlock();
     }
   }
+
+  /* new code */
+  public void print_currentSubSaveContexts(){
+    LOG.info("print_currentSubSaveContexts");
+    if (currentSubSaveContexts == null) return;
+    for(Map.Entry<ParameterServerId, PSMatricesSaveContext> entry : currentSubSaveContexts.entrySet()){
+      LOG.info("ParameterServerId = " + entry.getKey());
+      entry.getValue().print_PSMatricesSaveContext();
+    }
+  }
+  /* code end */
 
   /**
    * PS start saving
@@ -483,6 +531,43 @@ public class AMModelSaver extends AbstractService {
     return ret;
   }
 
+  /* new code */
+  private PSMatricesSaveContext split_removedServer(int requestId, ModelSaveContext saveContext,
+                                                    Map<String, MatrixMeta> matrixName2Meta, int rmParameterServerIndex, String savePath) {
+    List<MatrixSaveContext> matricesContext = saveContext.getMatricesContext();
+    int size = matricesContext.size();
+    List<PSMatrixSaveContext> PSContexts = new ArrayList<>();
+    for (int i = 0; i < size; i++) {
+      PSMatrixSaveContext psMatrixSaveContext = split_removedServer(matricesContext.get(i),
+              matrixName2Meta.get(matricesContext.get(i).getMatrixName()), rmParameterServerIndex);
+      psMatrixSaveContext.setSavePath(savePath);
+      PSContexts.add(psMatrixSaveContext);
+    }
+    int subRequestId_removedServer = requestId - 1;
+    PSMatricesSaveContext psMatricesSaveContext = new PSMatricesSaveContext(requestId, subRequestId_removedServer, PSContexts);
+    return psMatricesSaveContext;
+  }
+
+
+  private PSMatrixSaveContext split_removedServer(MatrixSaveContext matrixSaveContext, MatrixMeta meta, int rmParameterServerIndex){
+    Map<Integer, PartitionMeta> partitions = meta.getPartitionMetas();
+    List<Integer> partIds = new ArrayList<>();
+    for (Map.Entry<Integer, PartitionMeta> partEntry : partitions.entrySet()) {
+      partIds.add(partEntry.getKey());
+    }
+    partIds.sort(new Comparator<Integer>() {
+      @Override public int compare(Integer id1, Integer id2) {
+        return id1 - id2;
+      }
+    });
+    int matrixId = meta.getId();
+    PSMatrixSaveContext psMatrixSaveContext =
+            new PSMatrixSaveContext(matrixId, partIds, matrixSaveContext.getRowIndexes(),
+                    matrixSaveContext.getFormatClassName(), null, false, true);
+    return psMatrixSaveContext;
+  }
+  /* code end */
+
   private Map<ParameterServerId, PSMatrixSaveContext> split(MatrixSaveContext matrixSaveContext) {
     AMMatrixMetaManager matrixMetaManager = context.getMatrixMetaManager();
     MatrixMeta meta = matrixMetaManager.getMatrix(matrixSaveContext.getMatrixName());
@@ -536,6 +621,7 @@ public class AMModelSaver extends AbstractService {
           return id1 - id2;
         }
       });
+
       PSMatrixSaveContext psMatrixSaveContext =
         new PSMatrixSaveContext(matrixId, partIds, matrixSaveContext.getRowIndexes(),
           matrixSaveContext.getFormatClassName(), null, false, true);

@@ -18,6 +18,8 @@
 package com.tencent.angel.model;
 
 import com.tencent.angel.model.io.IOExecutors;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
 
@@ -25,6 +27,7 @@ import java.util.List;
  * PS matrix save context
  */
 public class PSMatrixSaveContext {
+  private static final Log LOG = LogFactory.getLog(PSMatrixSaveContext.class); //////
   /**
    * Matrix id
    */
@@ -82,6 +85,27 @@ public class PSMatrixSaveContext {
     this.cloneFirst = cloneFirst;
     this.sortFirst = sortFirst;
   }
+
+  /* new code */
+  public void print_PSMatrixSaveContext(){
+    LOG.info("matrixId = " + matrixId);
+    LOG.info("partIds = ");
+    if (partIds != null){
+      for (int i = 0; i<partIds.size(); i++){
+        LOG.info("pardId = " + partIds.get(i));
+      }
+    }
+    LOG.info("rowIndexes = ");
+    if (rowIndexes != null){
+      for (int i = 0; i < rowIndexes.size(); i++){
+        LOG.info("rowIndex = " + rowIndexes.get(i));
+      }
+    }
+    LOG.info("formatClassName = " + formatClassName);
+    LOG.info("savePath = " + savePath);
+    LOG.info("cloneFirst = " + cloneFirst + ", sortFirst = " + sortFirst);
+  }
+  /* code end */
 
   /**
    * Get matrix id
