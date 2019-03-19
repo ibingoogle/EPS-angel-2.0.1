@@ -56,6 +56,8 @@ import com.tencent.angel.ps.storage.vector.ServerRow;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -880,6 +882,47 @@ public class ParameterServer {
       PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
       saveContext.print_PSMatricesSaveContext();
       saver.save_remove(saveContext);
+      read_test();
+    }
+  }
+
+  public void read_test() {
+    String readPath = conf.get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH)
+            + "/" + String.valueOf(getServerId().getIndex());
+    String readFile = readPath + "/" + String.valueOf(getServerId().getIndex());
+    LOG.info("readFile = " + readFile);
+    Path readFilePath = new Path(readFile);
+    FileSystem fs = null;
+    try {
+      fs = readFilePath.getFileSystem(conf);
+      LOG.info("fs class = " + fs.getClass());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    try {
+      FSDataInputStream input = fs.open(readFilePath);
+      for (int i = 0; i < 10; i++){
+        String line = input.readLine();
+        String[] kv = line.split(",");
+        LOG.info("rowId = " + Integer.valueOf(kv[0]));
+        LOG.info("colId = " + Integer.valueOf(kv[1]));
+        LOG.info("value = " + Float.valueOf(kv[2]));
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    try {
+      FSDataInputStream input = fs.open(readFilePath);
+      input.seek(100);
+      for (int i = 0; i < 10; i++){
+        String line = input.readLine();
+        String[] kv = line.split(",");
+        LOG.info("rowId = " + Integer.valueOf(kv[0]));
+        LOG.info("colId = " + Integer.valueOf(kv[1]));
+        LOG.info("value = " + Float.valueOf(kv[2]));
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
