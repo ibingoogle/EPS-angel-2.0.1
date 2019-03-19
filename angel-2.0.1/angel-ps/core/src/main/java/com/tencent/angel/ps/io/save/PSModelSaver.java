@@ -173,6 +173,16 @@ public class PSModelSaver {
     saveDispatchThread.start();
   }
 
+  /* new code */
+  public void save_remove(PSMatricesSaveContext saveContext) {
+    try {
+      context.getIOExecutors().save(saveContext);
+    } catch (Throwable x) {
+      LOG.error("save_remove task " + saveContext + " failed ", x);
+    }
+  }
+  /* code end */
+
   private void saveFailed(PSMatricesSaveResult saveResult, String failedMsg) {
     try {
       writeLock.lock();

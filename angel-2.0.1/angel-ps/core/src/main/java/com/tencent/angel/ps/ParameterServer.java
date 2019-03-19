@@ -879,6 +879,7 @@ public class ParameterServer {
     if (saveContextStatus) {
       PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
       saveContext.print_PSMatricesSaveContext();
+      saver.save_remove(saveContext);
     }
   }
 

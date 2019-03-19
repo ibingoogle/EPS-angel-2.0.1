@@ -259,6 +259,7 @@ public class AMModelSaver extends AbstractService {
     String rmServersPath_save = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH);
     rmServersPath_final = rmServersPath_final + "/" + String.valueOf(rmParameterServerIndex);
     rmServersPath_tmp = rmServersPath_tmp + "/" + String.valueOf(rmParameterServerIndex);
+    rmServersPath_save = rmServersPath_save + "/" + String.valueOf(rmParameterServerIndex);
     LOG.info("rmServersPath_final = " + rmServersPath_final);
     LOG.info("rmServersPath_tmp = " + rmServersPath_tmp);
     LOG.info("rmServersPath_save = " + rmServersPath_save);
