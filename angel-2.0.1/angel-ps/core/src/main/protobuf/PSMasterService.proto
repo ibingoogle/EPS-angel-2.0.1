@@ -68,6 +68,18 @@ enum PSCommandProto {
   PSCOMMAND_INVALID = 6;
 }
 
+//* new code *//
+message PSRemoveRequest {
+  required PSAttemptIdProto psAttemptId = 1;
+}
+
+message PSRemoveResponse {
+  required bool saveContextStatus = 1;
+  optional PSMatricesSaveContextProto needSaveMatrices = 2;
+}
+//* code end *//
+
+
 message PSReportResponse {
   required PSCommandProto psCommand = 1 [default = PSCOMMAND_OK];
   repeated MatrixMetaProto needCreateMatrices = 2;
@@ -226,6 +238,7 @@ message LoadStartResponse {
 
 service PSMasterService {
   rpc psRegister(PSRegisterRequest) returns (PSRegisterResponse);
+  rpc psRemove(PSRemoveRequest) returns (PSRemoveResponse); //////
   rpc psReport(PSReportRequest) returns (PSReportResponse);
   rpc psDone(PSDoneRequest) returns (PSDoneResponse);
   rpc psError(PSErrorRequest) returns (PSErrorResponse);

@@ -80,6 +80,13 @@ public class AMModelSaver extends AbstractService {
    */
   private Map<ParameterServerId, PSMatricesSaveContext> currentSubSaveContexts;
 
+  /* new code */
+  /**
+   * PS index to PS sub save request context map for the removed parameter servers
+   */
+  public Map<Integer, PSMatricesSaveContext> removedPSsSaveContexts;
+  /* code end */
+
   /**
    * PS id to sub result map
    */
@@ -254,6 +261,7 @@ public class AMModelSaver extends AbstractService {
     rmServersPath_tmp = rmServersPath_tmp + "/" + String.valueOf(rmParameterServerIndex);
     LOG.info("rmServersPath_final = " + rmServersPath_final);
     LOG.info("rmServersPath_tmp = " + rmServersPath_tmp);
+    LOG.info("rmServersPath_save = " + rmServersPath_save);
     // init
     ModelSaveContext saveContext = new ModelSaveContext(rmServersPath_final);
     HashMap<String, MatrixMeta> MatrixName2Meta = new HashMap<String, MatrixMeta>();
@@ -263,7 +271,9 @@ public class AMModelSaver extends AbstractService {
     for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry: context.getMatrixMetaManager().matrixPartitionsOnPS.entrySet()){
       if (entry.getKey().getIndex() == rmParameterServerIndex) {
         for (Map.Entry<Integer, MatrixMeta> entry2 : entry.getValue().entrySet()){
-          saveContext.addMatrix(new MatrixSaveContext(entry2.getValue().getName()));
+          MatrixSaveContext matrixSaveContext = new MatrixSaveContext(entry2.getValue().getName());
+          matrixSaveContext.addIndex(0);
+          saveContext.addMatrix(matrixSaveContext);
           MatrixName2Meta.put(entry2.getValue().getName(), entry2.getValue());
         }
         break;
@@ -271,10 +281,14 @@ public class AMModelSaver extends AbstractService {
     }
     // split
     int requestId_removedServer = -1;
-    PSMatricesSaveContext psMatricesSaveContext_RMS = split_removedServer(requestId_removedServer,
+    PSMatricesSaveContext psMatricesSaveContext_removedPS = split_removedServer(requestId_removedServer,
             saveContext, MatrixName2Meta, rmParameterServerIndex, rmServersPath_save);
-    LOG.info("print_psMatricesSaveContext_RMS");
-    psMatricesSaveContext_RMS.print_PSMatricesSaveContext();
+    LOG.info("print_psMatricesSaveContext_removedPS");
+    psMatricesSaveContext_removedPS.print_PSMatricesSaveContext();
+    if (removedPSsSaveContexts == null){
+      removedPSsSaveContexts = new HashMap<Integer, PSMatricesSaveContext>();
+    }
+    removedPSsSaveContexts.put(rmParameterServerIndex, psMatricesSaveContext_removedPS);
   }
   /* code end */
 

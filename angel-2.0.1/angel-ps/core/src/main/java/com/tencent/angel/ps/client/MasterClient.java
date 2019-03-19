@@ -202,6 +202,12 @@ public class MasterClient {
     return masterProxy.psReport(null, request);
   }
 
+  /* new code */
+  public PSRemoveResponse psRemove(PSRemoveRequest request) throws ServiceException {
+    return masterProxy.psRemove(null, request);
+  }
+  /* code end */
+
   /**
    * Get a ps location from master
    *

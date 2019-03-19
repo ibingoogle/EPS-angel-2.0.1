@@ -28,6 +28,7 @@ import com.tencent.angel.conf.MatrixConf;
 import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.model.PSMatricesLoadContext;
+import com.tencent.angel.model.PSMatricesSaveContext;
 import com.tencent.angel.model.PSMatrixLoadContext;
 import com.tencent.angel.model.output.format.SnapshotFormat;
 import com.tencent.angel.plugin.AngelServiceLoader;
@@ -639,6 +640,7 @@ public class ParameterServer {
       LOG.info("heartbeat() in ParameterServer.java");
       int status = ret.getPsStatus();
       if (status == -1){
+        remove();
         done();
         return;
       }else if (status == 1){
@@ -682,8 +684,14 @@ public class ParameterServer {
 
       LOG.info("ps hb ret = " + ret); //////
       if (ret.hasNeedSaveMatrices()) {
-        LOG.info("ret.hasNeedSaveMatrices()"); //////
-        saver.save(ProtobufUtil.convert(ret.getNeedSaveMatrices()));
+        /* old code */
+        // saver.save(ProtobufUtil.convert(ret.getNeedSaveMatrices()));
+        /* new code */
+        LOG.info("ret.hasNeedSaveMatrices()");
+        PSMatricesSaveContext saveContext = ProtobufUtil.convert(ret.getNeedSaveMatrices());
+        saveContext.print_PSMatricesSaveContext();
+        saver.save(saveContext);
+        /* code end */
       }
 
       if (ret.hasNeedLoadMatrices()) {
@@ -858,6 +866,24 @@ public class ParameterServer {
     AngelServiceLoader.startServiceIfNeed(this, getConf());
     LOG.info("end of start()"); //////
   }
+
+  /* new code */
+  public void remove() throws ServiceException {
+    LOG.info("remove*****************************");
+    PSRemoveRequest.Builder builder = PSRemoveRequest.newBuilder();
+    builder.setPsAttemptId(attemptIdProto);
+    PSRemoveRequest request = builder.build();
+    PSRemoveResponse psRemoveResponse = master.psRemove(request);
+    boolean saveContextStatus = psRemoveResponse.getSaveContextStatus();
+    LOG.info("saveContextStatus = " + saveContextStatus);
+    if (saveContextStatus) {
+      PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
+      saveContext.print_PSMatricesSaveContext();
+    }
+  }
+
+
+  /* code end */
 
   /**
    * Done, will notify master and exit

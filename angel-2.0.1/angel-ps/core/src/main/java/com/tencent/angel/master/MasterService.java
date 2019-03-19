@@ -143,6 +143,26 @@ public class MasterService extends AbstractService implements MasterProtocol {
     return 0;
   }
 
+  /* new code */
+  // tell the removed server to save parameters
+  public PSRemoveResponse psRemove(RpcController controller, PSRemoveRequest request) throws ServiceException {
+    PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
+    PSRemoveResponse.Builder resBuilder = PSRemoveResponse.newBuilder();
+    if (context.getModelSaver().removedPSsSaveContexts != null &&
+            context.getModelSaver().removedPSsSaveContexts.containsKey(psAttemptId.getPsId().getIndex())) {
+      resBuilder.setSaveContextStatus(true);
+      PSMatricesSaveContext subSaveContext =
+              context.getModelSaver().removedPSsSaveContexts.get(psAttemptId.getPsId().getIndex());
+      resBuilder.setNeedSaveMatrices(ProtobufUtil.convert(subSaveContext));
+      context.getModelSaver().removedPSsSaveContexts.remove(psAttemptId.getPsId().getIndex());
+    }else {
+      resBuilder.setSaveContextStatus(false);
+    }
+    return resBuilder.build();
+  }
+
+  /* code end */
+
   /**
    * response for parameter server heartbeat
    *
@@ -266,7 +286,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
           // need add partitions
           if (Status == 1){
             List<MatrixMeta> MatrixMetaList_idle1 = new ArrayList<>();
-            List<MatrixMeta> MatrixMetaList_idle2 = new ArrayList<>();
             // first solution
             for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : context.getMatrixMetaManager().matrixPartitionsOnPS.entrySet()) {
               if (entry.getKey().getIndex() == psAttemptId.getPsId().getIndex()) {
