@@ -82,9 +82,9 @@ public class AMModelSaver extends AbstractService {
 
   /* new code */
   /**
-   * PS index to PS sub save request context map for the removed parameter servers
+   * PS index to splitNum map for the removed parameter servers
    */
-  public Map<Integer, PSMatricesSaveContext> removedPSsSaveContexts;
+  public Map<Integer, Integer> removedPSsSaveContexts;
   /* code end */
 
   /**
@@ -254,6 +254,19 @@ public class AMModelSaver extends AbstractService {
    * save parameters stored on the removed server
    */
   public void saveParametersOnRmPS(int rmParameterServerIndex){
+    String rmServersPath_save = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH);
+    rmServersPath_save = rmServersPath_save + "/" + String.valueOf(rmParameterServerIndex);
+    LOG.info("rmServersPath_save = " + rmServersPath_save);
+    if (removedPSsSaveContexts == null){
+      removedPSsSaveContexts = new HashMap<Integer, Integer>();
+    }
+    if (context.getMatrixMetaManager().active_servers.contains(rmParameterServerIndex)){
+      removedPSsSaveContexts.put(rmParameterServerIndex, context.getMatrixMetaManager().active_servers.size() - 1);
+    }else {
+      removedPSsSaveContexts.put(rmParameterServerIndex, context.getMatrixMetaManager().active_servers.size());
+    }
+    /*
+    // based on default save mechanism
     String rmServersPath_final = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_FINAL_OUTPUT_PATH);
     String rmServersPath_tmp = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_TMP_OUTPUT_PATH);
     String rmServersPath_save = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH);
@@ -290,6 +303,7 @@ public class AMModelSaver extends AbstractService {
       removedPSsSaveContexts = new HashMap<Integer, PSMatricesSaveContext>();
     }
     removedPSsSaveContexts.put(rmParameterServerIndex, psMatricesSaveContext_removedPS);
+    */
   }
   /* code end */
 
@@ -355,7 +369,7 @@ public class AMModelSaver extends AbstractService {
 
       // Split the user request to sub-requests to pss
       currentSubSaveContexts = split(currentRequestId, saveContext);
-      print_currentSubSaveContexts(); //////
+      // print_currentSubSaveContexts(); //////
       subResults = new HashMap<>(currentSubSaveContexts.size());
       for (Map.Entry<ParameterServerId, PSMatricesSaveContext> entry : currentSubSaveContexts
         .entrySet()) {
@@ -547,6 +561,7 @@ public class AMModelSaver extends AbstractService {
   }
 
   /* new code */
+  // use default save mechanism to save parameters of the removed server
   private PSMatricesSaveContext split_removedServer(int requestId, ModelSaveContext saveContext,
                                                     Map<String, MatrixMeta> matrixName2Meta, int rmParameterServerIndex, String savePath) {
     List<MatrixSaveContext> matricesContext = saveContext.getMatricesContext();

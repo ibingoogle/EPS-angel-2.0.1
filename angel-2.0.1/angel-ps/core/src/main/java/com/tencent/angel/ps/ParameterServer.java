@@ -886,10 +886,13 @@ public class ParameterServer {
     boolean saveContextStatus = psRemoveResponse.getSaveContextStatus();
     LOG.info("saveContextStatus = " + saveContextStatus);
     if (saveContextStatus) {
+      /*
+      // based on default save mechanism
       PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
       saveContext.print_PSMatricesSaveContext();
-      // saver.save_remove(saveContext);
-      int splitNum = 3;
+      saver.save_remove(saveContext);
+      */
+      int splitNum = psRemoveResponse.getSplitNum();
       List<String> savedFiles = save_test(splitNum);
       read_test(savedFiles);
     }

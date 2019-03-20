@@ -151,16 +151,15 @@ public class MasterService extends AbstractService implements MasterProtocol {
     if (context.getModelSaver().removedPSsSaveContexts != null &&
             context.getModelSaver().removedPSsSaveContexts.containsKey(psAttemptId.getPsId().getIndex())) {
       resBuilder.setSaveContextStatus(true);
-      PSMatricesSaveContext subSaveContext =
+      int splitNum =
               context.getModelSaver().removedPSsSaveContexts.get(psAttemptId.getPsId().getIndex());
-      resBuilder.setNeedSaveMatrices(ProtobufUtil.convert(subSaveContext));
+      resBuilder.setSplitNum(splitNum);
       context.getModelSaver().removedPSsSaveContexts.remove(psAttemptId.getPsId().getIndex());
     }else {
       resBuilder.setSaveContextStatus(false);
     }
     return resBuilder.build();
   }
-
   /* code end */
 
   /**
