@@ -890,15 +890,17 @@ public class ParameterServer {
       saveContext.print_PSMatricesSaveContext();
       // saver.save_remove(saveContext);
       int splitNum = 3;
-      save_test(splitNum);
-      read_test();
+      List<String> savedFiles = save_test(splitNum);
+      read_test(savedFiles);
     }
   }
 
-  public void save_test(int splitNum){
+  public List<String> save_test(int splitNum){
+    List<String> savedFiles = new ArrayList<>();
     String savePath = conf.get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH)
             + "/" + String.valueOf(getServerId().getIndex());
     int rowindex = 0;
+    FileSystem fs = null;
     for(Map.Entry<Integer, ServerMatrix> entry: context.getMatrixStorageManager().getMatrices().entrySet()){
       String matrixSaveFile = savePath + "/m" + String.valueOf(entry.getKey());
       for (Map.Entry<Integer, ServerPartition> entry2 : entry.getValue().getPartitions().entrySet()){
@@ -912,15 +914,15 @@ public class ParameterServer {
           if (data.length%blockCol > 0) blockCol += data.length%blockCol;
           for (int i = 0; i < splitNum; i++) {
             String splitSaveFile = partitionSaveFile + "_s" + String.valueOf(i);
+            savedFiles.add(splitSaveFile);
             LOG.info("splitSaveFile = " + splitSaveFile);
             Path saveFilePath = new Path(splitSaveFile);
-            FileSystem fs = null;
             try {
               fs = saveFilePath.getFileSystem(conf);
+              LOG.info("fs class = " + fs.getClass());
               //Path tmpDestFile = HdfsUtil.toTmpPath(saveFilePath);
               //FSDataOutputStream out = fs.create(tmpDestFile);
               FSDataOutputStream out = fs.create(saveFilePath);
-              LOG.info("fs class = " + fs.getClass());
               int startIndex = i*blockCol;
               int endIndex = Math.min(data.length, (i+1)*blockCol);
               LOG.info("startIndex = " + startIndex);
@@ -929,8 +931,8 @@ public class ParameterServer {
               String sep = ",";
               for (int j = startIndex; j < endIndex; j++) {
                 element.rowId = row.getRowId();
-                element.colId = startCol + i;
-                element.value = data[i];
+                element.colId = startCol + j;
+                element.value = data[j];
                 out.writeBytes(
                         String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
                                 .valueOf(element.value) + "\n");
@@ -940,47 +942,49 @@ public class ParameterServer {
             } catch (IOException e) {
               e.printStackTrace();
             }
-            try {
-              fs.close();
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
           }
         }
       }
     }
-
-
-    for(int i = 0; i < splitNum; i++){
-      String saveFile = savePath + "/" + String.valueOf(getServerId().getIndex()) + "_" + String.valueOf(i);
-      LOG.info("saveFile = " + saveFile);
-      Path saveFilePath = new Path(saveFile);
-    }
-  }
-
-  public void read_test() {
-    String readPath = conf.get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH)
-            + "/" + String.valueOf(getServerId().getIndex());
-    String readFile = readPath + "/" + String.valueOf(getServerId().getIndex());
-    LOG.info("readFile = " + readFile);
-    Path readFilePath = new Path(readFile);
-    FileSystem fs = null;
     try {
-      fs = readFilePath.getFileSystem(conf);
-      LOG.info("fs class = " + fs.getClass());
+      fs.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    try {
-      FSDataInputStream input = fs.open(readFilePath);
-      for (int i = 0; i < 10; i++){
-        String line = input.readLine();
-        String[] kv = line.split(",");
-        LOG.info("rowId = " + Integer.valueOf(kv[0]));
-        LOG.info("colId = " + Integer.valueOf(kv[1]));
-        LOG.info("value = " + Float.valueOf(kv[2]));
+    return savedFiles;
+  }
+
+  public void read_test(List<String> savedFiles) {
+    LOG.info("savedFiles size = " + savedFiles.size());
+    FileSystem fs = null;
+
+    for (int i = 0; i < savedFiles.size(); i++) {
+      String readFile = savedFiles.get(i);
+      LOG.info("readFile = " + readFile);
+      Path readFilePath = new Path(readFile);
+      try {
+        fs = readFilePath.getFileSystem(conf);
+        LOG.info("fs class = " + fs.getClass());
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-      input.close();
+      try {
+        FSDataInputStream input = fs.open(readFilePath);
+        for (int j = 0; j < 10; j++) {
+          String line = input.readLine();
+          String[] kv = line.split(",");
+          LOG.info("rowId = " + Integer.valueOf(kv[0]));
+          LOG.info("colId = " + Integer.valueOf(kv[1]));
+          LOG.info("value = " + Float.valueOf(kv[2]));
+        }
+        input.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    try {
+      fs.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
