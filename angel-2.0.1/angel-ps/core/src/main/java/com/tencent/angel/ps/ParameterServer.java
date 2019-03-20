@@ -25,11 +25,13 @@ import com.tencent.angel.common.AngelEnvironment;
 import com.tencent.angel.common.location.Location;
 import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.conf.MatrixConf;
+import com.tencent.angel.ml.math2.vector.IntFloatVector;
 import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.model.PSMatricesLoadContext;
 import com.tencent.angel.model.PSMatricesSaveContext;
 import com.tencent.angel.model.PSMatrixLoadContext;
+import com.tencent.angel.model.output.format.IntFloatElement;
 import com.tencent.angel.model.output.format.SnapshotFormat;
 import com.tencent.angel.plugin.AngelServiceLoader;
 import com.tencent.angel.protobuf.ProtobufUtil;
@@ -52,11 +54,16 @@ import com.tencent.angel.ps.server.data.PSFailedReport;
 import com.tencent.angel.ps.server.data.RunningContext;
 import com.tencent.angel.ps.server.data.WorkerPool;
 import com.tencent.angel.ps.storage.MatrixStorageManager;
+import com.tencent.angel.ps.storage.matrix.ServerMatrix;
+import com.tencent.angel.ps.storage.matrix.ServerPartition;
+import com.tencent.angel.ps.storage.vector.ServerIntFloatRow;
 import com.tencent.angel.ps.storage.vector.ServerRow;
+import com.tencent.angel.utils.HdfsUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.Credentials;
@@ -881,8 +888,73 @@ public class ParameterServer {
     if (saveContextStatus) {
       PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
       saveContext.print_PSMatricesSaveContext();
-      saver.save_remove(saveContext);
+      // saver.save_remove(saveContext);
+      int splitNum = 3;
+      save_test(splitNum);
       read_test();
+    }
+  }
+
+  public void save_test(int splitNum){
+    String savePath = conf.get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH)
+            + "/" + String.valueOf(getServerId().getIndex());
+    int rowindex = 0;
+    for(Map.Entry<Integer, ServerMatrix> entry: context.getMatrixStorageManager().getMatrices().entrySet()){
+      String matrixSaveFile = savePath + "/m" + String.valueOf(entry.getKey());
+      for (Map.Entry<Integer, ServerPartition> entry2 : entry.getValue().getPartitions().entrySet()){
+        String partitionSaveFile = matrixSaveFile + "_p" + String.valueOf(entry2.getKey());
+        int startCol = (int) entry2.getValue().getPartitionKey().getStartCol();
+        ServerIntFloatRow row = (ServerIntFloatRow) entry2.getValue().getRow(rowindex);
+        IntFloatVector vector = (IntFloatVector) row.getSplit();
+        if (vector.isDense()) {
+          float[] data = vector.getStorage().getValues();
+          int blockCol = data.length/splitNum;
+          if (data.length%blockCol > 0) blockCol += data.length%blockCol;
+          for (int i = 0; i < splitNum; i++) {
+            String splitSaveFile = partitionSaveFile + "_s" + String.valueOf(i);
+            LOG.info("splitSaveFile = " + splitSaveFile);
+            Path saveFilePath = new Path(splitSaveFile);
+            FileSystem fs = null;
+            try {
+              fs = saveFilePath.getFileSystem(conf);
+              //Path tmpDestFile = HdfsUtil.toTmpPath(saveFilePath);
+              //FSDataOutputStream out = fs.create(tmpDestFile);
+              FSDataOutputStream out = fs.create(saveFilePath);
+              LOG.info("fs class = " + fs.getClass());
+              int startIndex = i*blockCol;
+              int endIndex = Math.min(data.length, (i+1)*blockCol);
+              LOG.info("startIndex = " + startIndex);
+              LOG.info("endIndex = " + endIndex);
+              IntFloatElement element = new IntFloatElement();
+              String sep = ",";
+              for (int j = startIndex; j < endIndex; j++) {
+                element.rowId = row.getRowId();
+                element.colId = startCol + i;
+                element.value = data[i];
+                out.writeBytes(
+                        String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
+                                .valueOf(element.value) + "\n");
+              }
+              out.flush();
+              out.close();
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+            try {
+              fs.close();
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          }
+        }
+      }
+    }
+
+
+    for(int i = 0; i < splitNum; i++){
+      String saveFile = savePath + "/" + String.valueOf(getServerId().getIndex()) + "_" + String.valueOf(i);
+      LOG.info("saveFile = " + saveFile);
+      Path saveFilePath = new Path(saveFile);
     }
   }
 
@@ -908,19 +980,7 @@ public class ParameterServer {
         LOG.info("colId = " + Integer.valueOf(kv[1]));
         LOG.info("value = " + Float.valueOf(kv[2]));
       }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    try {
-      FSDataInputStream input = fs.open(readFilePath);
-      input.seek(100);
-      for (int i = 0; i < 10; i++){
-        String line = input.readLine();
-        String[] kv = line.split(",");
-        LOG.info("rowId = " + Integer.valueOf(kv[0]));
-        LOG.info("colId = " + Integer.valueOf(kv[1]));
-        LOG.info("value = " + Float.valueOf(kv[2]));
-      }
+      input.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
