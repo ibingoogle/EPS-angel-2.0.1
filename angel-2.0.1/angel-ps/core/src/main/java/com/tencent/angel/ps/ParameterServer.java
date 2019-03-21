@@ -880,6 +880,7 @@ public class ParameterServer {
   public void remove_save() throws ServiceException {
     LOG.info("remove_save*****************************");
     List<MatrixMeta> matrixMetas = master.psRemove(attemptIdProto);
+    LOG.info("matrixMetas.size() = " + matrixMetas.size());
     List<String> savedFiles = save(matrixMetas);
     read_test(savedFiles);
     /*
@@ -893,13 +894,15 @@ public class ParameterServer {
     List<String> savedFiles = new ArrayList<>();
     int rowindex = 0;
     FileSystem fs = null;
-    for (int i = 0 ; i<matrixMetas.size(); i++){
+    for (int i = 0 ; i< matrixMetas.size(); i++){
       MatrixMeta matrixMeta = matrixMetas.get(i);
       ServerMatrix serverMatrix = context.getMatrixStorageManager().getMatrix(matrixMeta.getId());
       if (serverMatrix != null){
         for (Map.Entry<Integer, Map<Integer, PartitionMeta>> entry: matrixMeta.partitionMetas_repartition.entrySet()){
           int prePartitionId = entry.getKey();
           ServerPartition serverPartition = serverMatrix.getPartition(prePartitionId);
+          int baseCol = (int) context.getMatrixMetaManager().getPartMeta(matrixMeta.getId(), prePartitionId).getStartCol();
+          LOG.info("baseCol = " + baseCol);
           ServerIntFloatRow row = (ServerIntFloatRow) serverPartition.getRow(rowindex);
           IntFloatVector vector = (IntFloatVector) row.getSplit();
           if (vector.isDense()){
@@ -907,9 +910,11 @@ public class ParameterServer {
             for (Map.Entry<Integer, PartitionMeta> entry2: entry.getValue().entrySet()){
               PartitionMeta partitionMeta = entry2.getValue();
               String savePath_final = partitionMeta.savePath;
-              int startCol = (int) partitionMeta.getStartCol();
-              int endCol = (int) partitionMeta.getEndCol();
-              if (startCol >= 0 && startCol <= endCol && endCol <= data.length){
+              int startIndex = (int) partitionMeta.getStartCol() - baseCol;
+              int endIndex = (int) partitionMeta.getEndCol() - baseCol;
+              LOG.info("startIndex = " + startIndex);
+              LOG.info("endIndex = " + endIndex);
+              if (startIndex >= 0 && startIndex <= endIndex && endIndex <= data.length){
                 savedFiles.add(savePath_final);
                 Path saveFilePath = new Path(savePath_final);
                 try {
@@ -920,9 +925,9 @@ public class ParameterServer {
                   FSDataOutputStream out = fs.create(saveFilePath);
                   IntFloatElement element = new IntFloatElement();
                   String sep = ",";
-                  for (int j = startCol; j < endCol; j++) {
+                  for (int j = startIndex; j < endIndex; j++) {
                     element.rowId = row.getRowId();
-                    element.colId = startCol + j;
+                    element.colId = baseCol + j;
                     element.value = data[j];
                     out.writeBytes(
                             String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
