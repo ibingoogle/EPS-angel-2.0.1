@@ -224,6 +224,7 @@ public class MasterClient {
     }
     List<MLProtos.MatrixMetaProto> matrixMetaProtos = psRemoveResponse.getMatrixMetasList();
     int size = matrixMetaProtos.size();
+    LOG.info("matrixMetaProtos.size() = " + size);
     List<MatrixMeta> matrixMetas = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       try {

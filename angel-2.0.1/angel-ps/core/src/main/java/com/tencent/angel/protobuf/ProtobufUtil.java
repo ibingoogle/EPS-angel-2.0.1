@@ -481,8 +481,8 @@ public final class ProtobufUtil {
     List<PartitionMetaProto> partMetaRepartitionProtos = matrixMetaProto.getPartMetasRepartitionList();
     int sizeRepartition = partMetaRepartitionProtos.size();
     for (int i = 0; i < sizeRepartition; i++){
-      matrixMeta.addPartitionMeta_repartition(partMetaIdleProtos.get(i).getPartitionId(),
-              convertToParitionMeta(matrixContext.getMatrixId(), partMetaIdleProtos.get(i)));
+      matrixMeta.addPartitionMeta_repartition(partMetaRepartitionProtos.get(i).getPartitionId(),
+              convertToParitionMeta(matrixContext.getMatrixId(), partMetaRepartitionProtos.get(i)));
     }
     /* code end */
     return matrixMeta;
