@@ -883,11 +883,6 @@ public class ParameterServer {
     LOG.info("matrixMetas.size() = " + matrixMetas.size());
     List<String> savedFiles = save(matrixMetas);
     read_test(savedFiles);
-    /*
-    int splitNum = psRemoveResponse.getSplitNum();
-    List<String> savedFiles = save_test(splitNum);
-    read_test(savedFiles);
-    */
   }
 
   public List<String> save(List<MatrixMeta> matrixMetas){
@@ -939,65 +934,6 @@ public class ParameterServer {
                   e.printStackTrace();
                 }
               }
-            }
-          }
-        }
-      }
-    }
-    try {
-      fs.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return savedFiles;
-  }
-
-  public List<String> save_test(int splitNum){
-    List<String> savedFiles = new ArrayList<>();
-    String savePath = conf.get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH)
-            + "/" + String.valueOf(getServerId().getIndex());
-    int rowindex = 0;
-    FileSystem fs = null;
-    for(Map.Entry<Integer, ServerMatrix> entry: context.getMatrixStorageManager().getMatrices().entrySet()){
-      String matrixSaveFile = savePath + "/m" + String.valueOf(entry.getKey());
-      for (Map.Entry<Integer, ServerPartition> entry2 : entry.getValue().getPartitions().entrySet()){
-        String partitionSaveFile = matrixSaveFile + "_p" + String.valueOf(entry2.getKey());
-        int startCol = (int) entry2.getValue().getPartitionKey().getStartCol();
-        ServerIntFloatRow row = (ServerIntFloatRow) entry2.getValue().getRow(rowindex);
-        IntFloatVector vector = (IntFloatVector) row.getSplit();
-        if (vector.isDense()) {
-          float[] data = vector.getStorage().getValues();
-          int blockCol = data.length/splitNum;
-          if (data.length%blockCol > 0) blockCol += data.length%blockCol;
-          for (int i = 0; i < splitNum; i++) {
-            String splitSaveFile = partitionSaveFile + "_s" + String.valueOf(i);
-            savedFiles.add(splitSaveFile);
-            LOG.info("splitSaveFile = " + splitSaveFile);
-            Path saveFilePath = new Path(splitSaveFile);
-            try {
-              fs = saveFilePath.getFileSystem(conf);
-              LOG.info("fs class = " + fs.getClass());
-              //Path tmpDestFile = HdfsUtil.toTmpPath(saveFilePath);
-              //FSDataOutputStream out = fs.create(tmpDestFile);
-              FSDataOutputStream out = fs.create(saveFilePath);
-              int startIndex = i*blockCol;
-              int endIndex = Math.min(data.length, (i+1)*blockCol);
-              LOG.info("startIndex = " + startIndex);
-              LOG.info("endIndex = " + endIndex);
-              IntFloatElement element = new IntFloatElement();
-              String sep = ",";
-              for (int j = startIndex; j < endIndex; j++) {
-                element.rowId = row.getRowId();
-                element.colId = startCol + j;
-                element.value = data[j];
-                out.writeBytes(
-                        String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
-                                .valueOf(element.value) + "\n");
-              }
-              out.flush();
-              out.close();
-            } catch (IOException e) {
-              e.printStackTrace();
             }
           }
         }
