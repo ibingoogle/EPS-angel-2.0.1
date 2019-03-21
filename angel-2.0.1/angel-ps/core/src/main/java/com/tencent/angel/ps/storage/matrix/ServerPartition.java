@@ -131,6 +131,7 @@ public class ServerPartition implements Serialize {
       LOG.info("rowIndex = " + entry.getKey());
       LOG.info("loadPath = " + entry.getValue());
       ServerIntFloatRow row = (ServerIntFloatRow) getRow(entry.getKey());
+      int baseCol = (int) partitionKey.getStartCol();
       FileSystem fs = null;
       Path loadFilePath = new Path(entry.getValue());
       try {
@@ -144,7 +145,7 @@ public class ServerPartition implements Serialize {
           String line = input.readLine();
           String[] kv = line.split(",");
           float value = Float.valueOf(kv[2]);
-          row.set(j, value);
+          row.set(j+baseCol, value);
         }
         input.close();
       } catch (IOException e) {
