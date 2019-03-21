@@ -307,6 +307,8 @@ public class AMMatrixMetaManager {
 
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
     print_AMMatrixMetaManager();
+    // change active_servers to notify the removed server
+    context.getMatrixMetaManager().active_servers.remove(rmParameterServerIndex);
 
     // find ParameterServerId that corresponds to rmParameterServerIndex
     ParameterServerId rmParameterServerId = null;
@@ -337,16 +339,13 @@ public class AMMatrixMetaManager {
         matrixMetaManager.getMatrixMeta(matrixId).getPartitionMetas().remove(entry2.getKey());
       }
     }
-    matrixPartitionsOn_removedPS.put(rmParameterServerId.getIndex(), MatrixId2Meta);
-    matrixPartitionsOnPS.remove(rmParameterServerId);
-    print_AMMatrixMetaManager();
 
+    matrixPartitionsOnPS.remove(rmParameterServerId);
     // re-partition all matrixMetas related to the removed server
     rePartition_PartitionMetas(MatrixId2Meta);
-
-    // change active_servers to notify the removed server
-    context.getMatrixMetaManager().active_servers.remove(rmParameterServerIndex);
-
+    // when we put(rmParameterServerId.getIndex(), MatrixId2Meta), server can get MatrixId2Meta based on RPC
+    matrixPartitionsOn_removedPS.put(rmParameterServerId.getIndex(), MatrixId2Meta);
+    print_AMMatrixMetaManager();
     // notify workers and servers
     // notify_workers_servers();
   }
@@ -447,7 +446,6 @@ public class AMMatrixMetaManager {
         }
       }
     }
-    print_AMMatrixMetaManager();
   }
 
 
@@ -552,8 +550,7 @@ public class AMMatrixMetaManager {
 
     Partitioner partitioner = initPartitioner(matrixContext, context.getConf());
 
-    // now active_servers still contain the removed server, so we need minus one
-    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size()-1, idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
+    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size(), idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
 
     assignPSForPartitions_idle(partitioner, partitions);
     return partitions;
@@ -635,6 +632,7 @@ public class AMMatrixMetaManager {
       for (ParameterServerId existing_psId : psIdToMatrixIdsMap.keySet()){
         if (existing_psId.getIndex() == psIndexes[i]) psId = existing_psId;
       }
+      LOG.info("psId = " + psId);
       if (psId == null) return;
       partitions.get(i).addReplicationPS(psId);
       partitions.get(i).makePsToMaster(psId);
