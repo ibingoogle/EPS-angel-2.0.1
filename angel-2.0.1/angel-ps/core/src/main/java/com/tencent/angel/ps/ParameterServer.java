@@ -882,7 +882,7 @@ public class ParameterServer {
     List<MatrixMeta> matrixMetas = master.psRemove(attemptIdProto);
     LOG.info("matrixMetas.size() = " + matrixMetas.size());
     List<String> savedFiles = save(matrixMetas);
-    read_test(savedFiles);
+    // read_test(savedFiles);
   }
 
   public List<String> save(List<MatrixMeta> matrixMetas){
