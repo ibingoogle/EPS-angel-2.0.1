@@ -765,6 +765,7 @@ public class ParameterServer {
     matrixMetaManager.addMatrices_idle(matrixMetas_idle);
     clockVectorManager.addMatrices_idle(matrixMetas_idle);
     matrixStorageManager.addMatrices_idle(matrixMetas_idle);
+    matrixMetaManager.adjustMatrices_idle();
     LOG.info("after createMatrices_idle......");
     print_ParameterServer();
   }

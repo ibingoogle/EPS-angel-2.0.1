@@ -80,6 +80,12 @@ public class MatrixMetaManager {
       addMatrix_idle(matrixMetas_idle.get(i));
     }
   }
+
+  public void adjustMatrices_idle(){
+    for (Map.Entry<Integer, MatrixMeta> entry : matrixIdToMetaMap.entrySet()){
+      entry.getValue().reassign_partitionMetas_idle();
+    }
+  }
   /* code end */
 
 
@@ -101,7 +107,7 @@ public class MatrixMetaManager {
     if (!this.matrixIdToMetaMap.containsKey(matrixMeta_idle.getId())){
       this.matrixIdToMetaMap.putIfAbsent(matrixMeta_idle.getId(), matrixMeta_idle);
     }
-    this.matrixIdToMetaMap.get(matrixMeta_idle.getId()).reassign_partitionMetas_idle(matrixMeta_idle.partitionMetas_idle);
+    this.matrixIdToMetaMap.get(matrixMeta_idle.getId()).partitionMetas_idle = matrixMeta_idle.partitionMetas_idle;
   }
 
   /* code end */

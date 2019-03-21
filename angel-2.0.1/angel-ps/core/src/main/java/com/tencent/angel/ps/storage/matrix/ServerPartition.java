@@ -164,7 +164,7 @@ public class ServerPartition implements Serialize {
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowindex = " + i + ", class = " + rows.getRow(i).getClass() + ", toString = " + rows.getRow(i).toString());
     }
-    int colEndIndex = 10;
+    int colEndIndex = (int) Math.min(10, (partitionKey.getEndCol() - partitionKey.getStartCol()));
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowIndex = " + i);
       print_values(i, colEndIndex);
@@ -179,13 +179,10 @@ public class ServerPartition implements Serialize {
     if (vector.isDense()){
       float[] data = vector.getStorage().getValues();
       IntFloatElement element = new IntFloatElement();
-      String sep = ",";
       for (int j = 0; j < colEndIndex; j++) {
-        element.rowId = row.getRowId();
         element.colId = baseCol + j;
         element.value = data[j];
-        LOG.info(String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
-                        .valueOf(element.value) + "\n");
+        LOG.info("colId = " + String.valueOf(element.colId) + " => value = " + String.valueOf(element.value) + "\n");
       }
     }
   }

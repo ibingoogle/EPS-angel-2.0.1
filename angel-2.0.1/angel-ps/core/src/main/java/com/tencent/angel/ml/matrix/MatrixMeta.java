@@ -70,12 +70,11 @@ public class MatrixMeta {
   }
 
   /* new code */
-  public void reassign_partitionMetas_idle(Map<Integer, PartitionMeta> partitionMetas_idle){
+  public void reassign_partitionMetas_idle(){
     for (Map.Entry<Integer, PartitionMeta> entry: partitionMetas_idle.entrySet()){
       partitionMetas.put(entry.getKey(), entry.getValue());
     }
   }
-
 
   public void print_MatrixMeta() {
     LOG.info("print_MatrixMeta");

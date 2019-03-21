@@ -91,7 +91,7 @@ public class ServerMatrix {
     LOG.info("init_idle() ServerMatirx.java, MatrixId = " + matrixId + ", name = " + matrixName);
     MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
     Map<Integer, PartitionMeta> partMetas_idle = matrixMeta.getPartitionMetas_idle();
-
+    LOG.info("partMetas_idle size = " + partMetas_idle.size());
     String sourceClass = matrixMeta.getAttribute(AngelConf.ANGEL_PS_PARTITION_SOURCE_CLASS,
             AngelConf.DEFAULT_ANGEL_PS_PARTITION_SOURCE_CLASS);
     LOG.info("sourceClass in init_idle() = " + sourceClass);

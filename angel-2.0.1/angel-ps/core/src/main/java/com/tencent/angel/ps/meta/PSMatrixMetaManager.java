@@ -84,7 +84,9 @@ public class PSMatrixMetaManager {
     matrixMetaManager.addMatrices_idle(matrices_idle);
   }
 
-
+  public void adjustMatrices_idle() {
+    matrixMetaManager.adjustMatrices_idle();
+  }
   /* code end */
 
   /**
