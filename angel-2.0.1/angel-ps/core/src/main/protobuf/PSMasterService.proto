@@ -77,6 +77,13 @@ message PSRemoveResponse {
   required bool saveContextStatus = 1;
   repeated MatrixMetaProto matrixMetas = 2;
 }
+
+message PSSaveRequest {
+  required PSAttemptIdProto psAttemptId = 1;
+}
+
+message PSSaveResponse {
+}
 //* code end *//
 
 
@@ -238,6 +245,7 @@ message LoadStartResponse {
 
 service PSMasterService {
   rpc psRegister(PSRegisterRequest) returns (PSRegisterResponse);
+  rpc psSave(PSSaveRequest) returns (PSSaveResponse); //////
   rpc psRemove(PSRemoveRequest) returns (PSRemoveResponse); //////
   rpc psReport(PSReportRequest) returns (PSReportResponse);
   rpc psDone(PSDoneRequest) returns (PSDoneResponse);

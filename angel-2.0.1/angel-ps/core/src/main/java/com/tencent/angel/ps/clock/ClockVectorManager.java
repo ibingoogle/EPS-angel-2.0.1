@@ -89,14 +89,17 @@ public class ClockVectorManager {
   public void print_ClockVectorManager(){
     LOG.info("print_ClockVectorManager");
     // 1
+    LOG.info("matrixIdToClockVecMap => ");
     for (Map.Entry<Integer, MatrixClockVector> entry: matrixIdToClockVecMap.entrySet()) {
       LOG.info("matrixId = " + entry.getKey());
       entry.getValue().print_MatrixClockVector();
     }
     // 2
+    LOG.info("partKeyToClockMap =>");
     for (Map.Entry<PartitionKey, Integer> entry : partKeyToClockMap.entrySet()) {
       LOG.info("partitionKey = " + entry.getKey().toString() + ", clock = " + entry.getValue());
     }
+    LOG.info("partKeyToClockMap_idle =>");
     for (Map.Entry<PartitionKey, Integer> entry : partKeyToClockMap_idle.entrySet()) {
       LOG.info("partitionKey_idle = " + entry.getKey().toString() + ", clock = " + entry.getValue());
     }
@@ -160,13 +163,10 @@ public class ClockVectorManager {
     if (!matrixIdToClockVecMap.containsKey(matrixMeta_idle.getId())) {
       matrixIdToClockVecMap
               .putIfAbsent(matrixMeta_idle.getId(), new MatrixClockVector(taskNum, matrixMeta_idle));
-      for (PartitionMeta partMeta : matrixMeta_idle.getPartitionMetas().values()) {
-        partKeyToClockMap.put(partMeta.getPartitionKey(), 0);
-      }
     }
     matrixIdToClockVecMap.get(matrixMeta_idle.getId()).initPartClockVectors_idle(matrixMeta_idle);
     for (PartitionMeta partMeta_idle : matrixMeta_idle.getPartitionMetas_idle().values()) {
-      partKeyToClockMap_idle.put(partMeta_idle.getPartitionKey(), 0);
+      partKeyToClockMap.put(partMeta_idle.getPartitionKey(), 0);
     }
   }
 

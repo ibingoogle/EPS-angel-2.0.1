@@ -21,17 +21,24 @@ package com.tencent.angel.ps.storage.matrix;
 import com.tencent.angel.PartitionKey;
 import com.tencent.angel.common.Serialize;
 import com.tencent.angel.conf.AngelConf;
+import com.tencent.angel.ml.math2.vector.IntFloatVector;
 import com.tencent.angel.ml.matrix.RowType;
 import com.tencent.angel.ml.matrix.psf.update.base.PartitionUpdateParam;
 import com.tencent.angel.ml.matrix.psf.update.base.UpdateFunc;
+import com.tencent.angel.model.output.format.IntFloatElement;
 import com.tencent.angel.ps.PSContext;
 import com.tencent.angel.ps.server.data.request.UpdateOp;
+import com.tencent.angel.ps.storage.vector.ServerIntFloatRow;
 import com.tencent.angel.ps.storage.vector.ServerRow;
 import com.tencent.angel.ps.storage.vector.ServerRowFactory;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -68,6 +75,11 @@ public class ServerPartition implements Serialize {
   private volatile PartitionState state;
 
   private final AtomicInteger updateCounter = new AtomicInteger(0);
+
+  /* new code */
+  // rowIndex to loadpath
+  public Map<Integer, String> loadPath = new HashMap<Integer, String>();
+  /* code end */
 
   /**
    * Create a new Server partition,include load rows.
@@ -113,13 +125,70 @@ public class ServerPartition implements Serialize {
   }
 
   /* new code */
+
+  public void load_values(PSContext context) {
+    for (Map.Entry<Integer, String> entry : loadPath.entrySet()) {
+      LOG.info("rowIndex = " + entry.getKey());
+      LOG.info("loadPath = " + entry.getValue());
+      ServerIntFloatRow row = (ServerIntFloatRow) getRow(entry.getKey());
+      FileSystem fs = null;
+      Path loadFilePath = new Path(entry.getValue());
+      try {
+        fs = loadFilePath.getFileSystem(context.getConf());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      try {
+        FSDataInputStream input = fs.open(loadFilePath);
+        for (int j = 0; j < row.size(); j++) {
+          String line = input.readLine();
+          String[] kv = line.split(",");
+          float value = Float.valueOf(kv[2]);
+          row.set(j, value);
+        }
+        input.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      try {
+        fs.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   public void print_ServerPartition() {
     LOG.info("print_ServerPartition");
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowindex = " + i + ", class = " + rows.getRow(i).getClass() + ", toString = " + rows.getRow(i).toString());
     }
+    int colEndIndex = 10;
+    for (int i = 0; i < rows.rowNum(); i++){
+      LOG.info("rowIndex = " + i);
+      print_values(i, colEndIndex);
+    }
   }
 
+  // only apply to Logistic Regression with limited classes
+  public void print_values(int rowIndex, int colEndIndex){
+    ServerIntFloatRow row = (ServerIntFloatRow) getRow(rowIndex);
+    IntFloatVector vector = (IntFloatVector) row.getSplit();
+    int baseCol = (int) partitionKey.getStartCol();
+    if (vector.isDense()){
+      float[] data = vector.getStorage().getValues();
+      IntFloatElement element = new IntFloatElement();
+      String sep = ",";
+      for (int j = 0; j < colEndIndex; j++) {
+        element.rowId = row.getRowId();
+        element.colId = baseCol + j;
+        element.value = data[j];
+        LOG.info(String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
+                        .valueOf(element.value) + "\n");
+      }
+    }
+  }
   /* code end */
 
 

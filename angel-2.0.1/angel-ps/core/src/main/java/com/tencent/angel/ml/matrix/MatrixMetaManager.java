@@ -101,7 +101,7 @@ public class MatrixMetaManager {
     if (!this.matrixIdToMetaMap.containsKey(matrixMeta_idle.getId())){
       this.matrixIdToMetaMap.putIfAbsent(matrixMeta_idle.getId(), matrixMeta_idle);
     }
-    this.matrixIdToMetaMap.get(matrixMeta_idle.getId()).partitionMetas_idle = matrixMeta_idle.partitionMetas_idle;
+    this.matrixIdToMetaMap.get(matrixMeta_idle.getId()).reassign_partitionMetas_idle(matrixMeta_idle.partitionMetas_idle);
   }
 
   /* code end */

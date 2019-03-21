@@ -85,7 +85,7 @@ public class ServerMatrix {
   }
 
 
-  public void init_idle() {
+  public void init_idle(PSContext context) {
     LOG.info("init_idle() ServerMatirx.java, MatrixId = " + matrixId + ", name = " + matrixName);
     MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
     Map<Integer, PartitionMeta> partMetas_idle = matrixMeta.getPartitionMetas_idle();
@@ -96,9 +96,11 @@ public class ServerMatrix {
     for (PartitionMeta partMeta_idle : partMetas_idle.values()) {
       ServerPartition part = new ServerPartition(partMeta_idle.getPartitionKey(), matrixMeta.getRowType(),
               matrixMeta.getEstSparsity(), sourceClass);
-      partitionMaps_idle.put(partMeta_idle.getPartId(), part);
+      part.loadPath.put(0, partMeta_idle.savePath);
+      partitionMaps.put(partMeta_idle.getPartId(), part);
       part.init();
       part.setState(PartitionState.READ_AND_WRITE);
+      part.load_values(context);
     }
   }
   /* code end */

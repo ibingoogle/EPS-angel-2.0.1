@@ -346,19 +346,18 @@ public class AMMatrixMetaManager {
     // when we put(rmParameterServerId.getIndex(), MatrixId2Meta), server can get MatrixId2Meta based on RPC
     matrixPartitionsOn_removedPS.put(rmParameterServerId.getIndex(), MatrixId2Meta);
     print_AMMatrixMetaManager();
-    // notify workers and servers
-    // notify_workers_servers();
   }
 
-  public void notify_workers_servers(){
+  // when the removed server has saved parameters, it's time to notify rest servers to load these parameters
+  public void notify_servers() {
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> serverIndexes = new HashSet<Integer>();
-    for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()){
+    for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()) {
       serverIndexes.add(entry.getKey().getIndex());
     }
     // LOG.info("serverIndexes.size = " + serverIndexes.size());
     serverStatus_servers.clear();
-    for (int serverindex : serverIndexes){
+    for (int serverindex : serverIndexes) {
       // LOG.info("serverStatus_servers.put(" + serverindex+ ", 1)");
       serverStatus_servers.put(serverindex, 1);
       // LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
@@ -371,8 +370,9 @@ public class AMMatrixMetaManager {
     }
     */
     serversStatus_change_servers = true;
+  }
 
-
+  public void notify_workers(){
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
     // LOG.info("workerIndexes.size = " + workerIndexes.size());

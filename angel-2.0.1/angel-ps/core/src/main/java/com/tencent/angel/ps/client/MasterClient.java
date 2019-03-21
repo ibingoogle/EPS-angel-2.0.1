@@ -203,6 +203,14 @@ public class MasterClient {
   }
 
   /* new code */
+  public void psSave(MLProtos.PSAttemptIdProto attemptIdProto) throws ServiceException {
+    PSSaveRequest.Builder builder = PSSaveRequest.newBuilder();
+    builder.setPsAttemptId(attemptIdProto);
+    PSSaveRequest request = builder.build();
+    masterProxy.psSave(null, request);
+  }
+
+
   public List<MatrixMeta> psRemove(MLProtos.PSAttemptIdProto attemptIdProto) throws ServiceException {
     boolean saveContextStatus = false;
     PSRemoveResponse psRemoveResponse = null;

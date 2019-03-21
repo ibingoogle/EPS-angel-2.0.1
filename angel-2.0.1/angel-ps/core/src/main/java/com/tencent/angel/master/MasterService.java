@@ -161,6 +161,16 @@ public class MasterService extends AbstractService implements MasterProtocol {
     }
     return resBuilder.build();
   }
+
+  // tell master than parameters of the removed server have been saved
+  public PSSaveResponse psSave(RpcController controller, PSSaveRequest request) throws ServiceException {
+    PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
+    int PSIndex = psAttemptId.getPsId().getIndex();
+    context.getMatrixMetaManager().matrixPartitionsOn_removedPS.remove(PSIndex);
+    //TODO
+    context.getMatrixMetaManager().notify_servers();
+    return PSSaveResponse.newBuilder().build();
+  }
   /* code end */
 
   /**
@@ -281,27 +291,27 @@ public class MasterService extends AbstractService implements MasterProtocol {
         if (context.getMatrixMetaManager().serverStatus_servers.containsKey(psAttemptId.getPsId().getIndex())) {
           // set status
           int Status = context.getMatrixMetaManager().serverStatus_servers.get(psAttemptId.getPsId().getIndex());
-          // LOG.info("Status in psReport = " + Status);
+          LOG.info("Status in psReport = " + Status);
           resBuilder.setPsStatus(Status);
           // need add partitions
           if (Status == 1){
-            List<MatrixMeta> MatrixMetaList_idle1 = new ArrayList<>();
+            List<MatrixMeta> MatrixMetaList_idle = new ArrayList<>();
             // first solution
             for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : context.getMatrixMetaManager().matrixPartitionsOnPS.entrySet()) {
               if (entry.getKey().getIndex() == psAttemptId.getPsId().getIndex()) {
                 for (Map.Entry<Integer, MatrixMeta> entry2 : entry.getValue().entrySet()) {
                   if (entry2.getValue().partitionMetas_idle != null && entry2.getValue().partitionMetas_idle.size() > 0) {
-                    MatrixMetaList_idle1.add(entry2.getValue());
+                    MatrixMetaList_idle.add(entry2.getValue());
                   }
                 }
                 break;
               }
             }
-            LOG.info("MatrixMetaList_idle1 size = " + MatrixMetaList_idle1.size());
-            for (int i = 0; i< MatrixMetaList_idle1.size(); i++){
-              LOG.info("idle partitionMeta size  = " + MatrixMetaList_idle1.get(i).partitionMetas_idle.size());
+            LOG.info("MatrixMetaList_idle size = " + MatrixMetaList_idle.size());
+            for (int i = 0; i< MatrixMetaList_idle.size(); i++){
+              LOG.info("idle partitionMeta size  = " + MatrixMetaList_idle.get(i).partitionMetas_idle.size());
               resBuilder
-                      .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle1.get(i)));
+                      .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle.get(i)));
             }
           }
           // remove status

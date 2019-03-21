@@ -108,7 +108,7 @@ public class MatrixStorageManager {
       matrixIdToDataMap.put(matrixId, serverMatrix);
       LOG.info("MatrixId [" + matrixId + "] added.");
     }
-    matrixIdToDataMap.get(matrixId).init_idle();
+    matrixIdToDataMap.get(matrixId).init_idle(context);
   }
   /* code end */
 
