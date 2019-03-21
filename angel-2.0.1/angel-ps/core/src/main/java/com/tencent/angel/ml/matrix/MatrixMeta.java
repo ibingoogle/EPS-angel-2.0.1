@@ -74,6 +74,7 @@ public class MatrixMeta {
     for (Map.Entry<Integer, PartitionMeta> entry: partitionMetas_idle.entrySet()){
       partitionMetas.put(entry.getKey(), entry.getValue());
     }
+    partitionMetas_idle.clear();
   }
 
   public void print_MatrixMeta() {

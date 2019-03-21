@@ -646,8 +646,10 @@ public class ParameterServer {
     try {
       ret = master.psReport(request);
       /* new code */
-      LOG.info("heartbeat() in ParameterServer.java");
       int status = ret.getPsStatus();
+      LOG.info("heartbeat() in ParameterServer.java");
+      LOG.info("status from heartbeat = " + status);
+      LOG.info("ret.getPsCommand() = " + ret.getPsCommand());
       if (status == -1){
         remove_save();
         done();
@@ -657,8 +659,7 @@ public class ParameterServer {
         List<MatrixMeta> matrixMetas_idle = ProtobufUtil.convertToMatricesMeta(ret.getNeedIdleMatricesList());
         load_removedPS(matrixMetas_idle);
       }
-      LOG.info("status from heartbeat = " + status);
-      LOG.info("ret.getPsCommand() = " + ret.getPsCommand());
+
       /* code end */
       switch (ret.getPsCommand()) {
         case PSCOMMAND_REGISTER:
