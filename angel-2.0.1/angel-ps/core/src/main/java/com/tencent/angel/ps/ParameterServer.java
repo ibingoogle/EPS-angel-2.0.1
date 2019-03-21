@@ -880,14 +880,71 @@ public class ParameterServer {
   public void remove_save() throws ServiceException {
     LOG.info("remove_save*****************************");
     List<MatrixMeta> matrixMetas = master.psRemove(attemptIdProto);
-    for (int i = 0; i < matrixMetas.size(); i++){
-      matrixMetas.get(i).print_MatrixMeta();
-    }
+    List<String> savedFiles = save(matrixMetas);
+    read_test(savedFiles);
     /*
     int splitNum = psRemoveResponse.getSplitNum();
     List<String> savedFiles = save_test(splitNum);
     read_test(savedFiles);
     */
+  }
+
+  public List<String> save(List<MatrixMeta> matrixMetas){
+    List<String> savedFiles = new ArrayList<>();
+    int rowindex = 0;
+    FileSystem fs = null;
+    for (int i = 0 ; i<matrixMetas.size(); i++){
+      MatrixMeta matrixMeta = matrixMetas.get(i);
+      ServerMatrix serverMatrix = context.getMatrixStorageManager().getMatrix(matrixMeta.getId());
+      if (serverMatrix != null){
+        for (Map.Entry<Integer, Map<Integer, PartitionMeta>> entry: matrixMeta.partitionMetas_repartition.entrySet()){
+          int prePartitionId = entry.getKey();
+          ServerPartition serverPartition = serverMatrix.getPartition(prePartitionId);
+          ServerIntFloatRow row = (ServerIntFloatRow) serverPartition.getRow(rowindex);
+          IntFloatVector vector = (IntFloatVector) row.getSplit();
+          if (vector.isDense()){
+            float[] data = vector.getStorage().getValues();
+            for (Map.Entry<Integer, PartitionMeta> entry2: entry.getValue().entrySet()){
+              PartitionMeta partitionMeta = entry2.getValue();
+              String savePath_final = partitionMeta.savePath;
+              int startCol = (int) partitionMeta.getStartCol();
+              int endCol = (int) partitionMeta.getEndCol();
+              if (startCol >= 0 && startCol <= endCol && endCol <= data.length){
+                savedFiles.add(savePath_final);
+                Path saveFilePath = new Path(savePath_final);
+                try {
+                  fs = saveFilePath.getFileSystem(conf);
+                  LOG.info("fs class = " + fs.getClass());
+                  // Path tmpDestFile = HdfsUtil.toTmpPath(saveFilePath);
+                  // FSDataOutputStream out = fs.create(tmpDestFile);
+                  FSDataOutputStream out = fs.create(saveFilePath);
+                  IntFloatElement element = new IntFloatElement();
+                  String sep = ",";
+                  for (int j = startCol; j < endCol; j++) {
+                    element.rowId = row.getRowId();
+                    element.colId = startCol + j;
+                    element.value = data[j];
+                    out.writeBytes(
+                            String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
+                                    .valueOf(element.value) + "\n");
+                  }
+                  out.flush();
+                  out.close();
+                } catch (IOException e) {
+                  e.printStackTrace();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    try {
+      fs.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return savedFiles;
   }
 
   public List<String> save_test(int splitNum){
@@ -984,8 +1041,6 @@ public class ParameterServer {
       e.printStackTrace();
     }
   }
-
-
   /* code end */
 
   /**
