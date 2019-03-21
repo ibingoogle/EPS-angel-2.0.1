@@ -72,6 +72,7 @@ public class MatrixMeta {
   /* new code */
   public void print_MatrixMeta() {
     LOG.info("print_MatrixMeta");
+    LOG.info("PartitionIdStart = " + PartitionIdStart);
     // LOG.info("    MatrixMeta_toString = " + toString());
     // 1
     LOG.info("partitionMetas => ");

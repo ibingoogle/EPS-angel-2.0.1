@@ -413,6 +413,7 @@ public class AMMatrixMetaManager {
           int newPartitionId = partitions.get(i).getPartId();
           int newServerIndex = partitions.get(i).getMasterPs().getIndex();
           String savePath_final = savePath_partition + "->p" + String.valueOf(newPartitionId) + "_s" + String.valueOf(newServerIndex);
+          LOG.info("savePath_final = " + savePath_final);
           partitions.get(i).savePath = savePath_final;
         }
         // adjust PartitionMeta = entry2.getValue() to add repartitioned information
@@ -551,7 +552,8 @@ public class AMMatrixMetaManager {
 
     Partitioner partitioner = initPartitioner(matrixContext, context.getConf());
 
-    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size(), idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
+    // now active_servers still contain the removed server, so we need minus one
+    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size()-1, idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
 
     assignPSForPartitions_idle(partitioner, partitions);
     return partitions;

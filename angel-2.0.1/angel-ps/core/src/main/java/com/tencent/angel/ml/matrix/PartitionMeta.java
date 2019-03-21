@@ -269,9 +269,9 @@ public class PartitionMeta {
       sb.append(storedPs.get(i)).append(",");
     }
     /* new code */
-    sb.append("partKey status = " + partitionKey.status);
-    sb.append("save path = " + savePath);
-    sb.append("prePartitionId = " + prePartitionId);
+    sb.append(", partKey status = " + partitionKey.status);
+    sb.append(", savePath = " + savePath);
+    sb.append(", prePartitionId = " + prePartitionId);
     /* code end */
     sb.append("\n");
 
