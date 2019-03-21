@@ -36,6 +36,11 @@ public class PartitionMeta {
    */
   PartitionKey partitionKey;
 
+  /* new code */
+  public String savePath = "";
+  public int prePartitionId = -1;
+  /* code end */
+
   /**
    * Where is this partition stored. A partition may be stored in more then one ParameterServers,
    * this first ParameterServer is the Master for this partition, the Others are Slaves. Client
@@ -263,7 +268,11 @@ public class PartitionMeta {
     for (int i = 0; i < size; i++) {
       sb.append(storedPs.get(i)).append(",");
     }
-    sb.append("partKey status = " + partitionKey.status);//////
+    /* new code */
+    sb.append("partKey status = " + partitionKey.status);
+    sb.append("save path = " + savePath);
+    sb.append("prePartitionId = " + prePartitionId);
+    /* code end */
     sb.append("\n");
 
     return sb.toString();

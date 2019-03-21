@@ -57,30 +57,7 @@ public class MatrixMetaManager {
     // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());
     for (Map.Entry<Integer, MatrixMeta> entry: matrixIdToMetaMap.entrySet()){
       LOG.info("matrixId = " + entry.getKey());
-      LOG.info("partitionIdStart = " + entry.getValue().PartitionIdStart);
-      // LOG.info("  MatrixMeta_toString = " + entry.getValue().toString());
-      Map<Integer, PartitionMeta> partitionMetas = entry.getValue().getPartitionMetas();
-      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas.entrySet()){
-        LOG.info("  partitionId = " + entry2.getKey());
-        LOG.info("  PartitionMeta = " + entry2.getValue());
-        /*
-        List<ParameterServerId> storedPs = entry2.getValue().getPss();
-        for (int i = 0; i < storedPs.size(); i++){
-          LOG.info("                  storedPSId[" + i + "] = " + storedPs.get(i).toString());
-        }
-        */
-      }
-      Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
-      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
-        LOG.info("  partitionId_idle = " + entry2.getKey());
-        LOG.info("  PartitionMeta_idle = " + entry2.getValue());
-        /*
-        List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
-        for (int i = 0; i < storedPs_idle.size(); i++){
-          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
-        }
-        */
-      }
+      entry.getValue().print_MatrixMeta();
     }
   }
   /* code end */

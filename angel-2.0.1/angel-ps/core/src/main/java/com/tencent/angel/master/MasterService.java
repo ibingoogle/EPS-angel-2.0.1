@@ -147,14 +147,15 @@ public class MasterService extends AbstractService implements MasterProtocol {
   // tell the removed server to save parameters
   public PSRemoveResponse psRemove(RpcController controller, PSRemoveRequest request) throws ServiceException {
     PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
+    int PSIndex = psAttemptId.getPsId().getIndex();
     PSRemoveResponse.Builder resBuilder = PSRemoveResponse.newBuilder();
-    if (context.getModelSaver().removedPSsSaveContexts != null &&
-            context.getModelSaver().removedPSsSaveContexts.containsKey(psAttemptId.getPsId().getIndex())) {
+    if (context.getMatrixMetaManager().matrixPartitionsOn_removedPS != null &&
+            context.getMatrixMetaManager().matrixPartitionsOn_removedPS.containsKey(PSIndex)){
       resBuilder.setSaveContextStatus(true);
-      int splitNum =
-              context.getModelSaver().removedPSsSaveContexts.get(psAttemptId.getPsId().getIndex());
-      resBuilder.setSplitNum(splitNum);
-      context.getModelSaver().removedPSsSaveContexts.remove(psAttemptId.getPsId().getIndex());
+      for (Map.Entry<Integer, MatrixMeta> entry : context.getMatrixMetaManager().matrixPartitionsOn_removedPS.get(PSIndex).entrySet()){
+        resBuilder.addMatrixMetas(ProtobufUtil.convertToMatrixMetaProto(entry.getValue()));
+      }
+      context.getMatrixMetaManager().matrixPartitionsOn_removedPS.remove(PSIndex);
     }else {
       resBuilder.setSaveContextStatus(false);
     }

@@ -224,7 +224,9 @@ public class RangePartitioner implements Partitioner {
         startCol = j;
         endRow = (i <= (row - blockRow)) ? (i + blockRow) : row;
         endCol = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
-        partitions.add(new PartitionMeta(matrixId, startId++, startRow, endRow, startCol+col_base, endCol+col_base));
+        PartitionMeta newPartitionMeta = new PartitionMeta(matrixId, startId++, startRow, endRow, startCol+col_base, endCol+col_base);
+        newPartitionMeta.prePartitionId = idlePartitionMeta.prePartitionId;
+        partitions.add(newPartitionMeta);
         LOG.info("partitionsMeta_ToString = " + partitions.get(partitions.size() - 1).toString());
         j = (j <= (maxValue - blockCol)) ? (j + blockCol) : maxValue;
       }

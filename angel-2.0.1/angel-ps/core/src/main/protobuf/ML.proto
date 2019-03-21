@@ -85,12 +85,15 @@ message PartitionMetaProto{
   required int32 endRow = 4;
   required int64 endCol = 5;
   repeated PSIdProto storedPs = 6;
+  required string savePath = 7; //////
+  required int32 prePartitionId = 8;
 }
 
 message MatrixMetaProto {
   required MatrixContextProto matrixContext = 1;
   repeated PartitionMetaProto partMetas = 2;
   repeated PartitionMetaProto partMetasIdle = 3; //////
+  repeated PartitionMetaProto partMetasRepartition = 4; //////
 }
 
 message MatrixClock{

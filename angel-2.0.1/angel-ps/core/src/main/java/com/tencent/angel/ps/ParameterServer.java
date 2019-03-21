@@ -649,7 +649,7 @@ public class ParameterServer {
       LOG.info("heartbeat() in ParameterServer.java");
       int status = ret.getPsStatus();
       if (status == -1){
-        remove();
+        remove_save();
         done();
         return;
       }else if (status == 1){
@@ -877,25 +877,17 @@ public class ParameterServer {
   }
 
   /* new code */
-  public void remove() throws ServiceException {
-    LOG.info("remove*****************************");
-    PSRemoveRequest.Builder builder = PSRemoveRequest.newBuilder();
-    builder.setPsAttemptId(attemptIdProto);
-    PSRemoveRequest request = builder.build();
-    PSRemoveResponse psRemoveResponse = master.psRemove(request);
-    boolean saveContextStatus = psRemoveResponse.getSaveContextStatus();
-    LOG.info("saveContextStatus = " + saveContextStatus);
-    if (saveContextStatus) {
-      /*
-      // based on default save mechanism
-      PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
-      saveContext.print_PSMatricesSaveContext();
-      saver.save_remove(saveContext);
-      */
-      int splitNum = psRemoveResponse.getSplitNum();
-      List<String> savedFiles = save_test(splitNum);
-      read_test(savedFiles);
+  public void remove_save() throws ServiceException {
+    LOG.info("remove_save*****************************");
+    List<MatrixMeta> matrixMetas = master.psRemove(attemptIdProto);
+    for (int i = 0; i < matrixMetas.size(); i++){
+      matrixMetas.get(i).print_MatrixMeta();
     }
+    /*
+    int splitNum = psRemoveResponse.getSplitNum();
+    List<String> savedFiles = save_test(splitNum);
+    read_test(savedFiles);
+    */
   }
 
   public List<String> save_test(int splitNum){

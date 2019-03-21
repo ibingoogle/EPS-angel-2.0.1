@@ -167,8 +167,8 @@ public class MetricsService extends AbstractService implements EventHandler<Metr
                   }
                   if (currentIter == context.getMatrixMetaManager().rmServerEpoch){
                     LOG.info("remove one parameterserver at the end of iteration = " + currentIter);
-                    context.getModelSaver().saveParametersOnRmPS(context.getMatrixMetaManager().rmParameterServerIndex);
                     context.getMatrixMetaManager().rmOneParameterServer();
+                    // context.getModelSaver().saveParametersOnRmPS(context.getMatrixMetaManager().rmParameterServerIndex);
                   }
                   /* code end */
                 }

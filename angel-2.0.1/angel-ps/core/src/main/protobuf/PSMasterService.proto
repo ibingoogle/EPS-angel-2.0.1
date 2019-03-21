@@ -75,7 +75,7 @@ message PSRemoveRequest {
 
 message PSRemoveResponse {
   required bool saveContextStatus = 1;
-  optional int32 splitNum = 2;
+  repeated MatrixMetaProto matrixMetas = 2;
 }
 //* code end *//
 

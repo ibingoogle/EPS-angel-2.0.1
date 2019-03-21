@@ -203,8 +203,36 @@ public class MasterClient {
   }
 
   /* new code */
-  public PSRemoveResponse psRemove(PSRemoveRequest request) throws ServiceException {
-    return masterProxy.psRemove(null, request);
+  public List<MatrixMeta> psRemove(MLProtos.PSAttemptIdProto attemptIdProto) throws ServiceException {
+    boolean saveContextStatus = false;
+    PSRemoveResponse psRemoveResponse = null;
+    while (!saveContextStatus) {
+      PSRemoveRequest.Builder builder = PSRemoveRequest.newBuilder();
+      builder.setPsAttemptId(attemptIdProto);
+      PSRemoveRequest request = builder.build();
+      psRemoveResponse = masterProxy.psRemove(null, request);
+
+      saveContextStatus = psRemoveResponse.getSaveContextStatus();
+      LOG.info("saveContextStatus = " + saveContextStatus);
+      /*
+      // based on default save mechanism
+      PSMatricesSaveContext saveContext = ProtobufUtil.convert(psRemoveResponse.getNeedSaveMatrices());
+      saveContext.print_PSMatricesSaveContext();
+      save
+      r.save_remove(saveContext);
+      */
+    }
+    List<MLProtos.MatrixMetaProto> matrixMetaProtos = psRemoveResponse.getMatrixMetasList();
+    int size = matrixMetaProtos.size();
+    List<MatrixMeta> matrixMetas = new ArrayList<>(size);
+    for (int i = 0; i < size; i++) {
+      try {
+        matrixMetas.add(ProtobufUtil.convertToMatrixMeta(matrixMetaProtos.get(i)));
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+    }
+    return matrixMetas;
   }
   /* code end */
 

@@ -20,6 +20,8 @@ package com.tencent.angel.ml.matrix;
 
 import com.tencent.angel.conf.MatrixConf;
 import com.tencent.angel.ps.ParameterServerId;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 
@@ -27,6 +29,7 @@ import java.util.*;
  * The meta of matrix.
  */
 public class MatrixMeta {
+  private static final Log LOG = LogFactory.getLog(MatrixMeta.class); //////
   /**
    * Matrix basic parameters
    */
@@ -39,8 +42,11 @@ public class MatrixMeta {
   private final Map<Integer, PartitionMeta> partitionMetas;
 
   /* new code */
+  // told workers and non-removed servers
   public Map<Integer, PartitionMeta> partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
   public int PartitionIdStart = 0;
+  // told removed servers
+  public Map<Integer, Map<Integer, PartitionMeta>> partitionMetas_repartition = new HashMap<Integer, Map<Integer, PartitionMeta>>();
   /* code end */
 
   /**
@@ -62,6 +68,40 @@ public class MatrixMeta {
     this.matrixContext = matrixContext;
     this.partitionMetas = partitionMetas;
   }
+
+  /* new code */
+  public void print_MatrixMeta() {
+    LOG.info("print_MatrixMeta");
+    // LOG.info("    MatrixMeta_toString = " + toString());
+    // 1
+    LOG.info("partitionMetas => ");
+    if (partitionMetas != null) {
+      for (Map.Entry<Integer, PartitionMeta> entry : partitionMetas.entrySet()) {
+        LOG.info("    partitionId = " + entry.getKey());
+        LOG.info("    PartitionMeta = " + entry.getValue().toString());
+      }
+    }
+    // 2
+    LOG.info("partitionMetas_idle => ");
+    if (partitionMetas_idle != null) {
+      for (Map.Entry<Integer, PartitionMeta> entry : partitionMetas_idle.entrySet()) {
+        LOG.info("  partitionId_idle = " + entry.getKey());
+        LOG.info("  PartitionMeta_idle = " + entry.getValue().toString());
+      }
+    }
+    // 3
+    LOG.info("partitionMetas_repartition => ");
+    if (partitionMetas_repartition != null) {
+      for (Map.Entry<Integer, Map<Integer, PartitionMeta>> entry : partitionMetas_repartition.entrySet()) {
+        LOG.info("  pre partitionId = " + entry.getKey());
+        for (Map.Entry<Integer, PartitionMeta> entry2 : entry.getValue().entrySet()) {
+          LOG.info("  repartitioned partitionId = " + entry2.getKey());
+          LOG.info("  repartitioned partitionMeta = " + entry2.getValue().toString());
+        }
+      }
+    }
+  }
+  /* code end */
 
   /**
    * Get matrix id
@@ -211,10 +251,20 @@ public class MatrixMeta {
    * @param meta partition meta
    */
   public void addPartitionMeta_idle(int id, PartitionMeta meta) {
-    if (partitionMetas_idle == null) {
-      partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
-    }
     partitionMetas_idle.put(id, meta);
+  }
+  /**
+   * Add meta for a partition for partition_repartition
+   *
+   * @param id   partition id
+   * @param meta partition meta
+   */
+  public void addPartitionMeta_repartition(int id, PartitionMeta meta) {
+    int prePartitionId = meta.prePartitionId;
+    if (!partitionMetas_repartition.containsKey(prePartitionId)){
+      partitionMetas_repartition.put(prePartitionId, new HashMap<Integer, PartitionMeta>());
+    }
+    partitionMetas_repartition.get(prePartitionId).put(id, meta);
   }
   /* code end */
 

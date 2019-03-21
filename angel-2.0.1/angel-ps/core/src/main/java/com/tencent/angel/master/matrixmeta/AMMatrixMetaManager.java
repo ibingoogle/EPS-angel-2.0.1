@@ -72,6 +72,8 @@ public class AMMatrixMetaManager {
   // private final Map<ParameterServerId, Map<Integer, MatrixMeta>> matrixPartitionsOnPS;
   /* new code */
   public final ConcurrentHashMap<ParameterServerId, Map<Integer, MatrixMeta>> matrixPartitionsOnPS;
+
+  public final ConcurrentHashMap<Integer, Map<Integer, MatrixMeta>> matrixPartitionsOn_removedPS;
   /* code end */
 
   /**
@@ -114,6 +116,7 @@ public class AMMatrixMetaManager {
     this.context = context;
     matrixMetaManager = new MatrixMetaManager();
     matrixPartitionsOnPS = new ConcurrentHashMap<>();
+    matrixPartitionsOn_removedPS = new ConcurrentHashMap<>();//////
     matrixIdToPSSetMap = new HashMap<>();
     psIdToMatrixIdsMap = new HashMap<>();
     psIdToRecoverPartsMap = new ConcurrentHashMap<>();
@@ -304,9 +307,6 @@ public class AMMatrixMetaManager {
 
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
     print_AMMatrixMetaManager();
-    // change active_servers to notify the removed server
-    active_servers.remove(rmParameterServerIndex);
-    Map<Integer, PartitionMeta> matrixId2PartMeta = new HashMap<Integer, PartitionMeta>();
 
     // find ParameterServerId that corresponds to rmParameterServerIndex
     ParameterServerId rmParameterServerId = null;
@@ -325,6 +325,7 @@ public class AMMatrixMetaManager {
     psIdToMatrixIdsMap.remove(rmParameterServerId);
 
     // re-build related data structures (remove): matrixPartitionsOnPS and matrixMetaManager
+    // this is all matrixMetas related to the removed server
     Map<Integer, MatrixMeta> MatrixId2Meta = matrixPartitionsOnPS.get(rmParameterServerId);
     for (Map.Entry<Integer, MatrixMeta> entry: MatrixId2Meta.entrySet()){
       int matrixId = entry.getKey();
@@ -333,39 +334,24 @@ public class AMMatrixMetaManager {
       for (Map.Entry<Integer, PartitionMeta> entry2: partitionMetas.entrySet()){
         LOG.info("removed PartitionIndex = " + entry2.getKey());
         LOG.info("removed PartitionMeta = " + entry2.getValue().toString());
-        PartitionMeta partitionMeta = matrixMetaManager.getMatrixMeta(matrixId).getPartitionMeta(entry2.getKey());
         matrixMetaManager.getMatrixMeta(matrixId).getPartitionMetas().remove(entry2.getKey());
-        matrixId2PartMeta.put(matrixId, partitionMeta);
       }
     }
+    matrixPartitionsOn_removedPS.put(rmParameterServerId.getIndex(), MatrixId2Meta);
     matrixPartitionsOnPS.remove(rmParameterServerId);
     print_AMMatrixMetaManager();
 
-    // re-partition
-    rePartition_PartitionMetas(matrixId2PartMeta);
+    // re-partition all matrixMetas related to the removed server
+    rePartition_PartitionMetas(MatrixId2Meta);
+
+    // change active_servers to notify the removed server
+    context.getMatrixMetaManager().active_servers.remove(rmParameterServerIndex);
 
     // notify workers and servers
-    notify_workers_servers();
+    // notify_workers_servers();
   }
 
   public void notify_workers_servers(){
-    // change serverStatus_workers to notify all active workers
-    HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
-    // LOG.info("workerIndexes.size = " + workerIndexes.size());
-    serverStatus_workers.clear();
-    for (int workerindex : workerIndexes){
-      // LOG.info("serverStatus_workers.put(" + workerindex+ ", 1)");
-      serverStatus_workers.put(workerindex, 1);
-      // LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
-    }
-    /*
-    LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
-    for(Entry<Integer, Integer> entry : serverStatus_workers.entrySet()){
-      LOG.info("workerIndex = " + entry.getKey() + ", status = " + entry.getValue());
-    }
-    */
-    serversStatus_change_workers = true;
-
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> serverIndexes = new HashSet<Integer>();
     for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()){
@@ -386,25 +372,77 @@ public class AMMatrixMetaManager {
     }
     */
     serversStatus_change_servers = true;
+
+
+    // change serverStatus_workers to notify all active workers
+    HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
+    // LOG.info("workerIndexes.size = " + workerIndexes.size());
+    serverStatus_workers.clear();
+    for (int workerindex : workerIndexes){
+      // LOG.info("serverStatus_workers.put(" + workerindex+ ", 1)");
+      serverStatus_workers.put(workerindex, 1);
+      // LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
+    }
+    /*
+    LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
+    for(Entry<Integer, Integer> entry : serverStatus_workers.entrySet()){
+      LOG.info("workerIndex = " + entry.getKey() + ", status = " + entry.getValue());
+    }
+    */
+    serversStatus_change_workers = true;
   }
 
-  public void rePartition_PartitionMetas(Map<Integer, PartitionMeta> matrixId2PartMeta) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
-    for (Map.Entry<Integer, PartitionMeta> entry : matrixId2PartMeta.entrySet()){
-      int matrixIdwithIdle = entry.getKey();
-      List<PartitionMeta> partitions = initIdlePartitionMeta(matrixIdwithIdle, entry.getValue());
-      for (int i = 0; i < partitions.size(); i++){
-        int matrixId = matrixIdwithIdle;
-        List<ParameterServerId> parameterServerIdList = partitions.get(i).getPss();
-        for (int j = 0; j < parameterServerIdList.size(); j++){
-          ParameterServerId psId = parameterServerIdList.get(j);
-          if (!psIdToMatrixIdsMap.get(psId).contains(matrixId)) psIdToMatrixIdsMap.get(psId).add(matrixId);
-          if (!matrixIdToPSSetMap.get(matrixId).contains(psId)) matrixIdToPSSetMap.get(matrixId).add(psId);
-          MatrixMeta psMatrixMeta = matrixPartitionsOnPS.get(psId).get(matrixId);
-          if (psMatrixMeta == null) {
-            psMatrixMeta = new MatrixMeta(matrixContexts.get(matrixId));
-            matrixPartitionsOnPS.get(psId).put(matrixId, psMatrixMeta);
+  public void rePartition_PartitionMetas(Map<Integer, MatrixMeta> matrixId2Meta)
+          throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
+    // set save path
+    String savePath_basic = context.getConf().get(AngelConf.ANGEL_RM_SERVERS_SAVE_OUTPUT_PATH);
+    savePath_basic = savePath_basic + "/" + String.valueOf(rmParameterServerIndex);
+
+    for (Map.Entry<Integer, MatrixMeta> entry : matrixId2Meta.entrySet()) {
+      int matrixId = entry.getKey();
+      String savePath_matrix = savePath_basic + "/m" + String.valueOf(matrixId);
+
+      Map<Integer, PartitionMeta> matrixId2PartMeta = entry.getValue().getPartitionMetas();
+      for (Map.Entry<Integer, PartitionMeta> entry2 : matrixId2PartMeta.entrySet()) {
+        int partitionId = entry2.getKey();
+        String savePath_partition = savePath_matrix + "_p" + String.valueOf(partitionId);
+
+        List<PartitionMeta> partitions = initIdlePartitionMeta(matrixId, entry2.getValue());
+        // adjust savepath
+        for (int i = 0; i < partitions.size(); i++){
+          int newPartitionId = partitions.get(i).getPartId();
+          int newServerIndex = partitions.get(i).getMasterPs().getIndex();
+          String savePath_final = savePath_partition + "->p" + String.valueOf(newPartitionId) + "_s" + String.valueOf(newServerIndex);
+          partitions.get(i).savePath = savePath_final;
+        }
+        // adjust PartitionMeta = entry2.getValue() to add repartitioned information
+        entry.getValue().partitionMetas_repartition.put(entry2.getKey(), new HashMap<Integer, PartitionMeta>());
+        for (int i = 0; i < partitions.size(); i++){
+          entry.getValue().partitionMetas_repartition.get(entry2.getKey()).put(partitions.get(i).getPartId(), partitions.get(i));
+        }
+        // re-assign to matrixMetaManager
+        matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart += partitions.size();
+        int size = partitions.size();
+        for (int i = 0; i < size; i++) {
+          // temporarily assigned to partitionMetas_idle
+          matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.put(partitions.get(i).getPartId(), partitions.get(i));
+        }
+        // re-assign to rest data structures
+        for (int i = 0; i < partitions.size(); i++) {
+          List<ParameterServerId> parameterServerIdList = partitions.get(i).getPss();
+          for (int j = 0; j < parameterServerIdList.size(); j++) {
+            ParameterServerId psId = parameterServerIdList.get(j);
+            // adjust psIdToMatrixIdsMap and matrixIdToPSSetMap
+            if (!psIdToMatrixIdsMap.get(psId).contains(matrixId)) psIdToMatrixIdsMap.get(psId).add(matrixId);
+            if (!matrixIdToPSSetMap.get(matrixId).contains(psId)) matrixIdToPSSetMap.get(matrixId).add(psId);
+            // adjust matrixPartitionsOnPS
+            MatrixMeta psMatrixMeta = matrixPartitionsOnPS.get(psId).get(matrixId);
+            if (psMatrixMeta == null) {
+              psMatrixMeta = new MatrixMeta(matrixContexts.get(matrixId));
+              matrixPartitionsOnPS.get(psId).put(matrixId, psMatrixMeta);
+            }
+            psMatrixMeta.addPartitionMeta_idle(partitions.get(i).getPartId(), partitions.get(i));
           }
-          psMatrixMeta.addPartitionMeta_idle(partitions.get(i).getPartId(), partitions.get(i));
         }
       }
     }
@@ -423,6 +461,9 @@ public class AMMatrixMetaManager {
     LOG.info("");
     LOG.info("");
     print_matrixPartitionsOnPS();
+    LOG.info("");
+    LOG.info("");
+    print_matrixPartitionsOn_removedPS();
     LOG.info("");
     LOG.info("");
     print_psIdToMatrixIdsMap();
@@ -467,29 +508,18 @@ public class AMMatrixMetaManager {
       LOG.info("parameterServerId = " + psId.toString());
       for (Map.Entry<Integer, MatrixMeta> entry2: entry.getValue().entrySet()) {
         LOG.info("  matrixId = " + entry2.getKey());
-        // LOG.info("    MatrixMeta_toString = " + entry2.getValue().toString());
-        Map<Integer, PartitionMeta> partitionMetas = entry2.getValue().getPartitionMetas();
-        for (Map.Entry<Integer, PartitionMeta> entry3 : partitionMetas.entrySet()) {
-          LOG.info("    partitionId = " + entry3.getKey());
-          LOG.info("    PartitionMeta = " + entry3.getValue());
-          /*
-          List<ParameterServerId> storedPs = entry3.getValue().getPss();
-          for (int i = 0; i < storedPs.size(); i++) {
-            LOG.info("        storedPSId[" + i + "] = " + storedPs.get(i).toString());
-          }
-          */
-        }
-        Map<Integer, PartitionMeta> partitionMetas_idle = entry2.getValue().partitionMetas_idle;
-        for (Map.Entry<Integer, PartitionMeta> entry3 : partitionMetas_idle.entrySet()){
-          LOG.info("  partitionId_idle = " + entry3.getKey());
-          LOG.info("  PartitionMeta_idle = " + entry3.getValue());
-        /*
-        List<ParameterServerId> storedPs_idle = entry3.getValue().getPss();
-        for (int i = 0; i < storedPs_idle.size(); i++){
-          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
-        }
-        */
-        }
+        entry2.getValue().print_MatrixMeta();
+      }
+    }
+  }
+
+  public void print_matrixPartitionsOn_removedPS(){
+    LOG.info("print_matrixPartitionsOn_removedPS");
+    for (Map.Entry<Integer, Map<Integer, MatrixMeta>> entry: matrixPartitionsOn_removedPS.entrySet()){
+      LOG.info("parameterServerIndex_removedPS = " + entry.getKey());
+      for (Map.Entry<Integer, MatrixMeta> entry2: entry.getValue().entrySet()) {
+        LOG.info("  matrixId_removedPS = " + entry2.getKey());
+        entry2.getValue().print_MatrixMeta();
       }
     }
   }
@@ -507,35 +537,9 @@ public class AMMatrixMetaManager {
   }
 
   public void print_MatrixMetaManager(){
-    LOG.info("print_MatrixMetaManager");
+    LOG.info("print_matrixMetaManager");
     // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());
-    Map<Integer, MatrixMeta> matrixIdToMetaMap = matrixMetaManager.getMatrixMetas();
-    for (Map.Entry<Integer, MatrixMeta> entry: matrixIdToMetaMap.entrySet()){
-      LOG.info("matrixId = " + entry.getKey());
-      // LOG.info("  MatrixMeta_toString = " + entry.getValue().toString());
-      Map<Integer, PartitionMeta> partitionMetas = entry.getValue().getPartitionMetas();
-      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas.entrySet()){
-        LOG.info("  partitionId = " + entry2.getKey());
-        LOG.info("  PartitionMeta = " + entry2.getValue());
-        /*
-        List<ParameterServerId> storedPs = entry2.getValue().getPss();
-        for (int i = 0; i < storedPs.size(); i++){
-          LOG.info("                  storedPSId[" + i + "] = " + storedPs.get(i).toString());
-        }
-        */
-      }
-      Map<Integer, PartitionMeta> partitionMetas_idle = entry.getValue().partitionMetas_idle;
-      for (Map.Entry<Integer, PartitionMeta> entry2 : partitionMetas_idle.entrySet()){
-        LOG.info("  partitionId_idle = " + entry2.getKey());
-        LOG.info("  PartitionMeta_idle = " + entry2.getValue());
-        /*
-        List<ParameterServerId> storedPs_idle = entry2.getValue().getPss();
-        for (int i = 0; i < storedPs_idle.size(); i++){
-          LOG.info("                  storedPSId[" + i + "]_idle = " + storedPs_idle.get(i).toString());
-        }
-        */
-      }
-    }
+    matrixMetaManager.print_MatrixMetaManager();
   }
 
   private List<PartitionMeta> initIdlePartitionMeta(int matrixId, PartitionMeta idlePartitionMeta)
@@ -548,18 +552,8 @@ public class AMMatrixMetaManager {
     Partitioner partitioner = initPartitioner(matrixContext, context.getConf());
 
     List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size(), idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
-    matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart += partitions.size();
 
     assignPSForPartitions_idle(partitioner, partitions);
-
-    int size = partitions.size();
-    for (int i = 0; i < size; i++) {
-      matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.put(partitions.get(i).getPartId(), partitions.get(i));
-    }
-    for (Map.Entry<Integer, PartitionMeta> entry: matrixMetaManager.getMatrixMeta(matrixId).partitionMetas_idle.entrySet()) {
-      LOG.info("PartitionId = " + entry.getKey());
-      LOG.info("PartitionMeta toString = " + entry.getValue().toString());
-    }
     return partitions;
   }
   /* code end */

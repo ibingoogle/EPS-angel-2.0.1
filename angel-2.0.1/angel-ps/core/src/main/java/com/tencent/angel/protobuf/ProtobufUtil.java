@@ -391,9 +391,16 @@ public final class ProtobufUtil {
     // add public Map<Integer, PartitionMeta> partitionMetas_idle = new HashMap<Integer, PartitionMeta>();
     /* new code */
     Map<Integer, PartitionMeta> partitionMetasIdle = matrixMeta.partitionMetas_idle;
-    if (partitionMetasIdle != null) {
-      for (Entry<Integer, PartitionMeta> entry: partitionMetasIdle.entrySet()) {
-        builder.addPartMetasIdle(convertToParitionMetaProto(entry.getValue()));
+    for (Entry<Integer, PartitionMeta> entry: partitionMetasIdle.entrySet()) {
+      builder.addPartMetasIdle(convertToParitionMetaProto(entry.getValue()));
+    }
+    // add public Map<Integer, Map<Integer, PartitionMeta>> partitionMetas_repartition = new HashMap<Integer, Map<Integer, PartitionMeta>>();
+    for(Map.Entry<Integer, Map<Integer, PartitionMeta>> entry : matrixMeta.partitionMetas_repartition.entrySet()){
+      Map<Integer, PartitionMeta> partitionMetasRepartition = entry.getValue();
+      if (partitionMetasRepartition != null){
+        for (Entry<Integer, PartitionMeta> entry2: partitionMetasRepartition.entrySet()) {
+          builder.addPartMetasRepartition(convertToParitionMetaProto(entry2.getValue()));
+        }
       }
     }
     /* code end */
@@ -420,10 +427,19 @@ public final class ProtobufUtil {
 
   public static PartitionMetaProto convertToParitionMetaProto(PartitionMeta partitionMeta) {
     PartitionMetaProto.Builder builder = PartitionMetaProto.newBuilder();
+    /* old code
     builder.setPartitionId(partitionMeta.getPartId()).setStartRow(partitionMeta.getStartRow())
       .setEndRow(partitionMeta.getEndRow()).setStartCol(partitionMeta.getStartCol())
       .setEndCol(partitionMeta.getEndCol())
       .addAllStoredPs(convertToPSIdProtos(partitionMeta.getPss()));
+    /* new code */
+    builder.setPartitionId(partitionMeta.getPartId()).setStartRow(partitionMeta.getStartRow())
+            .setEndRow(partitionMeta.getEndRow()).setStartCol(partitionMeta.getStartCol())
+            .setEndCol(partitionMeta.getEndCol())
+            .addAllStoredPs(convertToPSIdProtos(partitionMeta.getPss()))
+            .setSavePath(partitionMeta.savePath)
+            .setPrePartitionId(partitionMeta.prePartitionId);
+    /* code end */
 
     return builder.build();
   }
@@ -460,6 +476,14 @@ public final class ProtobufUtil {
       matrixMeta.addPartitionMeta_idle(partMetaIdleProtos.get(i).getPartitionId(),
               convertToParitionMeta(matrixContext.getMatrixId(), partMetaIdleProtos.get(i)));
     }
+
+    // care about public Map<Integer, Map<Integer, PartitionMeta>> partitionMetas_repartition = new HashMap<Integer, Map<Integer, PartitionMeta>>();
+    List<PartitionMetaProto> partMetaRepartitionProtos = matrixMetaProto.getPartMetasRepartitionList();
+    int sizeRepartition = partMetaRepartitionProtos.size();
+    for (int i = 0; i < sizeRepartition; i++){
+      matrixMeta.addPartitionMeta_repartition(partMetaIdleProtos.get(i).getPartitionId(),
+              convertToParitionMeta(matrixContext.getMatrixId(), partMetaIdleProtos.get(i)));
+    }
     /* code end */
     return matrixMeta;
   }
@@ -476,9 +500,18 @@ public final class ProtobufUtil {
 
   public static PartitionMeta convertToParitionMeta(int matrixId,
     PartitionMetaProto partMetaProto) {
+    /* old code
     return new PartitionMeta(matrixId, partMetaProto.getPartitionId(), partMetaProto.getStartRow(),
       partMetaProto.getEndRow(), partMetaProto.getStartCol(), partMetaProto.getEndCol(),
       convertToPSIds(partMetaProto.getStoredPsList()));
+    /* new code */
+    PartitionMeta partitionMeta = new PartitionMeta(matrixId, partMetaProto.getPartitionId(), partMetaProto.getStartRow(),
+            partMetaProto.getEndRow(), partMetaProto.getStartCol(), partMetaProto.getEndCol(),
+            convertToPSIds(partMetaProto.getStoredPsList()));
+    partitionMeta.savePath = partMetaProto.getSavePath();
+    partitionMeta.prePartitionId = partMetaProto.getPrePartitionId();
+    return partitionMeta;
+    /* code end */
   }
 
   public static Location convertToLocation(PSLocationProto psLocation) {
