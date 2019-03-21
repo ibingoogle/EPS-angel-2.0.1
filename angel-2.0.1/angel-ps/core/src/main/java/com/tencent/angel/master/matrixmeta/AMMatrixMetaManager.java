@@ -350,6 +350,7 @@ public class AMMatrixMetaManager {
 
   // when the removed server has saved parameters, it's time to notify rest servers to load these parameters
   public void notify_servers() {
+    LOG.info("notify_servers");
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> serverIndexes = new HashSet<Integer>();
     for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()) {
@@ -373,6 +374,7 @@ public class AMMatrixMetaManager {
   }
 
   public void notify_workers(){
+    LOG.info("notify_workers");
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
     // LOG.info("workerIndexes.size = " + workerIndexes.size());

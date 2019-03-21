@@ -163,13 +163,28 @@ public class MasterService extends AbstractService implements MasterProtocol {
   }
 
   // tell master than parameters of the removed server have been saved
-  public PSSaveResponse psSave(RpcController controller, PSSaveRequest request) throws ServiceException {
+  public PSSavedResponse psSaved(RpcController controller, PSSavedRequest request) throws ServiceException {
     PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
     int PSIndex = psAttemptId.getPsId().getIndex();
     context.getMatrixMetaManager().matrixPartitionsOn_removedPS.remove(PSIndex);
-    //TODO
+    // notify rest servers
     context.getMatrixMetaManager().notify_servers();
-    return PSSaveResponse.newBuilder().build();
+    return PSSavedResponse.newBuilder().build();
+  }
+
+  // tell master than rest servers have loaded parameters of the removed server
+  public PSLoadedResponse psLoaded(RpcController controller, PSLoadedRequest request) throws ServiceException {
+    PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
+    int PSIndex = psAttemptId.getPsId().getIndex();
+    // remove status of the server that finished loading
+    context.getMatrixMetaManager().serverStatus_servers.remove(PSIndex);
+    // reset if needed
+    if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
+      context.getMatrixMetaManager().reSetServersStatus_change_servers();
+      // tell all workers
+      context.getMatrixMetaManager().notify_workers();
+    }
+    return PSLoadedResponse.newBuilder().build();
   }
   /* code end */
 
@@ -313,12 +328,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
               resBuilder
                       .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle.get(i)));
             }
-          }
-          // remove status
-          context.getMatrixMetaManager().serverStatus_servers.remove(psAttemptId.getPsId().getIndex());
-          // reset if needed
-          if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
-            context.getMatrixMetaManager().reSetServersStatus_change_servers();
           }
         }else {
           resBuilder.setPsStatus(0);

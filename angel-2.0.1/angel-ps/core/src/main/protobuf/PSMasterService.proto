@@ -78,11 +78,18 @@ message PSRemoveResponse {
   repeated MatrixMetaProto matrixMetas = 2;
 }
 
-message PSSaveRequest {
+message PSSavedRequest {
   required PSAttemptIdProto psAttemptId = 1;
 }
 
-message PSSaveResponse {
+message PSSavedResponse {
+}
+
+message PSLoadedRequest {
+  required PSAttemptIdProto psAttemptId = 1;
+}
+
+message PSLoadedResponse {
 }
 //* code end *//
 
@@ -245,7 +252,8 @@ message LoadStartResponse {
 
 service PSMasterService {
   rpc psRegister(PSRegisterRequest) returns (PSRegisterResponse);
-  rpc psSave(PSSaveRequest) returns (PSSaveResponse); //////
+  rpc psSaved(PSSavedRequest) returns (PSSavedResponse); //////
+  rpc psLoaded(PSLoadedRequest) returns (PSLoadedResponse); //////
   rpc psRemove(PSRemoveRequest) returns (PSRemoveResponse); //////
   rpc psReport(PSReportRequest) returns (PSReportResponse);
   rpc psDone(PSDoneRequest) returns (PSDoneResponse);

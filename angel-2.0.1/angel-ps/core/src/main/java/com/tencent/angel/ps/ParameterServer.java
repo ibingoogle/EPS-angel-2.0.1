@@ -658,8 +658,8 @@ public class ParameterServer {
         LOG.info("status == 1");
         List<MatrixMeta> matrixMetas_idle = ProtobufUtil.convertToMatricesMeta(ret.getNeedIdleMatricesList());
         load_removedPS(matrixMetas_idle);
+        master.psLoaded(attemptIdProto);
       }
-
       /* code end */
       switch (ret.getPsCommand()) {
         case PSCOMMAND_REGISTER:
@@ -890,7 +890,7 @@ public class ParameterServer {
     List<MatrixMeta> matrixMetas = master.psRemove(attemptIdProto);
     LOG.info("matrixMetas.size() = " + matrixMetas.size());
     List<String> savedFiles = save(matrixMetas);
-    master.psSave(attemptIdProto);
+    master.psSaved(attemptIdProto);
     // read_test(savedFiles);
   }
 
