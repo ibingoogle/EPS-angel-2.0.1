@@ -466,9 +466,11 @@ public class ServerIntFloatRow extends ServerFloatRow {
           int index = in.readInt();
           float value = get(index);
           out.writeFloat(value);
-          if (index < 200){
+          /*
+          if )(index-startColInt) < 200){
             LOG.info("i = " + i + " => index = " + index + ", value = " + value);
           }
+          */
           /* code end */
         }
       } else {

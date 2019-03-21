@@ -74,10 +74,12 @@ public class ServerMatrix {
   /* new code */
   public void print_ServerMatrix(){
     LOG.info("print_ServerMatrix");
+    LOG.info("partitionMaps =>");
     for (Map.Entry<Integer, ServerPartition> entry : partitionMaps.entrySet()) {
       LOG.info("partitionId = " + entry.getKey());
       entry.getValue().print_ServerPartition();
     }
+    LOG.info("partitionMaps_idle =>");
     for (Map.Entry<Integer, ServerPartition> entry : partitionMaps_idle.entrySet()) {
       LOG.info("partitionId_idle = " + entry.getKey());
       entry.getValue().print_ServerPartition();
