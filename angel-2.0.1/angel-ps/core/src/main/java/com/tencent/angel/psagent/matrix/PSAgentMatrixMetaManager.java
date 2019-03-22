@@ -85,10 +85,14 @@ public class PSAgentMatrixMetaManager {
     LOG.info("resetParameterServers_idle_PSAgentMatrixMetaManager");
     // remove partitionMeta and partitionKey with false status
     for (Map.Entry<Integer, MatrixMeta>  entry : matrixMetaManager.getMatrixMetas().entrySet()) {
+      List<Integer> removedPartitionIds = new ArrayList<>();
       for (Map.Entry<Integer, PartitionMeta> entry2: entry.getValue().getPartitionMetas().entrySet()){
         if (entry2.getValue().getPartitionKey().status == false){
-          entry.getValue().getPartitionMetas().remove(entry2.getKey());
+          removedPartitionIds.add(entry2.getKey());
         }
+      }
+      for (int i = 0; i < removedPartitionIds.size(); i++){
+        entry.getValue().getPartitionMetas().remove(removedPartitionIds.get(i));
       }
     }
     for (Map.Entry<Integer, List<PartitionKey>> entry : matrixIdToPartsMap.entrySet()){
