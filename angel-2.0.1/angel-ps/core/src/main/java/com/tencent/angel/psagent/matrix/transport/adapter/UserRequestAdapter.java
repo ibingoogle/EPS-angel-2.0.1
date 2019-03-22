@@ -1281,7 +1281,7 @@ public class UserRequestAdapter {
       for (int i = 0; i < partitions.size(); i++){
         if (partitions.get(i).status) active_partitions_size++;
       }
-      LOG.info("active_partitions_size" + active_partitions_size);
+      LOG.info("active_partitions_size = " + active_partitions_size);
       /* code end */
 
 

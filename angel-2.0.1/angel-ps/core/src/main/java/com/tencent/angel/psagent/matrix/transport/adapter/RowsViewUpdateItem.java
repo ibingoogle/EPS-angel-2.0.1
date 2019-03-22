@@ -499,13 +499,13 @@ public class RowsViewUpdateItem extends UpdateItem {
 
   private void serializeRow(ByteBuf buf, Vector row) {
     /* new code */
-    if (partKey.getPartitionId() == 0) {
-      LOG.info("buf.toString() = " + buf.toString());
-      LOG.info("row");
-      LOG.info("row.getSize() = " + row.getSize());
-      LOG.info("row.getType = " + row.getType());
-      LOG.info("row.getClass = " + row.getClass());
-      /*
+    LOG.info("partKey in serializeRow = " + partKey);
+    LOG.info("buf.toString() = " + buf.toString());
+    LOG.info("row");
+    LOG.info("row.getSize() = " + row.getSize());
+    LOG.info("row.getType = " + row.getType());
+    LOG.info("row.getClass = " + row.getClass());
+    /*
       IntFloatVector realweight = (IntFloatVector) row;
       for (int i = 0; i < realweight.size(); i++) {
         if (i % 5000 == 0) {
@@ -519,10 +519,9 @@ public class RowsViewUpdateItem extends UpdateItem {
 
       LOG.info("weight min = " + realweight.min());
       LOG.info("weight max = " + realweight.max());
-      */
-    }
-
+    */
     /* code end */
+
     final boolean needCheck = (column != (partKey.getEndCol() - partKey.getStartCol()));
     buf.writeInt(row.getRowId());
     switch (row.getType()) {
@@ -905,14 +904,13 @@ public class RowsViewUpdateItem extends UpdateItem {
     }
 
     /* new code */
-    if (partKey.getPartitionId() == 0) {
-      LOG.info("endCol = " + endCol);
-      LOG.info("startCol = " + startCol);
-      LOG.info("offset = " + offset);
-      LOG.info("row.isDense() = " + row.isDense());
-      LOG.info("row.isSparse() = " + row.isSparse());
-      LOG.info("needCheck = " + needCheck);
-    }
+    LOG.info("partKey in serializeIntFloatRow = " + partKey);
+    LOG.info("endCol = " + endCol);
+    LOG.info("startCol = " + startCol);
+    LOG.info("offset = " + offset);
+    LOG.info("row.isDense() = " + row.isDense());
+    LOG.info("row.isSparse() = " + row.isSparse());
+    LOG.info("needCheck = " + needCheck);
     /* code end */
 
     if (row.isDense()) {
@@ -940,10 +938,9 @@ public class RowsViewUpdateItem extends UpdateItem {
       }
       code end */
       /* new code */
-      if (partKey.getPartitionId() == 0) {
-        int[] indices = row.getStorage().getIndices();
-        float[] values = row.getStorage().getValues();
-        /*
+      int[] indices = row.getStorage().getIndices();
+      float[] values = row.getStorage().getValues();
+      /*
         if (indices != null) {
           LOG.info("indices.length = " + indices.length);
           for (int i = 0; i < indices.length; i++) {
@@ -956,37 +953,22 @@ public class RowsViewUpdateItem extends UpdateItem {
             if (i % 5000 == 0) LOG.info("values[" + i + "] = " + values[i]);
           }
         }
-        */
-        int count = 0;
-        while (iter.hasNext()) {
-          entry = iter.next();
-          // if (count % 5000 == 0) LOG.info("without if count index = " + count + ", index = " + entry.getIntKey());
-          if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
-            /*
-            if (count % 5000 == 0) {
-              LOG.info("   with if count index = " + count + ", index = " + entry.getIntKey());
-              LOG.info("   index - offset = " + (entry.getIntKey() - offset));
-              LOG.info("   value = " + entry.getFloatValue());
-            }
-            */
-            buf.writeInt(entry.getIntKey() - offset);
-            buf.writeFloat(entry.getFloatValue());
-            num++;
+       */
+      int count = 0;
+      while (iter.hasNext()) {
+        entry = iter.next();
+        // if (count % 5000 == 0) LOG.info("without if count index = " + count + ", index = " + entry.getIntKey());
+        if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
+          if (num % 500 == 0) {
+            LOG.info("$$$partitionId = " + partKey.getPartitionId() + ", col = " + entry.getIntKey() + ", index = " + (entry.getIntKey() - offset));
           }
-          count++;
+          buf.writeInt(entry.getIntKey() - offset);
+          buf.writeFloat(entry.getFloatValue());
+          num++;
         }
-        LOG.info("num = " + num);
-        LOG.info("count = " + count);
-      } else {
-        while (iter.hasNext()) {
-          entry = iter.next();
-          if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
-            buf.writeInt(entry.getIntKey() - offset);
-            buf.writeFloat(entry.getFloatValue());
-            num++;
-          }
-        }
+        count++;
       }
+      LOG.info("partitionKey = " + partKey.toString() + ", num = " + num + ", count = " + count);
       /* code end */
       buf.setInt(pos, num);
     } else {
