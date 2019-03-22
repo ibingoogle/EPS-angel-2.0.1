@@ -155,7 +155,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
       for (Map.Entry<Integer, MatrixMeta> entry : context.getMatrixMetaManager().matrixPartitionsOn_removedPS.get(PSIndex).entrySet()){
         resBuilder.addMatrixMetas(ProtobufUtil.convertToMatrixMetaProto(entry.getValue()));
       }
-      context.getMatrixMetaManager().matrixPartitionsOn_removedPS.remove(PSIndex);
     }else {
       resBuilder.setSaveContextStatus(false);
     }

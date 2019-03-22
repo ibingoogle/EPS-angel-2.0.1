@@ -52,6 +52,12 @@ public class MatrixMetaManager {
 
 
   /* new code */
+  public void resetParameterServers_idle_MatrixMetaManager(){
+    for (Map.Entry<Integer, MatrixMeta> entry : matrixIdToMetaMap.entrySet()){
+      entry.getValue().reassign_partitionMetas_idle();
+    }
+  }
+
   public void print_MatrixMetaManager(){
     LOG.info("print_MatrixMetaManager");
     // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());

@@ -297,6 +297,7 @@ public class AMMatrixMetaManager {
     writeLock.lock();
     serversStatus_change_workers = false;
     writeLock.unlock();
+    resetParameterServers_idle();
   }
 
   public void reSetServersStatus_change_servers(){
@@ -305,7 +306,22 @@ public class AMMatrixMetaManager {
     writeLock.unlock();
   }
 
+  // remove partitionMetas_idle
+  public void resetParameterServers_idle() {
+    LOG.info("resetParameterServers_idle");
+    // handle matrixPartitionsOnPS
+    for(Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()){
+      for(Map.Entry<Integer, MatrixMeta> entry2 : entry.getValue().entrySet()){
+        entry2.getValue().reassign_partitionMetas_idle();
+      }
+    }
+    matrixMetaManager.resetParameterServers_idle_MatrixMetaManager();
+    LOG.info("after resetParameterServers_idle");
+    print_AMMatrixMetaManager();
+  }
+
   public void rmOneParameterServer() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
+    LOG.info("before rmOneParameterServer()");
     print_AMMatrixMetaManager();
     // change active_servers to notify the removed server
     context.getMatrixMetaManager().active_servers.remove(rmParameterServerIndex);
@@ -345,6 +361,7 @@ public class AMMatrixMetaManager {
     rePartition_PartitionMetas(MatrixId2Meta);
     // when we put(rmParameterServerId.getIndex(), MatrixId2Meta), server can get MatrixId2Meta based on RPC
     matrixPartitionsOn_removedPS.put(rmParameterServerId.getIndex(), MatrixId2Meta);
+    LOG.info("after rmOneParameterServer()");
     print_AMMatrixMetaManager();
   }
 
