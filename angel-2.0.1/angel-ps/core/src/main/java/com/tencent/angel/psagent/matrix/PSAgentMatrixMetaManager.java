@@ -81,6 +81,11 @@ public class PSAgentMatrixMetaManager {
 
 
   /* new code */
+  public void resetParameterServers_idle_PSAgentMatrixMetaManager(List<MatrixMeta> matrixMetas){
+    LOG.info("resetParameterServers_idle_PSAgentMatrixMetaManager");
+  }
+
+
   public void rmOneParameterServer_PSAgentMatrixMetaManager(int removedParameterServerIndex){
     LOG.info("rmOneParameterServer_PSAgentMatrixMetaManager");
     // 1

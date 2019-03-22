@@ -20,6 +20,7 @@ package com.tencent.angel.psagent.clock;
 
 import com.tencent.angel.PartitionKey;
 import com.tencent.angel.conf.AngelConf;
+import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.server.data.response.GetClocksResponse;
 import com.tencent.angel.ps.server.data.response.ResponseType;
@@ -72,6 +73,10 @@ public class ClockCache {
   }
 
   /* new code */
+
+  public void resetParameterServers_idle_ClockCache(List<MatrixMeta> matrixMetas){
+    LOG.info("resetParameterServers_idle_ClockCache");
+  }
 
   public void rmOneParameterServer_ClockCache(int removedParameterServerIndex){
     LOG.info("rmOneParameterServer_ClockCache");

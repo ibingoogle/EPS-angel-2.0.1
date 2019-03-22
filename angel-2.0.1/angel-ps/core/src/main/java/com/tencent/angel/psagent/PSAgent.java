@@ -392,6 +392,8 @@ public class PSAgent {
         LOG.info("PartitionMeta_idle toString = " + entry.getValue().toString());
       }
     }
+    matrixMetaManager.resetParameterServers_idle_PSAgentMatrixMetaManager(matrixMetas_idle);
+    clockCache.resetParameterServers_idle_ClockCache(matrixMetas_idle);
     resetParameterServers_idle = false;
     matrixMetas_idle.clear();
     LOG.info("after resetParameterServers_idle_PSAgent");
