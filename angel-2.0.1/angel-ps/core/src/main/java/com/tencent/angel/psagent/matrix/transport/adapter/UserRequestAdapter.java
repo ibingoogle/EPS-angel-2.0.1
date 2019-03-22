@@ -372,6 +372,7 @@ public class UserRequestAdapter {
     for (int i = 0; i < partParams.size(); i++){
       if (partParams.get(i).getPartKey().status){
         active_partParams_size++;
+        LOG.info("partitionId in PartitionUpdateParam = " + partParams.get(i).getPartKey().getPartitionId());
       }
     }
     LOG.info("active_partParams_size = " + active_partParams_size);
@@ -517,7 +518,7 @@ public class UserRequestAdapter {
         LOG.info("go to matrixClient.update(*) with clock = " + clock + " updateClock = " + updateClock);
         LOG.info("requestId = " + requestId);
         LOG.info("matrixId = " + matrixId);
-        LOG.info("PartitionKe = " + Pkey.toString());
+        LOG.info("PartitionKey in plus = " + Pkey.toString());
         i++;
       }else {
         LOG.info("clock => removed partitionKey index = " + Pkey.getPartitionId());

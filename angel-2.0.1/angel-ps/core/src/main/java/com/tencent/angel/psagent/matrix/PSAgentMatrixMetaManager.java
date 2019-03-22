@@ -118,6 +118,19 @@ public class PSAgentMatrixMetaManager {
       }
     }
     // add idle matrixMetas
+    for (int i = 0; i < matrixMetas.size(); i++){
+      MatrixMeta matrixMeta_idle = matrixMetas.get(i);
+      int matrixIndex = matrixMeta_idle.getId();
+      MatrixMeta matrixMeta_curr = matrixMetaManager.getMatrixMeta(matrixIndex);
+      for (Map.Entry<Integer, PartitionMeta> entry : matrixMeta_idle.partitionMetas_idle.entrySet()){
+        matrixMeta_curr.getPartitionMetas().put(entry.getKey(), entry.getValue());
+        PartitionKey partitionKey_idle = entry.getValue().getPartitionKey();
+        matrixIdToPartsMap.get(matrixIndex).add(partitionKey_idle);
+        for (int rowIndex = partitionKey_idle.getStartRow(); rowIndex < partitionKey_idle.getEndRow(); rowIndex++){
+          rowIndexToPartsMap.get(matrixIndex).get(rowIndex).add(partitionKey_idle);
+        }
+      }
+    }
   }
 
   public void rmOneParameterServer_PSAgentMatrixMetaManager(int removedParameterServerIndex){

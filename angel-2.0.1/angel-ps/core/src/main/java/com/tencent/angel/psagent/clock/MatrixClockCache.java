@@ -19,16 +19,22 @@
 package com.tencent.angel.psagent.clock;
 
 import com.tencent.angel.PartitionKey;
+import com.tencent.angel.ml.matrix.MatrixMeta;
+import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.psagent.PSAgentContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The partition clocks cache for a matrix
  */
 public class MatrixClockCache {
+  private static final Log LOG = LogFactory.getLog(MatrixClockCache.class); //////
   /**
    * matrix id
    */
@@ -66,6 +72,19 @@ public class MatrixClockCache {
   public MatrixClockCache(int matrixId) {
     this(matrixId, new ArrayList<PartitionKey>());
   }
+
+  /* new code */
+  public void resetParameterServers_idle_MatrixClockCache(MatrixMeta matrixMeta_idle){
+    int latestClock = getMaxClock();
+    LOG.info("latestClock = " + latestClock);
+    for (Map.Entry<Integer, PartitionMeta> entry: matrixMeta_idle.partitionMetas_idle.entrySet()){
+      PartitionKey partitionKey = entry.getValue().getPartitionKey();
+      partitionClockMap.put(partitionKey, latestClock);
+    }
+  }
+
+  /* code end */
+
 
   /**
    * Get minimal clock of the given partitions
@@ -143,4 +162,14 @@ public class MatrixClockCache {
 
     return clock;
   }
+
+  /* new code */
+  private int getMaxClock(){
+    int clock = Integer.MIN_VALUE;
+    for(Integer currClock: partitionClockMap.values()){
+      clock = Math.max(clock, currClock);
+    }
+    return clock;
+  }
+  /* code end */
 }

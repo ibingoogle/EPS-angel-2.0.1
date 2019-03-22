@@ -85,6 +85,12 @@ public class ClockCache {
       }
     }
     // add matrixMetas
+    for (int i = 0; i < matrixMetas.size(); i++){
+      MatrixMeta matrixMeta_idle = matrixMetas.get(i);
+      int matrixId = matrixMeta_idle.getId();
+      MatrixClockCache matrixClockCache = matrixClockCacheMap.get(matrixId);
+      matrixClockCache.resetParameterServers_idle_MatrixClockCache(matrixMeta_idle);
+    }
   }
 
   public void rmOneParameterServer_ClockCache(int removedParameterServerIndex){
