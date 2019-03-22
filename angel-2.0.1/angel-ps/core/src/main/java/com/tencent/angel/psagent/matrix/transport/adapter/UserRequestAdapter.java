@@ -743,7 +743,7 @@ public class UserRequestAdapter {
     LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
     LOG.info("currentEpoch = " + currentEpoch);
     LOG.info("rmServerPull = " + rmServerPull);
-    LOG.info("IndexGetRowsRequest request = " + request);
+    LOG.info("IndexGetRowsRequest request = " + request + ", class = " + request.getClass());
     //LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get(IndexGetRowsRequest request) from pullGradient");
     //PSAgentContext.get().getPsAgent().print_PSAgent();
     /* code end */
@@ -1729,6 +1729,7 @@ public class UserRequestAdapter {
     //  return key1.getStartCol() < key2.getStartCol() ? -1 : 1;
     //});
 
+    /* old code
     int ii = 0;
     int keyIndex = 0;
     // For each partition, we generate a update split.
@@ -1747,6 +1748,36 @@ public class UserRequestAdapter {
       }
       keyIndex++;
     }
+    /* new code */
+    // Sort partition keys use start column index
+    Collections.sort(partKeys, (PartitionKey key1, PartitionKey key2) -> {
+      return key1.getStartCol() < key2.getStartCol() ? -1 : 1;
+    });
+    for (int i = 0; i < partKeys.size(); i++){
+      LOG.info("partitionKey_split = " + partKeys.get(i).toString());
+    }
+    int ii = 0;
+    int keyIndex = 0;
+    // For each partition, we generate a update split.
+    // Although the split is empty for partitions those without any update data,
+    // we still need to generate a update split to update the clock info on ps.
+    while (ii < indexes.length || keyIndex < partKeys.size()) {
+      int length = 0;
+      long endOffset = partKeys.get(keyIndex).getEndCol();
+      long startOffset = partKeys.get(keyIndex).getStartCol();
+      while (ii < indexes.length && indexes[ii] < endOffset) {
+        if (indexes[ii] >= startOffset) length++;
+        ii++;
+      }
+
+      if (length != 0) {
+        LOG.info("ii = " + ii + ", length = " + length);
+        ret.put(partKeys.get(keyIndex), new IntIndicesView(indexes, ii - length, ii));
+      }
+      keyIndex++;
+    }
+
+    /* code end */
     return ret;
   }
 
