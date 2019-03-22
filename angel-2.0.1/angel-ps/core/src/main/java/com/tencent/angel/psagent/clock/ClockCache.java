@@ -76,6 +76,15 @@ public class ClockCache {
 
   public void resetParameterServers_idle_ClockCache(List<MatrixMeta> matrixMetas){
     LOG.info("resetParameterServers_idle_ClockCache");
+    // remove partitionKey with Integer.MAX_VALUE clock
+    for (Map.Entry<Integer, MatrixClockCache> entry : matrixClockCacheMap.entrySet()){
+      for(Map.Entry<PartitionKey, Integer> entry2 : entry.getValue().partitionClockMap.entrySet()){
+        if (entry2.getValue() == Integer.MAX_VALUE){
+          entry.getValue().partitionClockMap.remove(entry2.getKey());
+        }
+      }
+    }
+    // add matrixMetas
   }
 
   public void rmOneParameterServer_ClockCache(int removedParameterServerIndex){
