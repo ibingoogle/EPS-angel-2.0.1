@@ -56,6 +56,7 @@ message WorkerReportResponse {
   optional int32 activeTaskNum = 2;
   optional int32 serversStatus = 3; //////
   repeated MatrixMetaProto matrixIdleMetas = 4; //////
+  repeated MatrixMetaProto matrixPreMetas = 5; //////
 }
 
 message WorkerRegisterRequest{

@@ -165,9 +165,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
   public PSSavedResponse psSaved(RpcController controller, PSSavedRequest request) throws ServiceException {
     PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
     int PSIndex = psAttemptId.getPsId().getIndex();
+    context.getMatrixMetaManager().matrixPartitionsOn_prePS.push(context.getMatrixMetaManager().matrixPartitionsOn_removedPS.get(PSIndex));
     context.getMatrixMetaManager().matrixPartitionsOn_removedPS.remove(PSIndex);
     // notify rest servers
-    context.getMatrixMetaManager().notify_servers();
+    // when the removed server has saved parameters, it's time to notify rest servers to load these parameters
+    int newstatus = 1;
+    context.getMatrixMetaManager().notify_servers(newstatus);
     return PSSavedResponse.newBuilder().build();
   }
 
@@ -180,8 +183,9 @@ public class MasterService extends AbstractService implements MasterProtocol {
     // reset if needed
     if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
       context.getMatrixMetaManager().reSetServersStatus_change_servers();
-      // tell all workers
-      context.getMatrixMetaManager().notify_workers();
+      // tell all workers to add partitions to each server
+      int newStatus = 1;
+      context.getMatrixMetaManager().notify_workers(newStatus);
     }
     return PSLoadedResponse.newBuilder().build();
   }
@@ -939,6 +943,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
             Map<Integer, MatrixMeta> matrixIdToMetaMap = context.getMatrixMetaManager().getMatrixMetas();
             for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
               builder.addMatrixIdleMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
+            }
+          }
+          if (Status == -1){
+            Map<Integer, MatrixMeta> matrixIdToMetaMap = context.getMatrixMetaManager().matrixPartitionsOn_prePS.peek();
+            for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
+              builder.addMatrixPreMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
           }
           context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);

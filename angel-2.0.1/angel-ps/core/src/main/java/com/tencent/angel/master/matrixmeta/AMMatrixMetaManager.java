@@ -74,6 +74,9 @@ public class AMMatrixMetaManager {
   public final ConcurrentHashMap<ParameterServerId, Map<Integer, MatrixMeta>> matrixPartitionsOnPS;
 
   public final ConcurrentHashMap<Integer, Map<Integer, MatrixMeta>> matrixPartitionsOn_removedPS;
+
+  // used in addOneServer (i.e., recover based on previous removed PS)
+  public final Stack<Map<Integer, MatrixMeta>> matrixPartitionsOn_prePS;
   /* code end */
 
   /**
@@ -99,7 +102,7 @@ public class AMMatrixMetaManager {
   /* new code */
   public int initial_serverNum = 0;
   public HashSet<Integer> active_servers = null;
-  // workerindex to status (not contain means normal, 1 means add partitions to each server, -1 means remove partitions from each server)
+  // workerindex to status (not contain means normal, 1 means add partitions to each server, -1 means remove some partitions from each server, 2 means use partitions from new server)
   public ConcurrentHashMap<Integer, Integer> serverStatus_workers = new ConcurrentHashMap<Integer, Integer>();
   public boolean serversStatus_change_workers = false;
   // serverIndex to status (not contain means normal, 1 means add partitions to each server, -2 means remove partitions from each server)
@@ -119,6 +122,7 @@ public class AMMatrixMetaManager {
     matrixMetaManager = new MatrixMetaManager();
     matrixPartitionsOnPS = new ConcurrentHashMap<>();
     matrixPartitionsOn_removedPS = new ConcurrentHashMap<>();//////
+    matrixPartitionsOn_prePS = new Stack<Map<Integer, MatrixMeta>>(); //////
     matrixIdToPSSetMap = new HashMap<>();
     psIdToMatrixIdsMap = new HashMap<>();
     psIdToRecoverPartsMap = new ConcurrentHashMap<>();
@@ -148,6 +152,10 @@ public class AMMatrixMetaManager {
   /* new code */
   public void addOneServer_AMMatrixMetaManager(ParameterServerId psId){
     LOG.info("addOneServer_AMMatrixMetaManager");
+    // tell workers to remove some partitions from each server (i.e., set partitionKey status = false)
+    int newstatus = -1;
+    notify_workers(newstatus);
+    // matrixPartitionsOn_prePS.pop();
   }
   /* code end */
 
@@ -375,9 +383,9 @@ public class AMMatrixMetaManager {
     print_AMMatrixMetaManager();
   }
 
-  // when the removed server has saved parameters, it's time to notify rest servers to load these parameters
-  public void notify_servers() {
-    LOG.info("notify_servers");
+
+  public void notify_servers(int status) {
+    LOG.info("notify_servers status = " + status);
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> serverIndexes = new HashSet<Integer>();
     for (Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry : matrixPartitionsOnPS.entrySet()) {
@@ -386,8 +394,8 @@ public class AMMatrixMetaManager {
     // LOG.info("serverIndexes.size = " + serverIndexes.size());
     serverStatus_servers.clear();
     for (int serverindex : serverIndexes) {
-      // LOG.info("serverStatus_servers.put(" + serverindex+ ", 1)");
-      serverStatus_servers.put(serverindex, 1);
+      // LOG.info("serverStatus_servers.put(" + serverindex+ ", status)");
+      serverStatus_servers.put(serverindex, status);
       // LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
     }
 
@@ -400,15 +408,15 @@ public class AMMatrixMetaManager {
     serversStatus_change_servers = true;
   }
 
-  public void notify_workers(){
-    LOG.info("notify_workers");
+  public void notify_workers(int status){
+    LOG.info("notify_workers status = " + status);
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
     // LOG.info("workerIndexes.size = " + workerIndexes.size());
     serverStatus_workers.clear();
     for (int workerindex : workerIndexes){
-      // LOG.info("serverStatus_workers.put(" + workerindex+ ", 1)");
-      serverStatus_workers.put(workerindex, 1);
+      // LOG.info("serverStatus_workers.put(" + workerindex+ ", status)");
+      serverStatus_workers.put(workerindex, status);
       // LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
     }
     /*

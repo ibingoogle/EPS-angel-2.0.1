@@ -137,6 +137,8 @@ public class MasterClient {
     return matrixMetas;
   }
 
+  /* new code */
+
   /**
    * Get the meta data and partitions for the repartitioned partitionKeys, it will wait until the matrices are ready
    *
@@ -162,6 +164,34 @@ public class MasterClient {
     }
     return matrixMetas;
   }
+
+  /**
+   * Get the meta data and partitions for the previous partitionKeys, it will wait until the matrices are ready
+   *
+   * @return GetAllMatrixInfoResponse the meta data and repartitioned partitions
+   * @throws InterruptedException interrupted when sleep for next try
+   * @throws ServiceException     rpc failed
+   */
+  public List<MatrixMeta> getMatrices_pre(WorkerReportResponse response )
+          throws InterruptedException, ServiceException, ClassNotFoundException {
+    LOG.info("getMatrices_pre()");
+    List<MatrixMetaProto> matrixPreMetaProtos = response.getMatrixPreMetasList();
+    int size = matrixPreMetaProtos.size();
+    List<MatrixMeta> matrixMetas = new ArrayList<>(size);
+    for (int i = 0; i < size; i++) {
+      matrixMetas.add(ProtobufUtil.convertToMatrixMeta(matrixPreMetaProtos.get(i)));
+    }
+    // only care about public Map<Integer, PartitionMeta> partitionMetas_idle in MatrixMeta
+    for (int i = 0; i < matrixMetas.size(); i++) {
+      LOG.info("matrixId = " + matrixMetas.get(i).getMatrixContext().getMatrixId());
+      for (Map.Entry<Integer, PartitionMeta> entry: matrixMetas.get(i).partitionMetas_idle.entrySet()){
+        LOG.info("PartitionMeta_pre toString = " + entry.getValue().toString());
+      }
+    }
+    return matrixMetas;
+  }
+
+  /* code end */
 
   /**
    * Get a matrix meta

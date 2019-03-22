@@ -25,6 +25,7 @@ import com.tencent.angel.common.location.Location;
 import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.ipc.TConnection;
 import com.tencent.angel.ipc.TConnectionManager;
+import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.plugin.AngelServiceLoader;
 import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.worker.task.Task;
@@ -375,6 +376,9 @@ public class Worker implements Executor {
             if (ServersStatus == 1){
               psAgent.matrixMetas_idle = psAgent.getMasterClient().getMatrices_idle(response);
               psAgent.resetParameterServers_idle = true;
+            }
+            if (ServersStatus == -1){
+              List<MatrixMeta> matrixMetas_pre = psAgent.getMasterClient().getMatrices_pre(response);
             }
           }
           /* code end */
