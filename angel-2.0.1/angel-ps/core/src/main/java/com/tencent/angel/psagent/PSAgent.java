@@ -312,7 +312,7 @@ public class PSAgent {
     LOG.info("----------------");
     LOG.info("----------------");
     LOG.info("");
-    LOG.info("print_PSAgent in ");
+    LOG.info("print_PSAgent in PSAgent.java");
     LOG.info("");
     LOG.info("----------------");
     LOG.info("----------------");
@@ -384,8 +384,14 @@ public class PSAgent {
   }
 
   public void resetParameterServers_idle_PSAgent(){
-
-
+    LOG.info("resetParameterServers_idle_PSAgent");
+    // only care about public Map<Integer, PartitionMeta> partitionMetas_idle in MatrixMeta
+    for (int i = 0; i < matrixMetas_idle.size(); i++) {
+      LOG.info("matrixId = " + matrixMetas_idle.get(i).getMatrixContext().getMatrixId());
+      for (Map.Entry<Integer, PartitionMeta> entry: matrixMetas_idle.get(i).partitionMetas_idle.entrySet()){
+        LOG.info("PartitionMeta_idle toString = " + entry.getValue().toString());
+      }
+    }
     resetParameterServers_idle = false;
     matrixMetas_idle.clear();
     LOG.info("after resetParameterServers_idle_PSAgent");
