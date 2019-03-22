@@ -169,6 +169,10 @@ import org.apache.hadoop.yarn.webapp.WebApp;
    */
   AMMatrixMetaManager getMatrixMetaManager();
 
+  /* new code */
+  void addOneServer_AMContext();
+  /* code end */
+
   /**
    * Get ps location manager
    *

@@ -62,7 +62,11 @@ public class ParameterServerManager extends AbstractService
   /**
    * parameter server number
    */
+  /* old code
   private final int psNumber;
+  /* new code */
+  private int psNumber;
+  /* code end */
 
   /**
    * If we need to suggest physical machines which the parameter servers will running on, we can
@@ -188,6 +192,35 @@ public class ParameterServerManager extends AbstractService
       psMap.put(id, server);
     }
   }
+
+  /* new code */
+  public ParameterServerId initOnePS(){
+    psNumber++;
+    int ParameterServerIndex = psNumber - 1;
+    ParameterServerId id = new ParameterServerId(ParameterServerIndex);
+    AMParameterServer server = null;
+    // do not specify location based on ips
+    server = new AMParameterServer(id, context);
+    if (psIdToAttemptIndexMap != null && psIdToAttemptIndexMap.containsKey(id)) {
+      LOG.info("recover from psIdToAttemptIndexMap");
+      server.setNextAttemptNumber(psIdToAttemptIndexMap.get(id));
+    }else {
+      LOG.info("no recover from psIdToAttemptIndexMap");
+    }
+    psMap.put(id, server);
+    return id;
+  }
+
+  // start the specified PS
+  public void startOnePS(ParameterServerId psId) {
+    if (psMap.containsKey(psId)) {
+      AMParameterServer server = psMap.get(psId);
+      server.handle(new AMParameterServerEvent(AMParameterServerEventType.PS_SCHEDULE, psId));
+    }else {
+      LOG.info("this psId does not exist");
+    }
+  }
+  /* code end */
 
   /**
    * Start all PS

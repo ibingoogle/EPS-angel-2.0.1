@@ -43,6 +43,8 @@ public class LocationManager {
   /* old code
   private final Map<ParameterServerId, Location> psIdToLocMap;
   /* new code */
+  // master node can automatically handle this data structure in container allocation process
+  // In worker node, we need manually modify this data structure
   public final Map<ParameterServerId, Location> psIdToLocMap;
   /* code end */
 

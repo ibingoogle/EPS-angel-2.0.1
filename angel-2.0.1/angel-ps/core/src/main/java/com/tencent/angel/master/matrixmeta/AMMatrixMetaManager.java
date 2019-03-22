@@ -110,6 +110,8 @@ public class AMMatrixMetaManager {
 
   public int rmParameterServerIndex = -1;
   public int rmServerEpoch = -1;
+
+  public int addServerEpoch = -1;
   /* code end */
 
   public AMMatrixMetaManager(AMContext context) {
@@ -136,6 +138,7 @@ public class AMMatrixMetaManager {
 
     rmParameterServerIndex = context.getConf().getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
     rmServerEpoch = context.getConf().getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
+    addServerEpoch = context.getConf().getInt(AngelConf.ANGEL_WORKER_ADD_SERVER_EPOCH, AngelConf.DEFAULT_ANGEL_WORKER_ADD_SERVER_EPOCH);
     /* code end */
     // Add one sync matrix
     // addSyncMatrix();

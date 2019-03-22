@@ -63,6 +63,7 @@ import com.tencent.angel.ps.PSAttemptId;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.webapp.AngelWebApp;
 import com.tencent.angel.worker.WorkerAttemptId;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -296,6 +297,38 @@ public class AngelApplicationMaster extends CompositeService {
 
 
 
+  /* new code */
+  public void addOneServer_AngelApplicationMaster(){
+    LOG.info("addOneServer_AngelApplicationMaster()");
+    ParameterServerId psId = psManager.initOnePS();
+    List<ParameterServerId> psIds = new ArrayList<>(psManager.getParameterServerMap().keySet());
+    Collections.sort(psIds, new Comparator<ParameterServerId>() {
+      @Override public int compare(ParameterServerId s1, ParameterServerId s2) {
+        return s1.getIndex() - s2.getIndex();
+      }
+    });
+    locationManager.setPsIds(psIds.toArray(new ParameterServerId[0]));
+    psManager.startOnePS(psId);
+    LOG.info("startOnePS now");
+    try {
+      waitForAddedOnePsRegisted();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    LOG.info("AddedOnePsRegisted!!!!!!");
+  }
+
+  public void waitForAddedOnePsRegisted() throws InterruptedException {
+    while (true) {
+      if (locationManager.isAllPsRegisted()) {
+        return;
+      }
+      Thread.sleep(100);
+    }
+  }
+  /* code end */
+
+
   /**
    * running application master context
    */
@@ -373,6 +406,13 @@ public class AngelApplicationMaster extends CompositeService {
     @Override public AMMatrixMetaManager getMatrixMetaManager() {
       return matrixMetaManager;
     }
+
+    /* new code */
+    @Override
+    public void addOneServer_AMContext() {
+      addOneServer_AngelApplicationMaster();
+    }
+    /* code end */
 
     @Override public LocationManager getLocationManager() {
       return locationManager;
