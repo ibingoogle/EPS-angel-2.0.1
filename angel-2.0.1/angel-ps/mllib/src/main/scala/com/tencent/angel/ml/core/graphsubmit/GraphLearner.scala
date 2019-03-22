@@ -357,6 +357,9 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (rmServerEpoch == nextEpoch){
         PSAgentContext.get().getPsAgent.rmOneParameterServer_PSAgent(removedParameterServerIndex)
       }
+      if (PSAgentContext.get().getPsAgent.resetParameterServers_idle){
+        PSAgentContext.get().getPsAgent.resetParameterServers_idle_PSAgent();
+      }
       /* code end */
     }
     )//////

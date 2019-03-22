@@ -373,7 +373,8 @@ public class Worker implements Executor {
           if (ServersStatus != 0){
             LOG.info("ServersStatus = " + ServersStatus);
             if (ServersStatus == 1){
-              psAgent.getMasterClient().getMatrices_idle();
+              psAgent.matrixMetas_idle = psAgent.getMasterClient().getMatrices_idle(response);
+              psAgent.resetParameterServers_idle = true;
             }
           }
           /* code end */

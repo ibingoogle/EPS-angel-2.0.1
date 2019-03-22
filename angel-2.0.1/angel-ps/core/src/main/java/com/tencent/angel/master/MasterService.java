@@ -936,6 +936,12 @@ public class MasterService extends AbstractService implements MasterProtocol {
           int Status = context.getMatrixMetaManager().serverStatus_workers.get(workerIndex);
           // LOG.info("workerIndex = " + workerIndex + ", Status = " + Status + " in MasterService.java");
           builder.setServersStatus(Status);
+          if (Status == 1){
+            Map<Integer, MatrixMeta> matrixIdToMetaMap = context.getMatrixMetaManager().getMatrixMetas();
+            for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
+              builder.addMatrixIdleMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
+            }
+          }
           context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
         }
         if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){

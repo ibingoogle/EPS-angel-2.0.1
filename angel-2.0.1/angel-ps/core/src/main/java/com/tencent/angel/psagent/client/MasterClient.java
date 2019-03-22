@@ -144,16 +144,14 @@ public class MasterClient {
    * @throws InterruptedException interrupted when sleep for next try
    * @throws ServiceException     rpc failed
    */
-  public List<MatrixMeta> getMatrices_idle()
+  public List<MatrixMeta> getMatrices_idle(WorkerReportResponse response )
           throws InterruptedException, ServiceException, ClassNotFoundException {
     LOG.info("getMatrices_idle()");
-    GetAllMatrixMetaResponse response =
-            master.getAllMatrixMeta(null, GetAllMatrixMetaRequest.newBuilder().build());
-    List<MatrixMetaProto> matrixMetaProtos = response.getMatrixMetasList();
-    int size = matrixMetaProtos.size();
+    List<MatrixMetaProto> matrixIdleMetaProtos = response.getMatrixIdleMetasList();
+    int size = matrixIdleMetaProtos.size();
     List<MatrixMeta> matrixMetas = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
-      matrixMetas.add(ProtobufUtil.convertToMatrixMeta(matrixMetaProtos.get(i)));
+      matrixMetas.add(ProtobufUtil.convertToMatrixMeta(matrixIdleMetaProtos.get(i)));
     }
     // only care about public Map<Integer, PartitionMeta> partitionMetas_idle in MatrixMeta
     for (int i = 0; i < matrixMetas.size(); i++) {

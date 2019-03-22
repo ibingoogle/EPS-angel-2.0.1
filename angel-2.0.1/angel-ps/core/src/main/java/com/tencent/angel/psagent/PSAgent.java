@@ -130,6 +130,11 @@ public class PSAgent {
    */
   private volatile PSAgentMatrixMetaManager matrixMetaManager;
 
+  /* new code */
+  public boolean resetParameterServers_idle = false;
+  public List<MatrixMeta> matrixMetas_idle = new ArrayList<>();
+  /* code end */
+
   /**
    * matrix updates cache
    */
@@ -375,6 +380,15 @@ public class PSAgent {
     // locationManager
     locationManager.rmOneParameterServer_PSAgentLocationManager(removedParameterServerIndex);
     LOG.info("after rmOneParameterServer_PSAgent");
+    print_PSAgent();
+  }
+
+  public void resetParameterServers_idle_PSAgent(){
+
+
+    resetParameterServers_idle = false;
+    matrixMetas_idle.clear();
+    LOG.info("after resetParameterServers_idle_PSAgent");
     print_PSAgent();
   }
   /* code end */
