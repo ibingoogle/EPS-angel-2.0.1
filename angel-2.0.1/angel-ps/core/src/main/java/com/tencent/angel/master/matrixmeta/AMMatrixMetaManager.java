@@ -145,6 +145,13 @@ public class AMMatrixMetaManager {
   }
 
 
+  /* new code */
+  public void addOneServer_AMMatrixMetaManager(ParameterServerId psId){
+    LOG.info("addOneServer_AMMatrixMetaManager");
+  }
+  /* code end */
+
+
   /**
    * Get matrix meta use matrix name
    *

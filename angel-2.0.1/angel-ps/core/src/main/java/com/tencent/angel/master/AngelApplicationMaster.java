@@ -300,7 +300,12 @@ public class AngelApplicationMaster extends CompositeService {
   /* new code */
   public void addOneServer_AngelApplicationMaster(){
     LOG.info("addOneServer_AngelApplicationMaster()");
+    // set new psId
     ParameterServerId psId = psManager.initOnePS();
+    // set matrixMetas
+    matrixMetaManager.active_servers.add(psId.getIndex());
+    matrixMetaManager.addOneServer_AMMatrixMetaManager(psId);
+    // handle locationManager
     List<ParameterServerId> psIds = new ArrayList<>(psManager.getParameterServerMap().keySet());
     Collections.sort(psIds, new Comparator<ParameterServerId>() {
       @Override public int compare(ParameterServerId s1, ParameterServerId s2) {
@@ -308,6 +313,7 @@ public class AngelApplicationMaster extends CompositeService {
       }
     });
     locationManager.setPsIds(psIds.toArray(new ParameterServerId[0]));
+    // start new server
     psManager.startOnePS(psId);
     LOG.info("startOnePS now");
     try {
@@ -316,6 +322,7 @@ public class AngelApplicationMaster extends CompositeService {
       e.printStackTrace();
     }
     LOG.info("AddedOnePsRegisted!!!!!!");
+
   }
 
   public void waitForAddedOnePsRegisted() throws InterruptedException {
