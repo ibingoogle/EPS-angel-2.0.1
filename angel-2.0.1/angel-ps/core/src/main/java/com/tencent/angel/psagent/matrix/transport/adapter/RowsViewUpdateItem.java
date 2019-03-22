@@ -959,16 +959,18 @@ public class RowsViewUpdateItem extends UpdateItem {
         entry = iter.next();
         // if (count % 5000 == 0) LOG.info("without if count index = " + count + ", index = " + entry.getIntKey());
         if (!needCheck || colInPart(entry.getIntKey(), partKey)) {
+          /*
           if (num % 500 == 0) {
             LOG.info("$$$partitionId = " + partKey.getPartitionId() + ", col = " + entry.getIntKey() + ", index = " + (entry.getIntKey() - offset));
           }
+          */
           buf.writeInt(entry.getIntKey() - offset);
           buf.writeFloat(entry.getFloatValue());
           num++;
         }
         count++;
       }
-      LOG.info("partitionKey = " + partKey.toString() + ", num = " + num + ", count = " + count);
+      LOG.info("partitionId = " + partKey.getPartitionId() + ", num = " + num + ", count = " + count);
       /* code end */
       buf.setInt(pos, num);
     } else {

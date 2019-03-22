@@ -478,6 +478,8 @@ public class RowSplitCombineUtils {
             if (matrixStorage.rowIdToPartKeyToFloats.get(i) != null && matrixStorage.rowIdToPartKeyToView.get(i) != null) {
               LOG.info("matrixStorage.rowIdToPartKeyToFloats.get(" + i + ") != null");
               LOG.info("matrixStorage.rowIdToPartKeyToView.get(" + i + ") != null");
+              LOG.info("matrixStorage.rowIdToPartKeyToFloats.size = " + matrixStorage.rowIdToPartKeyToFloats.size());
+              LOG.info("matrixStorage.rowIdToPartKeyToView.size = " + matrixStorage.rowIdToPartKeyToView.size());
               for (Map.Entry<PartitionKey, float[]> entry: matrixStorage.rowIdToPartKeyToFloats.get(i).entrySet()) {
                 PartitionKey partKey = entry.getKey();
                 ParameterServerId PSId = PSAgentContext.get().getMatrixMetaManager().getMasterPS(entry.getKey());

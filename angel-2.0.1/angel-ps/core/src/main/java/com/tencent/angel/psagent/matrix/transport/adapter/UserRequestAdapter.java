@@ -375,7 +375,7 @@ public class UserRequestAdapter {
         LOG.info("partitionId in PartitionUpdateParam = " + partParams.get(i).getPartKey().getPartitionId());
       }
     }
-    LOG.info("active_partParams_size = " + active_partParams_size);
+    LOG.info("active_partParams_size = " + active_partParams_size); // synchronization operations
     /* code end */
 
 
@@ -456,7 +456,7 @@ public class UserRequestAdapter {
     for (Map.Entry<PartitionKey, List<RowUpdateSplit>> entry :psUpdateData.entrySet()){
       if (entry.getKey().status) active_psUpdateData_size++;
     }
-    LOG.info("active_psUpdateData_size = " + active_psUpdateData_size);
+    LOG.info("active_psUpdateData_size = " + active_psUpdateData_size); // clock operation
     FlushResponseCache cache = new FlushResponseCache(active_psUpdateData_size);
     /* code end */
 
@@ -1282,7 +1282,7 @@ public class UserRequestAdapter {
       for (int i = 0; i < partitions.size(); i++){
         if (partitions.get(i).status) active_partitions_size++;
       }
-      LOG.info("active_partitions_size = " + active_partitions_size);
+      LOG.info("active_partitions_size = " + active_partitions_size); // push Gradients
       /* code end */
 
 
