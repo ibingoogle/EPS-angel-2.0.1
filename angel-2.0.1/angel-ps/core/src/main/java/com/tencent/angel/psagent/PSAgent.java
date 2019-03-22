@@ -394,6 +394,7 @@ public class PSAgent {
     }
     matrixMetaManager.resetParameterServers_idle_PSAgentMatrixMetaManager(matrixMetas_idle);
     clockCache.resetParameterServers_idle_ClockCache(matrixMetas_idle);
+    matrixStorageManager.resetParameterServers_idle_MatrixStorageManager();
     resetParameterServers_idle = false;
     matrixMetas_idle.clear();
     LOG.info("after resetParameterServers_idle_PSAgent");

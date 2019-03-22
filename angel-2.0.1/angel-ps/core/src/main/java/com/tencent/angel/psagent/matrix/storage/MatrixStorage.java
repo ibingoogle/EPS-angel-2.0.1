@@ -25,13 +25,18 @@ package com.tencent.angel.psagent.matrix.storage;
 import com.tencent.angel.PartitionKey;
 import com.tencent.angel.ml.math2.vector.Vector;
 import com.tencent.angel.psagent.matrix.transport.adapter.IndicesView;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MatrixStorage {
+  private static final Log LOG = LogFactory.getLog(MatrixStorage.class); //////
   /**
    * row index to row map
    */
@@ -59,6 +64,32 @@ public class MatrixStorage {
     rowIdToPartKeyToView = new ConcurrentHashMap<>(); //////
     lock = new ReentrantReadWriteLock();
   }
+
+  /* new code */
+  public void resetParameterServers_idle_MatrixStorage(){
+    LOG.info("resetParameterServers_idle_MatrixStorage");
+    Map<Integer, List<PartitionKey>> rowId2removedPartitionKeys = new HashMap<Integer, List<PartitionKey>>();
+    // collect all partitionKey with false status
+    for (Map.Entry<Integer, HashMap<PartitionKey, float[]>> entry : rowIdToPartKeyToFloats.entrySet()){
+      rowId2removedPartitionKeys.put(entry.getKey(), new ArrayList<PartitionKey>());
+      for (Map.Entry<PartitionKey, float[]> entry2 : entry.getValue().entrySet()){
+        if (entry2.getKey().status == false){
+          rowId2removedPartitionKeys.get(entry.getKey()).add(entry2.getKey());
+        }
+      }
+    }
+    // remove
+    for (Map.Entry<Integer, List<PartitionKey>> entry: rowId2removedPartitionKeys.entrySet()){
+      int rowIndex = entry.getKey();
+      for (int i = 0; i < entry.getValue().size(); i++){
+        rowIdToPartKeyToFloats.get(rowIndex).remove(entry.getValue().get(i));
+        rowIdToPartKeyToView.get(rowIndex).remove(entry.getValue().get(i));
+      }
+    }
+  }
+
+  /* code end */
+
 
   /**
    * Get the row from the storage.

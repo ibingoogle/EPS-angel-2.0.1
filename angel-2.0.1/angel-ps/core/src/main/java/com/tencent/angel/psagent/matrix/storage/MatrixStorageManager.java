@@ -19,13 +19,17 @@
 package com.tencent.angel.psagent.matrix.storage;
 
 import com.tencent.angel.ml.math2.vector.Vector;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Matrix storage manager. It holds a {@link MatrixStorage} for each matrix.
  */
 public class MatrixStorageManager {
+  private static final Log LOG = LogFactory.getLog(MatrixStorageManager.class); //////
   /**
    * matrix id to matrix storage map
    */
@@ -70,6 +74,17 @@ public class MatrixStorageManager {
     addMatrix(matrixId);
     return matrixIdToStorageMap.get(matrixId);
   }
+
+  /* new code */
+  public void resetParameterServers_idle_MatrixStorageManager(){
+    LOG.info("resetParameterServers_idle_MatrixStorageManager");
+    for (Map.Entry<Integer, MatrixStorage> entry: matrixIdToStorageMap.entrySet()){
+      entry.getValue().resetParameterServers_idle_MatrixStorage();
+    }
+  }
+
+  /* code end */
+
 
   /**
    * Get the row from matrix storage.
