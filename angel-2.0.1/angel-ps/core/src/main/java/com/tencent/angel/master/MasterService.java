@@ -187,6 +187,20 @@ public class MasterService extends AbstractService implements MasterProtocol {
     }
     return PSLoadedResponse.newBuilder().build();
   }
+
+  // tell master than servers have removed and saved part parameters
+  public PSRemoveSavedResponse psRemoveSaved(RpcController controller, PSRemoveSavedRequest request) throws ServiceException {
+    PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
+    int PSIndex = psAttemptId.getPsId().getIndex();
+    // remove status of the server that finished loading
+    context.getMatrixMetaManager().serverStatus_servers.remove(PSIndex);
+    // reset if needed
+    // oldStatus = -2
+    if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
+      context.getMatrixMetaManager().reSetServersStatus_change_servers(-2);
+    }
+    return PSRemoveSavedResponse.newBuilder().build();
+  }
   /* code end */
 
   /**

@@ -131,7 +131,6 @@ public class ServerPartition implements Serialize {
     for (Map.Entry<Integer, String> entry : loadAndSavePath.entrySet()) {
       LOG.info("rowIndex = " + entry.getKey());
       LOG.info("savePath = " + entry.getValue());
-      FileSystem fs = null;
       Path saveFilePath = new Path(entry.getValue());
       ServerIntFloatRow row = (ServerIntFloatRow) rows.getRow(entry.getKey());
       int baseCol = (int) partitionKey.getStartCol();
@@ -145,7 +144,7 @@ public class ServerPartition implements Serialize {
         LOG.info("endIndex = " + endIndex);
         if (startIndex >= 0 && startIndex <= endIndex && endIndex <= data.length){
           try {
-            fs = saveFilePath.getFileSystem(context.getConf());
+            FileSystem fs = saveFilePath.getFileSystem(context.getConf());
             // LOG.info("fs class = " + fs.getClass());
             FSDataOutputStream out = null;
             out = fs.create(saveFilePath);
@@ -155,12 +154,13 @@ public class ServerPartition implements Serialize {
               element.rowId = row.getRowId();
               element.colId = baseCol + j;
               element.value = data[j];
+              out.writeBytes(
+                      String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
+                              .valueOf(element.value) + "\n");
             }
-            out.writeBytes(
-                    String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
-                            .valueOf(element.value) + "\n");
             out.flush();
             out.close();
+            fs.close();
           } catch (IOException e) {
             e.printStackTrace();
           }

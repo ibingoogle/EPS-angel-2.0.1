@@ -675,6 +675,7 @@ public class ParameterServer {
           }
         }
         save_removedPartitions(matrixId2PartitionKeys_pre);
+        master.psRemoveSaved(attemptIdProto);
       }
       /* code end */
       switch (ret.getPsCommand()) {

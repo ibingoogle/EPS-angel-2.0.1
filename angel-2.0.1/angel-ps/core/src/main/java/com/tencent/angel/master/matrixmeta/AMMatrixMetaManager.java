@@ -328,6 +328,7 @@ public class AMMatrixMetaManager {
     writeLock.lock();
     serversStatus_change_servers = false;
     writeLock.unlock();
+    LOG.info("oldStatus = " + oldStatus);
     if (oldStatus == 1){
       // tell all workers to add partitions to each server
       int newWorkerStatus = 1;
