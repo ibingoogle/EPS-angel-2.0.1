@@ -29,10 +29,7 @@ import com.tencent.angel.psagent.matrix.transport.MatrixTransportInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -90,6 +87,17 @@ public class ClockCache {
       int matrixId = matrixMeta_idle.getId();
       MatrixClockCache matrixClockCache = matrixClockCacheMap.get(matrixId);
       matrixClockCache.resetParameterServers_idle_MatrixClockCache(matrixMeta_idle);
+    }
+  }
+
+  public void rmPartitions_pre_ClockCache(HashSet<Integer> rmPartitionIds){
+    LOG.info("rmPartitions_pre_ClockCache");
+    for (Map.Entry<Integer, MatrixClockCache> entry : matrixClockCacheMap.entrySet()){
+      for(Map.Entry<PartitionKey, Integer> entry2 : entry.getValue().partitionClockMap.entrySet()){
+        if (rmPartitionIds.contains(entry2.getKey().getPartitionId())){
+          entry.getValue().partitionClockMap.put(entry2.getKey(), Integer.MAX_VALUE);
+        }
+      }
     }
   }
 

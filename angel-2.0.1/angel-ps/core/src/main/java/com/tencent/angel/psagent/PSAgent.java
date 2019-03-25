@@ -133,6 +133,9 @@ public class PSAgent {
   /* new code */
   public boolean resetParameterServers_idle = false;
   public List<MatrixMeta> matrixMetas_idle = new ArrayList<>();
+
+  public boolean rmPartitions_pre = false;
+  public List<MatrixMeta> matrixMetas_pre = new ArrayList<>();
   /* code end */
 
   /**
@@ -380,6 +383,19 @@ public class PSAgent {
     // locationManager
     locationManager.rmOneParameterServer_PSAgentLocationManager(removedParameterServerIndex);
     LOG.info("after rmOneParameterServer_PSAgent");
+    print_PSAgent();
+  }
+
+  public void rmPartitions_pre_PSAgent(){
+    LOG.info("rmPartitions_pre_PSAgent");
+    for (int i = 0; i < matrixMetas_pre.size(); i++){
+      matrixMetas_pre.get(i).print_MatrixMeta();
+    }
+    HashSet<Integer> rmPartitionIds = matrixMetaManager.rmPartitions_pre_PSAgentMatrixMetaManager(matrixMetas_pre);
+    clockCache.rmPartitions_pre_ClockCache(rmPartitionIds);
+    matrixMetas_pre.clear();
+    rmPartitions_pre = false;
+    LOG.info("after rmPartitions_pre_PSAgent");
     print_PSAgent();
   }
 

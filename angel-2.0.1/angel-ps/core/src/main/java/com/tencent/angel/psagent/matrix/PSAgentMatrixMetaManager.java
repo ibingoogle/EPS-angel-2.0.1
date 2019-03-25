@@ -62,10 +62,6 @@ public class PSAgentMatrixMetaManager {
    */
   private final ClockCache partClockCache;
 
-  /* new code */
-  public List<MatrixMeta> matrixMetas_idle;
-  /* code end */
-
 
   /**
    * Create PSAgentMatrixMetaManager
@@ -133,6 +129,51 @@ public class PSAgentMatrixMetaManager {
     }
   }
 
+  public HashSet<Integer> rmPartitions_pre_PSAgentMatrixMetaManager(List<MatrixMeta> matrixMetas_pre){
+    LOG.info("rmPartitions_PSAgentMatrixMetaManager");
+    HashSet<Integer> rmPartitionIds = new HashSet<Integer>();
+    // 1
+    for (int i = 0; i < matrixMetas_pre.size(); i++){
+      MatrixMeta matrixMeta_pre = matrixMetas_pre.get(i);
+      MatrixMeta matrixMeta = matrixMetaManager.getMatrixMetas().get(matrixMeta_pre.getId());
+      for (Map.Entry<Integer, Map<Integer, PartitionMeta>> entry : matrixMeta_pre.partitionMetas_repartition.entrySet()){
+        for(Map.Entry<Integer, PartitionMeta> entry2 : entry.getValue().entrySet()){
+          int partitionId = entry2.getKey();
+          rmPartitionIds.add(partitionId);
+          if (matrixMeta.getPartitionMetas().containsKey(partitionId)){
+            matrixMeta.getPartitionMetas().get(partitionId).getPartitionKey().status = false;
+          }
+        }
+      }
+    }
+    // 2
+    for (Map.Entry<Integer, List<PartitionKey>> entry : matrixIdToPartsMap.entrySet()){
+      if (entry.getValue() != null) {
+        for (int i = 0; i < entry.getValue().size(); i++) {
+          if (rmPartitionIds.contains(entry.getValue().get(i).getPartitionId())){
+            entry.getValue().get(i).status = false;
+          }
+        }
+      }
+    }
+
+    // 3
+    for (Map.Entry<Integer, Map<Integer, List<PartitionKey>>> entry : rowIndexToPartsMap.entrySet()) {
+      if (entry.getValue() != null){
+        for (Map.Entry<Integer, List<PartitionKey>> entry2 : entry.getValue().entrySet()) {
+          if (entry2.getValue() != null) {
+            for (int i = 0; i < entry2.getValue().size(); i++) {
+              if (rmPartitionIds.contains(entry2.getValue().get(i).getPartitionId())){
+                entry2.getValue().get(i).status = false;
+              }
+            }
+          }
+        }
+      }
+    }
+    return rmPartitionIds;
+  }
+
   public void rmOneParameterServer_PSAgentMatrixMetaManager(int removedParameterServerIndex){
     LOG.info("rmOneParameterServer_PSAgentMatrixMetaManager");
     // 1
@@ -186,17 +227,6 @@ public class PSAgentMatrixMetaManager {
     partClockCache.print_ClockCache();
     LOG.info("");
     LOG.info("");
-    print_matrixMetas_idle();
-    LOG.info("");
-    LOG.info("");
-  }
-
-
-  public void print_matrixMetas_idle(){
-    LOG.info("print_matrixMetas_idle");
-    if (matrixMetas_idle != null) {
-
-    }
   }
 
   public void print_rowIndexToPartsMap(){

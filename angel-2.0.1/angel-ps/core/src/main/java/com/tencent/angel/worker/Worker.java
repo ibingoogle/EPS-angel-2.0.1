@@ -378,10 +378,8 @@ public class Worker implements Executor {
               psAgent.resetParameterServers_idle = true;
             }
             if (ServersStatus == -1){
-              List<MatrixMeta> matrixMetas_pre = psAgent.getMasterClient().getMatrices_pre(response);
-              for (int i = 0; i < matrixMetas_pre.size(); i++){
-                matrixMetas_pre.get(i).print_MatrixMeta();
-              }
+              psAgent.matrixMetas_pre = psAgent.getMasterClient().getMatrices_pre(response);
+              psAgent.rmPartitions_pre = true;
             }
           }
           /* code end */
