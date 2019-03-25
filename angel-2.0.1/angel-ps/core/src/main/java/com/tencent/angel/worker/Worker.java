@@ -379,6 +379,9 @@ public class Worker implements Executor {
             }
             if (ServersStatus == -1){
               List<MatrixMeta> matrixMetas_pre = psAgent.getMasterClient().getMatrices_pre(response);
+              for (int i = 0; i < matrixMetas_pre.size(); i++){
+                matrixMetas_pre.get(i).print_MatrixMeta();
+              }
             }
           }
           /* code end */
