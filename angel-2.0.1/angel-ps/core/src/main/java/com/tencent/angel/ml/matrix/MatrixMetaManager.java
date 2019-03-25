@@ -18,10 +18,12 @@
 
 package com.tencent.angel.ml.matrix;
 
+import com.tencent.angel.PartitionKey;
 import com.tencent.angel.ps.ParameterServerId;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,6 +82,20 @@ public class MatrixMetaManager {
   }
 
   /* new code */
+  public Set<PartitionKey> removePartitions_pre(Map<Integer, Set<Integer>> matrixId2PartitionKeys_pre){
+    Set<PartitionKey> partitionKeys_pre = new HashSet<PartitionKey>();
+    for(Map.Entry<Integer, Set<Integer>> entry: matrixId2PartitionKeys_pre.entrySet()){
+      int matrixId = entry.getKey();
+      if (matrixIdToMetaMap.containsKey(matrixId)){
+        matrixIdToMetaMap.get(matrixId).removePartitions_pre(entry.getValue(), partitionKeys_pre);
+        if (matrixIdToMetaMap.get(matrixId).getPartitionMetas().size() == 0){
+          matrixNameToIdMap.remove(matrixIdToMetaMap.get(matrixId).getName());
+          matrixIdToMetaMap.remove(matrixId);
+        }
+      }
+    }
+  }
+
   public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) {
     int size = matrixMetas_idle.size();
     for (int i = 0; i < size; i++) {

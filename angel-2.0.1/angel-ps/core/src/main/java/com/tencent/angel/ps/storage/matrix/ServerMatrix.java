@@ -72,6 +72,18 @@ public class ServerMatrix {
   }
 
   /* new code */
+  public void saveRemovedPartitions_pre(Set<Integer> partitions_pre, PSContext context){
+    for(Integer partition_pre: partitions_pre){
+      if (partitionMaps.containsKey(partition_pre)){
+        ServerPartition part = partitionMaps.get(partition_pre);
+        LOG.info("ServerPartition in saveRemovedPartitions_pre => " + part.toString());
+        part.save_removedValues(context);
+        partitionMaps.remove(partition_pre);
+      }
+    }
+  }
+
+
   public void print_ServerMatrix(){
     LOG.info("print_ServerMatrix");
     LOG.info("partitionMaps =>");
@@ -98,7 +110,7 @@ public class ServerMatrix {
     for (PartitionMeta partMeta_idle : partMetas_idle.values()) {
       ServerPartition part = new ServerPartition(partMeta_idle.getPartitionKey(), matrixMeta.getRowType(),
               matrixMeta.getEstSparsity(), sourceClass);
-      part.loadPath.put(0, partMeta_idle.savePath);
+      part.loadAndSavePath.put(0, partMeta_idle.savePath);
       partitionMaps.put(partMeta_idle.getPartId(), part);
       part.init();
       part.setState(PartitionState.READ_AND_WRITE);

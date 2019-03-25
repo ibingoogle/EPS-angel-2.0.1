@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * PS Matrix meta manager
@@ -80,6 +81,10 @@ public class PSMatrixMetaManager {
   }
 
   /* new code */
+  public Set<PartitionKey> removePartitions_pre(Map<Integer, Set<Integer>> matrixId2PartitionKeys_pre){
+    return matrixMetaManager.removePartitions_pre(matrixId2PartitionKeys_pre);
+  }
+
   public void addMatrices_idle(List<MatrixMeta> matrices_idle) {
     matrixMetaManager.addMatrices_idle(matrices_idle);
   }

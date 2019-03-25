@@ -18,7 +18,9 @@
 
 package com.tencent.angel.ml.matrix;
 
+import com.tencent.angel.PartitionKey;
 import com.tencent.angel.conf.MatrixConf;
+import com.tencent.angel.ps.PSContext;
 import com.tencent.angel.ps.ParameterServerId;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +72,16 @@ public class MatrixMeta {
   }
 
   /* new code */
+  public void removePartitions_pre(Set<Integer> partitions_pre, Set<PartitionKey> partitionKeys_pre){
+    for(Integer partition_pre: partitions_pre){
+      if (partitionMetas.containsKey(partition_pre)) {
+        PartitionKey partitionKey_pre = partitionMetas.get(partition_pre).partitionKey;
+        partitionKeys_pre.add(partitionKey_pre);
+        partitionMetas.remove(partition_pre);
+      }
+    }
+  }
+
   public void reassign_partitionMetas_idle(){
     for (Map.Entry<Integer, PartitionMeta> entry: partitionMetas_idle.entrySet()){
       partitionMetas.put(entry.getKey(), entry.getValue());

@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -92,6 +93,19 @@ public class MatrixStorageManager {
   }
 
   /* new code */
+  public void saveRemovedPartitions_pre(Map<Integer, Set<Integer>> matrixId2PartitionKeys_pre){
+    for(Map.Entry<Integer, Set<Integer>> entry: matrixId2PartitionKeys_pre.entrySet()){
+      int matrixId = entry.getKey();
+      if (matrixIdToDataMap.containsKey(matrixId)){
+        matrixIdToDataMap.get(matrixId).saveRemovedPartitions_pre(entry.getValue(), context);
+        if (matrixIdToDataMap.get(matrixId).getPartitions().size() == 0){
+          matrixIdToDataMap.remove(matrixId);
+        }
+      }
+    }
+  }
+
+
   public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) throws IOException {
     int size = matrixMetas_idle.size();
     LOG.info("add Matrices_idle in MatrixStorageManager.java");

@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -152,6 +153,21 @@ public class ClockVectorManager {
   }
 
   /* new code */
+  public void removePartitions_pre(Map<Integer, Set<Integer>> matrixId2PartitionKeys_pre, Set<PartitionKey> partitionKeys_pre){
+    for(PartitionKey partitionKey_pre : partitionKeys_pre){
+      partKeyToClockMap.remove(partitionKey_pre);
+    }
+    for(Map.Entry<Integer, Set<Integer>> entry: matrixId2PartitionKeys_pre.entrySet()){
+      int matrixId = entry.getKey();
+      if (matrixIdToClockVecMap.containsKey(matrixId)){
+        matrixIdToClockVecMap.get(matrixId).removePartitions_pre(entry.getValue());
+        if (matrixIdToClockVecMap.get(matrixId).partIdToClockVecMap.size() == 0){
+          matrixIdToClockVecMap.remove(matrixId);
+        }
+      }
+    }
+  }
+
   public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) {
     int size = matrixMetas_idle.size();
     for (int i = 0; i < size; i++) {

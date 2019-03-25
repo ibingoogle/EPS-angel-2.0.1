@@ -22,6 +22,7 @@ import com.tencent.angel.PartitionKey;
 import com.tencent.angel.common.Serialize;
 import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.ml.math2.vector.IntFloatVector;
+import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.ml.matrix.RowType;
 import com.tencent.angel.ml.matrix.psf.update.base.PartitionUpdateParam;
 import com.tencent.angel.ml.matrix.psf.update.base.UpdateFunc;
@@ -35,6 +36,7 @@ import io.netty.buffer.ByteBuf;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -78,7 +80,7 @@ public class ServerPartition implements Serialize {
 
   /* new code */
   // rowIndex to loadpath
-  public Map<Integer, String> loadPath = new HashMap<Integer, String>();
+  public Map<Integer, String> loadAndSavePath = new HashMap<Integer, String>();
   /* code end */
 
   /**
@@ -125,9 +127,50 @@ public class ServerPartition implements Serialize {
   }
 
   /* new code */
+  public void save_removedValues(PSContext context){
+    for (Map.Entry<Integer, String> entry : loadAndSavePath.entrySet()) {
+      LOG.info("rowIndex = " + entry.getKey());
+      LOG.info("savePath = " + entry.getValue());
+      FileSystem fs = null;
+      Path saveFilePath = new Path(entry.getValue());
+      ServerIntFloatRow row = (ServerIntFloatRow) rows.getRow(entry.getKey());
+      int baseCol = (int) partitionKey.getStartCol();
+      LOG.info("baseCol = " + baseCol);
+      IntFloatVector vector = (IntFloatVector) row.getSplit();
+      if (vector.isDense()){
+        float[] data = vector.getStorage().getValues();
+        int startIndex = (int) partitionKey.getStartCol() - baseCol;
+        int endIndex = (int) partitionKey.getEndCol() - baseCol;
+        LOG.info("startIndex = " + startIndex);
+        LOG.info("endIndex = " + endIndex);
+        if (startIndex >= 0 && startIndex <= endIndex && endIndex <= data.length){
+          try {
+            fs = saveFilePath.getFileSystem(context.getConf());
+            // LOG.info("fs class = " + fs.getClass());
+            FSDataOutputStream out = null;
+            out = fs.create(saveFilePath);
+            IntFloatElement element = new IntFloatElement();
+            String sep = ",";
+            for (int j = startIndex; j < endIndex; j++) {
+              element.rowId = row.getRowId();
+              element.colId = baseCol + j;
+              element.value = data[j];
+            }
+            out.writeBytes(
+                    String.valueOf(element.rowId) + sep + String.valueOf(element.colId) + sep + String
+                            .valueOf(element.value) + "\n");
+            out.flush();
+            out.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
 
   public void load_values(PSContext context) {
-    for (Map.Entry<Integer, String> entry : loadPath.entrySet()) {
+    for (Map.Entry<Integer, String> entry : loadAndSavePath.entrySet()) {
       LOG.info("rowIndex = " + entry.getKey());
       LOG.info("loadPath = " + entry.getValue());
       ServerIntFloatRow row = (ServerIntFloatRow) getRow(entry.getKey());

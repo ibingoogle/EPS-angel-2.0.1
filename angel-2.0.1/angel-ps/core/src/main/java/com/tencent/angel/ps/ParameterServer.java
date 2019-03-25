@@ -20,6 +20,7 @@ package com.tencent.angel.ps;
 
 import com.google.protobuf.ServiceException;
 import com.tencent.angel.AngelDeployMode;
+import com.tencent.angel.PartitionKey;
 import com.tencent.angel.RunningMode;
 import com.tencent.angel.common.AngelEnvironment;
 import com.tencent.angel.common.location.Location;
@@ -74,9 +75,7 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -662,9 +661,20 @@ public class ParameterServer {
       }else if (status == -2){
         LOG.info("status == -2");
         List<MatrixMeta> matrixMetas_pre = ProtobufUtil.convertToMatricesMeta(ret.getNeedPreMatricesList());
+        // matrixId => Set(removed partitions)
+        Map<Integer, Set<Integer>> matrixId2PartitionKeys_pre = new HashMap<>();
         for (int i = 0; i < matrixMetas_pre.size(); i++){
-          matrixMetas_pre.get(i).print_MatrixMeta();
+          MatrixMeta matrixMeta_pre = matrixMetas_pre.get(i);
+          if (!matrixId2PartitionKeys_pre.containsKey(matrixMeta_pre.getId())){
+            matrixId2PartitionKeys_pre.put(matrixMeta_pre.getId(), new HashSet<Integer>());
+          }
+          for(Map<Integer, PartitionMeta> value: matrixMeta_pre.partitionMetas_repartition.values()){
+            for(Map.Entry<Integer, PartitionMeta> entry: value.entrySet()){
+              matrixId2PartitionKeys_pre.get(matrixMeta_pre.getId()).add(entry.getValue().getPartitionKey().getPartitionId());
+            }
+          }
         }
+        save_removedPartitions(matrixId2PartitionKeys_pre);
       }
       /* code end */
       switch (ret.getPsCommand()) {
@@ -774,6 +784,20 @@ public class ParameterServer {
     matrixStorageManager.addMatrices_idle(matrixMetas_idle);
     matrixMetaManager.adjustMatrices_idle();
     LOG.info("after createMatrices_idle......");
+    print_ParameterServer();
+  }
+
+  public void save_removedPartitions(Map<Integer, Set<Integer>> matrixId2PartitionKeys_pre){
+    LOG.info("save_removedPartition*************************");
+    LOG.info("before save_removedPartitions......");
+    print_ParameterServer();
+    Set<PartitionKey> partitionKeys_pre = matrixMetaManager.removePartitions_pre(matrixId2PartitionKeys_pre);
+    for(PartitionKey partitionKey: partitionKeys_pre){
+      LOG.info("partitionKey in save_removedPartitions => " + partitionKey.toString());
+    }
+    clockVectorManager.removePartitions_pre(matrixId2PartitionKeys_pre, partitionKeys_pre);
+    matrixStorageManager.saveRemovedPartitions_pre(matrixId2PartitionKeys_pre);
+    LOG.info("after save_removedPartitions......");
     print_ParameterServer();
   }
 
@@ -889,7 +913,6 @@ public class ParameterServer {
       createMatrices_idle(matrixMetas_idle);
     }
   }
-
 
   public void remove_save() throws ServiceException {
     LOG.info("remove_save*****************************");

@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,7 +36,11 @@ public class MatrixClockVector {
   /**
    * Partition id to partition clock vector map
    */
+  /* old code
   private final ConcurrentHashMap<Integer, PartClockVector> partIdToClockVecMap;
+  /* new code */
+  public final ConcurrentHashMap<Integer, PartClockVector> partIdToClockVecMap;
+  /* code end */
 
   /**
    * Total task number
@@ -61,6 +66,13 @@ public class MatrixClockVector {
   }
 
   /* new code */
+  public void removePartitions_pre(Set<Integer> partitions_pre){
+    for(Integer partition_pre: partitions_pre){
+      this.partIdToClockVecMap.remove(partition_pre);
+    }
+  }
+
+
   public void print_MatrixClockVector(){
     LOG.info("print_MatrixClockVector");
     LOG.info("partIdToClockVecMap =>");
