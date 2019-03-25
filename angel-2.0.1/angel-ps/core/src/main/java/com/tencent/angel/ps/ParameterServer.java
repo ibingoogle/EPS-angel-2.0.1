@@ -659,6 +659,12 @@ public class ParameterServer {
         List<MatrixMeta> matrixMetas_idle = ProtobufUtil.convertToMatricesMeta(ret.getNeedIdleMatricesList());
         load_removedPS(matrixMetas_idle);
         master.psLoaded(attemptIdProto);
+      }else if (status == -2){
+        LOG.info("status == -2");
+        List<MatrixMeta> matrixMetas_pre = ProtobufUtil.convertToMatricesMeta(ret.getNeedPreMatricesList());
+        for (int i = 0; i < matrixMetas_pre.size(); i++){
+          matrixMetas_pre.get(i).print_MatrixMeta();
+        }
       }
       /* code end */
       switch (ret.getPsCommand()) {

@@ -106,6 +106,7 @@ message PSReportResponse {
   optional ExecuteUnitDesc executeUnitDesc = 9;
   required int32 psStatus = 10; ////// 1 means add new parameters, 0 means keep current status, -1 means done, -2 means delete one parameters
   repeated MatrixMetaProto needIdleMatrices = 11; //////
+  repeated MatrixMetaProto needPreMatrices = 12; //////
 }
 
 message PSMatricesSaveContextProto {

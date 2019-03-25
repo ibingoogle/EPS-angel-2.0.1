@@ -181,11 +181,9 @@ public class MasterService extends AbstractService implements MasterProtocol {
     // remove status of the server that finished loading
     context.getMatrixMetaManager().serverStatus_servers.remove(PSIndex);
     // reset if needed
+    // oldStatus = 1
     if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
-      context.getMatrixMetaManager().reSetServersStatus_change_servers();
-      // tell all workers to add partitions to each server
-      int newStatus = 1;
-      context.getMatrixMetaManager().notify_workers(newStatus);
+      context.getMatrixMetaManager().reSetServersStatus_change_servers(1);
     }
     return PSLoadedResponse.newBuilder().build();
   }
@@ -330,6 +328,18 @@ public class MasterService extends AbstractService implements MasterProtocol {
               LOG.info("idle partitionMeta size  = " + MatrixMetaList_idle.get(i).partitionMetas_idle.size());
               resBuilder
                       .addNeedIdleMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_idle.get(i)));
+            }
+          } else if (Status == -2){
+            List<MatrixMeta> MatrixMetaList_pre = new ArrayList<>();
+            Map<Integer, MatrixMeta> matrixIdToMetaMap = context.getMatrixMetaManager().matrixPartitionsOn_prePS.peek();
+            for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
+              MatrixMetaList_pre.add(metaEntry.getValue());
+            }
+            LOG.info("MatrixMetaList_pre size = " + MatrixMetaList_pre.size());
+            for (int i = 0; i< MatrixMetaList_pre.size(); i++){
+              MatrixMetaList_pre.get(i).print_MatrixMeta();
+              resBuilder
+                      .addNeedPreMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_pre.get(i)));
             }
           }
         }else {
@@ -944,17 +954,20 @@ public class MasterService extends AbstractService implements MasterProtocol {
             for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
               builder.addMatrixIdleMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
-          }
-          if (Status == -1){
+            context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
+            if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
+              context.getMatrixMetaManager().reSetServersStatus_change_workers(1);
+            }
+          } else if (Status == -1) {
             Map<Integer, MatrixMeta> matrixIdToMetaMap = context.getMatrixMetaManager().matrixPartitionsOn_prePS.peek();
             for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
               builder.addMatrixPreMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
+            context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
+            if (context.getMatrixMetaManager().serverStatus_workers.size() == 0) {
+              context.getMatrixMetaManager().reSetServersStatus_change_workers(-1);
+            }
           }
-          context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
-        }
-        if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
-          context.getMatrixMetaManager().reSetServersStatus_change_workers();
         }
       }else {
         builder.setServersStatus(0);
