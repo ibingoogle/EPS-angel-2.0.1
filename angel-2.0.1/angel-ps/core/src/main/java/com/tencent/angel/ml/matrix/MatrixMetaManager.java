@@ -94,6 +94,7 @@ public class MatrixMetaManager {
         }
       }
     }
+    return partitionKeys_pre;
   }
 
   public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) {
