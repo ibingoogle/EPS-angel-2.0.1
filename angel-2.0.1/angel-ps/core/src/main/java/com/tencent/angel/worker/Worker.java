@@ -381,6 +381,9 @@ public class Worker implements Executor {
               psAgent.matrixMetas_pre = psAgent.getMasterClient().getMatrices_pre(response);
               psAgent.rmPartitions_pre = true;
             }
+            if (ServersStatus == 2){
+              LOG.info("it's time to use new server");
+            }
           }
           /* code end */
       }

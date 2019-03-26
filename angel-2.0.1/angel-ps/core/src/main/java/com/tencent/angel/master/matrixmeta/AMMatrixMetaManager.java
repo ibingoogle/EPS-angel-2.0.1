@@ -77,6 +77,9 @@ public class AMMatrixMetaManager {
 
   // used in addOneServer (i.e., recover based on previous removed PS)
   public final Stack<Map<Integer, MatrixMeta>> matrixPartitionsOn_prePS;
+  public int newServerIndex = -1;
+  public ParameterServerId newPSId = null;
+  public boolean newServerReadyToLoad = false; // new server can load partitions now, if this is true, set status = 2, means can load partitions to this new server
   /* code end */
 
   /**
@@ -106,12 +109,15 @@ public class AMMatrixMetaManager {
   // workerindex to status (not contain means normal, 1 means add partitions to each server,
   // -1 means plan to tell worker to remove some partitions from each server,
   // -2 means have told worker to remove some partitions from each server,
-  // 2 means use partitions from new server)
-  public ConcurrentHashMap<Integer, Integer> serverStatus_workers = new ConcurrentHashMap<Integer, Integer>();
+  // 2 means use partitions from new server
+  public ConcurrentHashMap<Integer, Integer> serversStatus_workers = new ConcurrentHashMap<Integer, Integer>();
   public boolean serversStatus_change_workers = false;
-  // serverIndex to status (not contain means normal, 1 means add partitions to each server, -2 means remove partitions from each server)
-  public ConcurrentHashMap<Integer, Integer> serverStatus_servers = new ConcurrentHashMap<Integer, Integer>();
+  // serverIndex to status (not contain means normal,
+  // 1 means add partitions to each server,
+  // -2 means remove partitions from each server)
+  public ConcurrentHashMap<Integer, Integer> serversStatus_servers = new ConcurrentHashMap<Integer, Integer>();
   public boolean serversStatus_change_servers = false;
+
 
   public List<MatrixContext> matrixContexts;
 
@@ -156,10 +162,17 @@ public class AMMatrixMetaManager {
   /* new code */
   public void addOneServer_AMMatrixMetaManager(ParameterServerId psId){
     LOG.info("addOneServer_AMMatrixMetaManager");
+    newPSId = psId;
+    newServerIndex = psId.getIndex();
     // tell workers to remove some partitions from each server (i.e., set partitionKey status = false)
     int newstatus = -1;
     notify_workers(newstatus);
     // matrixPartitionsOn_prePS.pop();
+  }
+
+  public void newServerLoaded(){
+    LOG.info("newServerLoaded");
+    newServerReadyToLoad = false;
   }
   /* code end */
 
@@ -312,13 +325,14 @@ public class AMMatrixMetaManager {
 
   /* new code */
   public void rmServerStatus_workers(int workerIndex){
-    serverStatus_workers.remove(workerIndex);
+    serversStatus_workers.remove(workerIndex);
   }
 
   public void reSetServersStatus_change_workers(int oldStatus){
     writeLock.lock();
     serversStatus_change_workers = false;
     writeLock.unlock();
+    LOG.info("oldServerWorkerStatus = " + oldStatus);
     if (oldStatus == 1) {
       resetParameterServers_idle();
     }else if (oldStatus == -2){
@@ -331,13 +345,14 @@ public class AMMatrixMetaManager {
     writeLock.lock();
     serversStatus_change_servers = false;
     writeLock.unlock();
-    LOG.info("oldStatus = " + oldStatus);
+    LOG.info("oldServerStatus = " + oldStatus);
     if (oldStatus == 1){
       // tell all workers to add partitions to each server
       int newWorkerStatus = 1;
       context.getMatrixMetaManager().notify_workers(newWorkerStatus);
     }else if (oldStatus == -2){
-
+      // tell new server to load partitions (saved by other servers)
+      newServerReadyToLoad = true;
     }
   }
 
@@ -401,6 +416,7 @@ public class AMMatrixMetaManager {
   }
 
 
+  // notify all server
   public void notify_servers(int status) {
     LOG.info("notify_servers status = " + status);
     // change serverStatus_workers to notify all active workers
@@ -409,10 +425,10 @@ public class AMMatrixMetaManager {
       serverIndexes.add(entry.getKey().getIndex());
     }
     // LOG.info("serverIndexes.size = " + serverIndexes.size());
-    serverStatus_servers.clear();
+    serversStatus_servers.clear();
     for (int serverindex : serverIndexes) {
       // LOG.info("serverStatus_servers.put(" + serverindex+ ", status)");
-      serverStatus_servers.put(serverindex, status);
+      serversStatus_servers.put(serverindex, status);
       // LOG.info("serverStatus_servers.size = " + serverStatus_servers.size());
     }
 
@@ -425,15 +441,16 @@ public class AMMatrixMetaManager {
     serversStatus_change_servers = true;
   }
 
+  // notify all workers
   public void notify_workers(int status){
     LOG.info("notify_workers status = " + status);
     // change serverStatus_workers to notify all active workers
     HashSet<Integer> workerIndexes = context.getWorkerManager().getWorkerIndexes();
     // LOG.info("workerIndexes.size = " + workerIndexes.size());
-    serverStatus_workers.clear();
+    serversStatus_workers.clear();
     for (int workerindex : workerIndexes){
       // LOG.info("serverStatus_workers.put(" + workerindex+ ", status)");
-      serverStatus_workers.put(workerindex, status);
+      serversStatus_workers.put(workerindex, status);
       // LOG.info("serverStatus_workers.size = " + serverStatus_workers.size());
     }
     /*

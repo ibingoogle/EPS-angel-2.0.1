@@ -676,6 +676,13 @@ public class ParameterServer {
         }
         save_removedPartitions(matrixId2PartitionKeys_pre);
         master.psRemoveSaved(attemptIdProto);
+      }else if (status == 2){
+        LOG.info("partitions are ready to load in this new server");
+        List<MatrixMeta> matrixMetas_pre = ProtobufUtil.convertToMatricesMeta(ret.getNeedPreMatricesList());
+        for (int i = 0; i < matrixMetas_pre.size(); i++){
+          matrixMetas_pre.get(i).print_MatrixMeta();
+        }
+        master.newPSLoaded(attemptIdProto);
       }
       /* code end */
       switch (ret.getPsCommand()) {

@@ -217,6 +217,13 @@ public class MasterClient {
     masterProxy.psLoaded(null, request);
   }
 
+  public void newPSLoaded(MLProtos.PSAttemptIdProto attemptIdProto) throws ServiceException {
+    NewPSLoadedRequest.Builder builder = NewPSLoadedRequest.newBuilder();
+    builder.setPsAttemptId(attemptIdProto);
+    NewPSLoadedRequest request = builder.build();
+    masterProxy.newPSLoaded(null, request);
+  }
+
   public void psRemoveSaved(MLProtos.PSAttemptIdProto attemptIdProto) throws ServiceException {
     PSRemoveSavedRequest.Builder builder = PSRemoveSavedRequest.newBuilder();
     builder.setPsAttemptId(attemptIdProto);

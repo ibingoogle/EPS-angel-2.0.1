@@ -92,6 +92,13 @@ message PSLoadedRequest {
 message PSLoadedResponse {
 }
 
+message NewPSLoadedRequest {
+  required PSAttemptIdProto psAttemptId = 1;
+}
+
+message NewPSLoadedResponse {
+}
+
 message PSRemoveSavedRequest {
   required PSAttemptIdProto psAttemptId = 1;
 }
@@ -262,6 +269,7 @@ service PSMasterService {
   rpc psRegister(PSRegisterRequest) returns (PSRegisterResponse);
   rpc psSaved(PSSavedRequest) returns (PSSavedResponse); //////
   rpc psLoaded(PSLoadedRequest) returns (PSLoadedResponse); //////
+  rpc newPSLoaded(NewPSLoadedRequest) returns (NewPSLoadedResponse); //////
   rpc psRemove(PSRemoveRequest) returns (PSRemoveResponse); //////
   rpc psRemoveSaved(PSRemoveSavedRequest) returns (PSRemoveSavedResponse); //////
   rpc psReport(PSReportRequest) returns (PSReportResponse);

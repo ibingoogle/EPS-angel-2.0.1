@@ -179,13 +179,23 @@ public class MasterService extends AbstractService implements MasterProtocol {
     PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
     int PSIndex = psAttemptId.getPsId().getIndex();
     // remove status of the server that finished loading
-    context.getMatrixMetaManager().serverStatus_servers.remove(PSIndex);
+    context.getMatrixMetaManager().serversStatus_servers.remove(PSIndex);
     // reset if needed
     // oldStatus = 1
-    if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
+    if (context.getMatrixMetaManager().serversStatus_servers.size() == 0){
       context.getMatrixMetaManager().reSetServersStatus_change_servers(1);
     }
     return PSLoadedResponse.newBuilder().build();
+  }
+
+  // tell master that new server has loaded partitions saved by other servers
+  public NewPSLoadedResponse newPSLoaded(RpcController controller, NewPSLoadedRequest request) throws ServiceException {
+    PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
+    int PSIndex = psAttemptId.getPsId().getIndex();
+    context.getMatrixMetaManager().newServerLoaded();
+    int newWorkerStatus = 2;
+    context.getMatrixMetaManager().notify_workers(newWorkerStatus);
+    return NewPSLoadedResponse.newBuilder().build();
   }
 
   // tell master than servers have removed and saved part parameters
@@ -193,10 +203,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
     PSAttemptId psAttemptId = ProtobufUtil.convertToId(request.getPsAttemptId());
     int PSIndex = psAttemptId.getPsId().getIndex();
     // remove status of the server that finished loading
-    context.getMatrixMetaManager().serverStatus_servers.remove(PSIndex);
+    context.getMatrixMetaManager().serversStatus_servers.remove(PSIndex);
     // reset if needed
     // oldStatus = -2
-    if (context.getMatrixMetaManager().serverStatus_servers.size() == 0){
+    if (context.getMatrixMetaManager().serversStatus_servers.size() == 0){
       context.getMatrixMetaManager().reSetServersStatus_change_servers(-2);
     }
     return PSRemoveSavedResponse.newBuilder().build();
@@ -317,10 +327,27 @@ public class MasterService extends AbstractService implements MasterProtocol {
     if (context.getMatrixMetaManager().active_servers.contains(psAttemptId.getPsId().getIndex())) {
       // LOG.info("active_servers.contain " + psAttemptId.getPsId().getIndex());
       // LOG.info("context.getMatrixMetaManager().serversStatus_change_servers = " + context.getMatrixMetaManager().serversStatus_change_servers);
+      if (context.getMatrixMetaManager().newServerIndex == psAttemptId.getPsId().getIndex() && context.getMatrixMetaManager().newServerReadyToLoad) {
+        LOG.info("this heartbeat comes from new server, also partitions are ready to load");
+        List<MatrixMeta> MatrixMetaList_pre = new ArrayList<>();
+        Map<Integer, MatrixMeta> matrixIdToMetaMap = context.getMatrixMetaManager().matrixPartitionsOn_prePS.peek();
+        for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
+          MatrixMetaList_pre.add(metaEntry.getValue());
+        }
+        LOG.info("MatrixMetaList_pre size = " + MatrixMetaList_pre.size());
+        for (int i = 0; i < MatrixMetaList_pre.size(); i++) {
+          MatrixMetaList_pre.get(i).print_MatrixMeta();
+          resBuilder
+                  .addNeedPreMatrices(ProtobufUtil.convertToMatrixMetaProto(MatrixMetaList_pre.get(i)));
+        }
+        resBuilder.setPsStatus(2);
+        return resBuilder.build();
+      }
+
       if (context.getMatrixMetaManager().serversStatus_change_servers){
-        if (context.getMatrixMetaManager().serverStatus_servers.containsKey(psAttemptId.getPsId().getIndex())) {
+        if (context.getMatrixMetaManager().serversStatus_servers.containsKey(psAttemptId.getPsId().getIndex())) {
           // set status
-          int Status = context.getMatrixMetaManager().serverStatus_servers.get(psAttemptId.getPsId().getIndex());
+          int Status = context.getMatrixMetaManager().serversStatus_servers.get(psAttemptId.getPsId().getIndex());
           LOG.info("Status in psReport = " + Status);
           resBuilder.setPsStatus(Status);
           // need add partitions
@@ -367,7 +394,6 @@ public class MasterService extends AbstractService implements MasterProtocol {
       resBuilder.setPsStatus(-1);
     }
     /* code end */
-
     return resBuilder.build();
   }
 
@@ -650,10 +676,10 @@ public class MasterService extends AbstractService implements MasterProtocol {
       WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
       int workerIndex = workerAttemptId.getWorkerId().getIndex();
       // remove status of the worker that remove and save parameters
-      context.getMatrixMetaManager().serverStatus_workers.remove(workerIndex);
+      context.getMatrixMetaManager().serversStatus_workers.remove(workerIndex);
       // reset if needed
       // oldStatus = -2
-      if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
+      if (context.getMatrixMetaManager().serversStatus_workers.size() == 0){
         context.getMatrixMetaManager().reSetServersStatus_change_servers(-2);
       }
       return WorkerParamsRemovedResponse.newBuilder().build();
@@ -975,8 +1001,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
       int workerIndex = workerAttemptId.getWorkerId().getIndex();
       // LOG.info("context.getMatrixMetaManager().serverStatus_change = " + context.getMatrixMetaManager().serverStatus_change);
       if (context.getMatrixMetaManager().serversStatus_change_workers){
-        if (context.getMatrixMetaManager().serverStatus_workers.containsKey(workerIndex)){
-          int Status = context.getMatrixMetaManager().serverStatus_workers.get(workerIndex);
+        if (context.getMatrixMetaManager().serversStatus_workers.containsKey(workerIndex)){
+          int Status = context.getMatrixMetaManager().serversStatus_workers.get(workerIndex);
           // LOG.info("workerIndex = " + workerIndex + ", Status = " + Status + " in MasterService.java");
           builder.setServersStatus(Status);
           if (Status == 1){
@@ -985,7 +1011,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
               builder.addMatrixIdleMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
             context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
-            if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
+            if (context.getMatrixMetaManager().serversStatus_workers.size() == 0){
               context.getMatrixMetaManager().reSetServersStatus_change_workers(1);
             }
           } else if (Status == -1) {
@@ -994,7 +1020,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
               builder.addMatrixPreMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
             // change status to -2, means have told this worker to remove and save parameters
-            context.getMatrixMetaManager().serverStatus_workers.put(workerIndex, -2);
+            context.getMatrixMetaManager().serversStatus_workers.put(workerIndex, -2);
           }
         }
       }else {
