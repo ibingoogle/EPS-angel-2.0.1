@@ -395,6 +395,8 @@ public class PSAgent {
     clockCache.rmPartitions_pre_ClockCache(rmPartitionIds);
     matrixMetas_pre.clear();
     rmPartitions_pre = false;
+    // tell master that this worker has rmPartitions_pre_PSAgent so that servers can remove and save these parameters
+    getMasterClient().WorkerParamsRemoved();
     LOG.info("after rmPartitions_pre_PSAgent");
     print_PSAgent();
   }

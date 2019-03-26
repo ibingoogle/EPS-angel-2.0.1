@@ -69,6 +69,15 @@ message WorkerRegisterResponse{
   required WorkerCommandProto command = 1;
 }
 
+// new code
+message WorkerParamsRemovedRequest {
+  required WorkerAttemptIdProto workerAttemptId = 1;
+}
+
+message WorkerParamsRemovedResponse {
+}
+// code end
+
 
 message WorkerDoneRequest{
   required WorkerAttemptIdProto workerAttemptId = 1;
@@ -194,6 +203,7 @@ service WorkerMasterService {
   rpc workerRegister(WorkerRegisterRequest) returns (WorkerRegisterResponse);
   rpc getWorkerGroupMetaInfo(GetWorkerGroupMetaInfoRequest) returns (GetWorkerGroupMetaInfoResponse);
   rpc getAppendedSCsInfo(GetAppendedSCsInfoRequest) returns (GetAppendedSCsInfoResponse); //////
+  rpc workerParamsRemoved(WorkerParamsRemovedRequest) returns (WorkerParamsRemovedResponse); //////
   rpc workerDone(WorkerDoneRequest) returns (WorkerDoneResponse);
   rpc workerError(WorkerErrorRequest) returns (WorkerErrorResponse);
   rpc getWorkerGroupSuccessNum(GetWorkerGroupSuccessNumRequest) returns (GetWorkerGroupSuccessNumResponse);

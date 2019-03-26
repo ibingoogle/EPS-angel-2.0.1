@@ -644,6 +644,22 @@ public class MasterService extends AbstractService implements MasterProtocol {
     return resBuilder.build();
   }
 
+  /* new code */
+  public WorkerParamsRemovedResponse workerParamsRemoved(RpcController controller,
+                                                                   WorkerParamsRemovedRequest request) throws ServiceException {
+      WorkerAttemptId workerAttemptId = ProtobufUtil.convertToId(request.getWorkerAttemptId());
+      int workerIndex = workerAttemptId.getWorkerId().getIndex();
+      // remove status of the worker that remove and save parameters
+      context.getMatrixMetaManager().serverStatus_workers.remove(workerIndex);
+      // reset if needed
+      // oldStatus = -2
+      if (context.getMatrixMetaManager().serverStatus_workers.size() == 0){
+        context.getMatrixMetaManager().reSetServersStatus_change_servers(-2);
+      }
+      return WorkerParamsRemovedResponse.newBuilder().build();
+  }
+  /* code end */
+
   /**
    * get all parameter server locations.
    *
@@ -977,10 +993,8 @@ public class MasterService extends AbstractService implements MasterProtocol {
             for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
               builder.addMatrixPreMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
-            context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
-            if (context.getMatrixMetaManager().serverStatus_workers.size() == 0) {
-              context.getMatrixMetaManager().reSetServersStatus_change_workers(-1);
-            }
+            // change status to -2, means have told this worker to remove and save parameters
+            context.getMatrixMetaManager().serverStatus_workers.put(workerIndex, -2);
           }
         }
       }else {

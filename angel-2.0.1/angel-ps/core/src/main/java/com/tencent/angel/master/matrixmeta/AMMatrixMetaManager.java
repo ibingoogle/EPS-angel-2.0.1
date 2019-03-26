@@ -103,7 +103,10 @@ public class AMMatrixMetaManager {
   public int initial_serverNum = 0;
   // not contain means save parameters
   public HashSet<Integer> active_servers = null;
-  // workerindex to status (not contain means normal, 1 means add partitions to each server, -1 means remove some partitions from each server, 2 means use partitions from new server)
+  // workerindex to status (not contain means normal, 1 means add partitions to each server,
+  // -1 means plan to tell worker to remove some partitions from each server,
+  // -2 means have told worker to remove some partitions from each server,
+  // 2 means use partitions from new server)
   public ConcurrentHashMap<Integer, Integer> serverStatus_workers = new ConcurrentHashMap<Integer, Integer>();
   public boolean serversStatus_change_workers = false;
   // serverIndex to status (not contain means normal, 1 means add partitions to each server, -2 means remove partitions from each server)
@@ -318,7 +321,7 @@ public class AMMatrixMetaManager {
     writeLock.unlock();
     if (oldStatus == 1) {
       resetParameterServers_idle();
-    }else if (oldStatus == -1){
+    }else if (oldStatus == -2){
       int newServerStatus = -2;
       context.getMatrixMetaManager().notify_servers(newServerStatus);
     }

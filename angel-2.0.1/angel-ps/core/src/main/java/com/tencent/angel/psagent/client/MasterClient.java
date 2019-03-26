@@ -138,6 +138,11 @@ public class MasterClient {
   }
 
   /* new code */
+  public void WorkerParamsRemoved(){
+    WorkerParamsRemovedRequest.Builder builder = WorkerParamsRemovedRequest.newBuilder();
+    builder.setWorkerAttemptId(WorkerContext.get().getWorker().getWorkerAttemptIdProto());
+    master.workerParamsRemoved(null, builder.build());
+  }
 
   /**
    * Get the meta data and partitions for the repartitioned partitionKeys, it will wait until the matrices are ready
