@@ -97,6 +97,13 @@ public class MatrixMetaManager {
     return partitionKeys_pre;
   }
 
+  public void addMatrices_pre(List<MatrixMeta> matrixMetas_pre) {
+    int size = matrixMetas_pre.size();
+    for (int i = 0; i < size; i++){
+      addMatrix_pre(matrixMetas_pre.get(i));
+    }
+  }
+
   public void addMatrices_idle(List<MatrixMeta> matrixMetas_idle) {
     int size = matrixMetas_idle.size();
     for (int i = 0; i < size; i++) {
@@ -107,6 +114,12 @@ public class MatrixMetaManager {
   public void adjustMatrices_idle(){
     for (Map.Entry<Integer, MatrixMeta> entry : matrixIdToMetaMap.entrySet()){
       entry.getValue().reassign_partitionMetas_idle();
+    }
+  }
+
+  public void adjustMatrices_pre(){
+    for (Map.Entry<Integer, MatrixMeta> entry : matrixIdToMetaMap.entrySet()){
+      entry.getValue().clear_partitionMetas_repartition();
     }
   }
   /* code end */
@@ -131,6 +144,13 @@ public class MatrixMetaManager {
       this.matrixIdToMetaMap.putIfAbsent(matrixMeta_idle.getId(), matrixMeta_idle);
     }
     this.matrixIdToMetaMap.get(matrixMeta_idle.getId()).partitionMetas_idle = matrixMeta_idle.partitionMetas_idle;
+  }
+
+  public void addMatrix_pre(MatrixMeta matrixMeta_pre) {
+    LOG.info("matrixMeta_pre.getName() = " + matrixMeta_pre.getName());
+    LOG.info("matrixMeta_pre.getId() = " + matrixMeta_pre.getId());
+    this.matrixNameToIdMap.putIfAbsent(matrixMeta_pre.getName(), matrixMeta_pre.getId());
+    this.matrixIdToMetaMap.putIfAbsent(matrixMeta_pre.getId(), matrixMeta_pre);
   }
 
   /* code end */

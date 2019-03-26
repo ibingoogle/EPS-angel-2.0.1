@@ -89,6 +89,10 @@ public class MatrixMeta {
     partitionMetas_idle.clear();
   }
 
+  public void clear_partitionMetas_repartition(){
+    partitionMetas_repartition.clear();
+  }
+
   public void print_MatrixMeta() {
     LOG.info("print_MatrixMeta");
     LOG.info("PartitionIdStart = " + PartitionIdStart);

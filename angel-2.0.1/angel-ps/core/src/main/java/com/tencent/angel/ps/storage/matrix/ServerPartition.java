@@ -81,6 +81,8 @@ public class ServerPartition implements Serialize {
   /* new code */
   // rowIndex to loadpath
   public Map<Integer, String> loadAndSavePath = new HashMap<Integer, String>();
+
+  public Map<Integer, List<String>> loadPaths = new HashMap<Integer, List<String>>();
   /* code end */
 
   /**
@@ -203,28 +205,71 @@ public class ServerPartition implements Serialize {
     }
   }
 
+  public void load_values_fromPaths(PSContext context) {
+    for (Map.Entry<Integer, List<String>> entry : loadPaths.entrySet()) {
+      LOG.info("rowIndex = " + entry.getKey());
+      LOG.info("loadPaths size = " + entry.getValue().size());
+      ServerIntFloatRow row = (ServerIntFloatRow) getRow(entry.getKey());
+      int baseCol = (int) partitionKey.getStartCol();
+      FileSystem fs = null;
+      for(int i = 0; i < entry.getValue().size(); i++){
+        String loadPath = entry.getValue().get(i);
+        LOG.info("loadPath = " + loadPath);
+        Path loadFilePath = new Path(loadPath);
+        try {
+          fs = loadFilePath.getFileSystem(context.getConf());
+          FSDataInputStream input = fs.open(loadFilePath);
+          for (int j = 0; j < row.size(); j++) {
+            String line = input.readLine();
+            String[] kv = line.split(",");
+            int col = Integer.valueOf(kv[1]);
+            float value = Float.valueOf(kv[2]);
+            row.set(col, value);
+          }
+          input.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+
+      }
+      try {
+        fs.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   public void print_ServerPartition() {
     LOG.info("print_ServerPartition");
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowindex = " + i + ", class = " + rows.getRow(i).getClass() + ", toString = " + rows.getRow(i).toString());
     }
-    int colEndIndex = (int) Math.min(10, (partitionKey.getEndCol() - partitionKey.getStartCol()));
+    int baseCol = (int) partitionKey.getStartCol();
+    int splitNum = 3;
+    int[] ColStartIndexes = new int[splitNum];
+    int[] ColEndIndexes = new int[splitNum];
+    for(int i = 0; i < splitNum; i++){
+      ColStartIndexes[i] = (int) (partitionKey.getEndCol() - baseCol)/splitNum*i;
+      ColEndIndexes[i] = (int) Math.min((int) (partitionKey.getEndCol() - baseCol)/splitNum*(i+1), (partitionKey.getEndCol() - partitionKey.getStartCol()));
+    }
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowIndex = " + i);
-      print_values(i, colEndIndex);
+      for(int j = 0; j < splitNum; j++) {
+        print_values(i, ColStartIndexes[j], ColEndIndexes[j]);
+      }
     }
   }
 
   // only apply to Logistic Regression with limited classes
-  public void print_values(int rowIndex, int colEndIndex){
+  public void print_values(int rowIndex, int colStartIndex, int colEndIndex){
     ServerIntFloatRow row = (ServerIntFloatRow) getRow(rowIndex);
     IntFloatVector vector = (IntFloatVector) row.getSplit();
-    int baseCol = (int) partitionKey.getStartCol();
     if (vector.isDense()){
       float[] data = vector.getStorage().getValues();
       IntFloatElement element = new IntFloatElement();
-      for (int j = 0; j < colEndIndex; j++) {
-        element.colId = baseCol + j;
+      for (int j = colStartIndex; j < colEndIndex; j++) {
+        element.colId = j;
         element.value = data[j];
         LOG.info("colId = " + String.valueOf(element.colId) + " => value = " + String.valueOf(element.value) + "\n");
       }

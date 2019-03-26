@@ -114,6 +114,14 @@ public class MatrixStorageManager {
     }
   }
 
+  public void addMatrices_pre(List<MatrixMeta> matrixMetas_pre) throws IOException {
+    int size = matrixMetas_pre.size();
+    LOG.info("add Matrices_pre in MatrixStorageManager.java");
+    for (int i = 0; i < size; i++) {
+      addMatrix_pre(matrixMetas_pre.get(i));
+    }
+  }
+
   public void addMatrix_idle(MatrixMeta matrixMeta_idle) throws IOException {
     int matrixId = matrixMeta_idle.getId();
     if (!matrixIdToDataMap.containsKey(matrixId)) {
@@ -123,6 +131,17 @@ public class MatrixStorageManager {
       LOG.info("MatrixId [" + matrixId + "] added.");
     }
     matrixIdToDataMap.get(matrixId).init_idle(context);
+  }
+
+  public void addMatrix_pre(MatrixMeta matrixMeta_pre) throws IOException {
+    int matrixId = matrixMeta_pre.getId();
+    if (!matrixIdToDataMap.containsKey(matrixId)) {
+      ServerMatrix serverMatrix = new ServerMatrix(matrixMeta_pre, context);
+      serverMatrix.init();
+      matrixIdToDataMap.put(matrixId, serverMatrix);
+      LOG.info("MatrixId [" + matrixId + "] added.");
+    }
+    matrixIdToDataMap.get(matrixId).init_pre(context);
   }
   /* code end */
 

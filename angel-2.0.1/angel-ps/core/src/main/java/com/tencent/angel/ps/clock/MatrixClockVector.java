@@ -49,7 +49,6 @@ public class MatrixClockVector {
   // private final int taskNum;
   /* new code */
   private int taskNum;
-  public final ConcurrentHashMap<Integer, PartClockVector> partIdToClockVecMap_idle;
   /* code end*/
 
   /**
@@ -61,7 +60,6 @@ public class MatrixClockVector {
   public MatrixClockVector(int taskNum, MatrixMeta matrixMeta) {
     this.taskNum = taskNum;
     this.partIdToClockVecMap = new ConcurrentHashMap<>(matrixMeta.getPartitionMetas().size());
-    this.partIdToClockVecMap_idle = new ConcurrentHashMap<>(); //////
     initPartClockVectors(matrixMeta);
   }
 
@@ -78,11 +76,6 @@ public class MatrixClockVector {
     LOG.info("partIdToClockVecMap =>");
     for (Map.Entry<Integer, PartClockVector> entry : partIdToClockVecMap.entrySet()) {
       LOG.info("partititonId = " + entry.getKey());
-      entry.getValue().print_PartClockVector();
-    }
-    LOG.info("partIdToClockVecMap_idle =>");
-    for (Map.Entry<Integer, PartClockVector> entry : partIdToClockVecMap_idle.entrySet()) {
-      LOG.info("partititonId_idle = " + entry.getKey());
       entry.getValue().print_PartClockVector();
     }
   }
@@ -106,6 +99,13 @@ public class MatrixClockVector {
   public void initPartClockVectors_idle(MatrixMeta matrixMeta) {
     Map<Integer, PartitionMeta> partIdToMetaMap_idle = matrixMeta.getPartitionMetas_idle();
     for (Map.Entry<Integer, PartitionMeta> entry : partIdToMetaMap_idle.entrySet()) {
+      partIdToClockVecMap.put(entry.getKey(), new PartClockVector(taskNum));
+    }
+  }
+
+  public void initPartClockVectors_pre(MatrixMeta matrixMeta) {
+    Map<Integer, PartitionMeta> partIdToMetaMap = matrixMeta.getPartitionMetas();
+    for (Map.Entry<Integer, PartitionMeta> entry : partIdToMetaMap.entrySet()) {
       partIdToClockVecMap.put(entry.getKey(), new PartClockVector(taskNum));
     }
   }

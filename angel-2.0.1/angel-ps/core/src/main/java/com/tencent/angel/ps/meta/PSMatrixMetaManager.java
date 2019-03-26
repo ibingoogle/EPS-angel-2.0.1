@@ -85,12 +85,20 @@ public class PSMatrixMetaManager {
     return matrixMetaManager.removePartitions_pre(matrixId2PartitionKeys_pre);
   }
 
+  public void addMatrices_pre(List<MatrixMeta> matrices_pre) {
+    matrixMetaManager.addMatrices_pre(matrices_pre);
+  }
+
   public void addMatrices_idle(List<MatrixMeta> matrices_idle) {
     matrixMetaManager.addMatrices_idle(matrices_idle);
   }
 
   public void adjustMatrices_idle() {
     matrixMetaManager.adjustMatrices_idle();
+  }
+
+  public void adjustMatrices_pre() {
+    matrixMetaManager.adjustMatrices_pre();
   }
   /* code end */
 

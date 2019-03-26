@@ -679,9 +679,7 @@ public class ParameterServer {
       }else if (status == 2){
         LOG.info("partitions are ready to load in this new server");
         List<MatrixMeta> matrixMetas_pre = ProtobufUtil.convertToMatricesMeta(ret.getNeedPreMatricesList());
-        for (int i = 0; i < matrixMetas_pre.size(); i++){
-          matrixMetas_pre.get(i).print_MatrixMeta();
-        }
+        load_savedPartitions(matrixMetas_pre);
         master.newPSLoaded(attemptIdProto);
       }
       /* code end */
@@ -784,6 +782,17 @@ public class ParameterServer {
   }
 
   /* new code */
+  private void createMatrices_pre(List<MatrixMeta> matrixMetas_pre) throws IOException {
+    LOG.info("before createMatrices_pre.....");
+    print_ParameterServer();
+    matrixMetaManager.addMatrices_pre(matrixMetas_pre);
+    clockVectorManager.addMatrices_pre(matrixMetas_pre);
+    matrixStorageManager.addMatrices_pre(matrixMetas_pre);
+    matrixMetaManager.adjustMatrices_pre();
+    LOG.info("after createMatrices_pre.....");
+    print_ParameterServer();
+  }
+
   private void createMatrices_idle(List<MatrixMeta> matrixMetas_idle) throws IOException {
     LOG.info("before createMatrices_idle......");
     print_ParameterServer();
@@ -920,6 +929,16 @@ public class ParameterServer {
       }
       createMatrices_idle(matrixMetas_idle);
     }
+  }
+
+  public void load_savedPartitions(List<MatrixMeta> matrixMetas_pre) throws IOException {
+    LOG.info("load_savedPartitions***************************");
+    if (matrixMetas_pre != null){
+      for (int i = 0; i < matrixMetas_pre.size(); i++){
+        matrixMetas_pre.get(i).print_MatrixMeta();
+      }
+    }
+    createMatrices_pre(matrixMetas_pre);
   }
 
   public void remove_save() throws ServiceException {

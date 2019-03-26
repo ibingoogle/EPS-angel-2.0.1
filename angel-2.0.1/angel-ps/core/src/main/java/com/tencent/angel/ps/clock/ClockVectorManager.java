@@ -63,13 +63,6 @@ public class ClockVectorManager {
   private final ConcurrentHashMap<PartitionKey, Integer> partKeyToClockMap;
 
 
-  /* new code */
-  /**
-   * Partition key to clock value map for idle partitionKey
-   */
-  private final ConcurrentHashMap<PartitionKey, Integer> partKeyToClockMap_idle;
-  /* code end */
-
   private final AtomicBoolean stopped = new AtomicBoolean(false);
   private volatile Thread adjustThread;
 
@@ -83,7 +76,6 @@ public class ClockVectorManager {
     this.taskNum = taskNum;
     this.context = context;
     partKeyToClockMap = new ConcurrentHashMap<>();
-    partKeyToClockMap_idle = new ConcurrentHashMap<>(); //////
   }
 
   /* new code */
@@ -99,10 +91,6 @@ public class ClockVectorManager {
     LOG.info("partKeyToClockMap =>");
     for (Map.Entry<PartitionKey, Integer> entry : partKeyToClockMap.entrySet()) {
       LOG.info("partitionKey = " + entry.getKey().toString() + ", clock = " + entry.getValue());
-    }
-    LOG.info("partKeyToClockMap_idle =>");
-    for (Map.Entry<PartitionKey, Integer> entry : partKeyToClockMap_idle.entrySet()) {
-      LOG.info("partitionKey_idle = " + entry.getKey().toString() + ", clock = " + entry.getValue());
     }
   }
 
@@ -175,6 +163,13 @@ public class ClockVectorManager {
     }
   }
 
+  public void addMatrices_pre(List<MatrixMeta> matrixMetas_pre) {
+    int size = matrixMetas_pre.size();
+    for (int i = 0; i < size; i++) {
+      addMatrix_pre(matrixMetas_pre.get(i));
+    }
+  }
+
   public void addMatrix_idle(MatrixMeta matrixMeta_idle) {
     if (!matrixIdToClockVecMap.containsKey(matrixMeta_idle.getId())) {
       matrixIdToClockVecMap
@@ -183,6 +178,18 @@ public class ClockVectorManager {
     matrixIdToClockVecMap.get(matrixMeta_idle.getId()).initPartClockVectors_idle(matrixMeta_idle);
     for (PartitionMeta partMeta_idle : matrixMeta_idle.getPartitionMetas_idle().values()) {
       partKeyToClockMap.put(partMeta_idle.getPartitionKey(), 0);
+    }
+  }
+
+
+  public void addMatrix_pre(MatrixMeta matrixMeta_pre) {
+    if (!matrixIdToClockVecMap.containsKey(matrixMeta_pre.getId())) {
+      matrixIdToClockVecMap
+              .putIfAbsent(matrixMeta_pre.getId(), new MatrixClockVector(taskNum, matrixMeta_pre));
+    }
+    matrixIdToClockVecMap.get(matrixMeta_pre.getId()).initPartClockVectors_pre(matrixMeta_pre);
+    for (PartitionMeta partMeta : matrixMeta_pre.getPartitionMetas().values()) {
+      partKeyToClockMap.put(partMeta.getPartitionKey(), 0);
     }
   }
 

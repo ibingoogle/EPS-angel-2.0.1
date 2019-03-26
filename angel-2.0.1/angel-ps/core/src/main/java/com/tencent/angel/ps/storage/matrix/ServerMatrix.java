@@ -117,6 +117,29 @@ public class ServerMatrix {
       part.load_values(context);
     }
   }
+
+  public void init_pre(PSContext context) {
+    LOG.info("init_pre() ServerMatirx.java, MatrixId = " + matrixId + ", name = " + matrixName);
+    MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
+    Map<Integer, PartitionMeta> partMetas = matrixMeta.getPartitionMetas();
+    LOG.info("partMetas size = " + partMetas.size());
+    String sourceClass = matrixMeta.getAttribute(AngelConf.ANGEL_PS_PARTITION_SOURCE_CLASS,
+            AngelConf.DEFAULT_ANGEL_PS_PARTITION_SOURCE_CLASS);
+    LOG.info("sourceClass in init_pre() = " + sourceClass);
+    for (PartitionMeta partMeta : partMetas.values()) {
+      ServerPartition part = new ServerPartition(partMeta.getPartitionKey(), matrixMeta.getRowType(),
+              matrixMeta.getEstSparsity(), sourceClass);
+      List<String> loadPaths = new ArrayList<>();
+      for(Map.Entry<Integer, PartitionMeta> entry: matrixMeta.partitionMetas_repartition.get(partMeta.getPartId()).entrySet()){
+        loadPaths.add(entry.getValue().savePath);
+      }
+      part.loadPaths.put(0, loadPaths);
+      partitionMaps.put(partMeta.getPartId(), part);
+      part.init();
+      part.setState(PartitionState.READ_AND_WRITE);
+      part.load_values_fromPaths(context);
+    }
+  }
   /* code end */
 
   public void init() {
