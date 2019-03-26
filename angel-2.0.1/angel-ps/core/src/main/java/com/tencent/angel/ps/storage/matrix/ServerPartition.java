@@ -251,7 +251,7 @@ public class ServerPartition implements Serialize {
     int[] ColEndIndexes = new int[splitNum];
     for(int i = 0; i < splitNum; i++){
       ColStartIndexes[i] = (int) (partitionKey.getEndCol() - baseCol)/splitNum*i;
-      ColEndIndexes[i] = (int) Math.min((int) (partitionKey.getEndCol() - baseCol)/splitNum*(i+1), (partitionKey.getEndCol() - partitionKey.getStartCol()));
+      ColEndIndexes[i] = (int) Math.min(ColStartIndexes[i] + 10, (partitionKey.getEndCol() - partitionKey.getStartCol()));
     }
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowIndex = " + i);
