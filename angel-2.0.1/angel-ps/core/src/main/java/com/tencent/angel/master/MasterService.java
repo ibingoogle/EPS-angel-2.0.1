@@ -680,7 +680,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
       // reset if needed
       // oldStatus = -2
       if (context.getMatrixMetaManager().serversStatus_workers.size() == 0){
-        context.getMatrixMetaManager().reSetServersStatus_change_servers(-2);
+        context.getMatrixMetaManager().reSetServersStatus_change_workers(-2);
       }
       return WorkerParamsRemovedResponse.newBuilder().build();
   }
