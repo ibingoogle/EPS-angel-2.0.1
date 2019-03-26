@@ -386,7 +386,7 @@ public class PSAgent {
     print_PSAgent();
   }
 
-  public void rmPartitions_pre_PSAgent(){
+  public void rmPartitions_pre_PSAgent() throws InterruptedException, ServiceException, ClassNotFoundException {
     LOG.info("rmPartitions_pre_PSAgent");
     for (int i = 0; i < matrixMetas_pre.size(); i++){
       matrixMetas_pre.get(i).print_MatrixMeta();

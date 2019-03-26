@@ -138,7 +138,8 @@ public class MasterClient {
   }
 
   /* new code */
-  public void WorkerParamsRemoved(){
+  public void WorkerParamsRemoved()
+          throws InterruptedException, ServiceException, ClassNotFoundException {
     WorkerParamsRemovedRequest.Builder builder = WorkerParamsRemovedRequest.newBuilder();
     builder.setWorkerAttemptId(WorkerContext.get().getWorker().getWorkerAttemptIdProto());
     master.workerParamsRemoved(null, builder.build());
