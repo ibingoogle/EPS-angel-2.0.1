@@ -722,6 +722,8 @@ public class ParameterServer {
       }
       syncMatrices(ret.getNeedCreateMatricesList(), ret.getNeedReleaseMatrixIdsList(),
         ret.getNeedRecoverPartsList());
+      LOG.info("after syncMatrices......"); //////
+      print_ParameterServer();//////
     } catch (Throwable e) {
       LOG.error("send heartbeat to appmaster failed ", e);
       stop(-1);
