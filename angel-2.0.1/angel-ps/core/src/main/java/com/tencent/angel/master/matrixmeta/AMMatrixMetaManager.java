@@ -35,6 +35,7 @@ import com.tencent.angel.ps.storage.matrix.PartitionState;
 import com.tencent.angel.ps.storage.partitioner.Partitioner;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
+import javafx.beans.binding.MapExpression;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -182,6 +183,7 @@ public class AMMatrixMetaManager {
   public void newServerLoaded(){
     LOG.info("newServerLoaded");
     newServerReadyToLoad = false;
+    newServerIndex = -1;
   }
   /* code end */
 
@@ -386,25 +388,45 @@ public class AMMatrixMetaManager {
   public void resetParameterServers_pre(){
     LOG.info("resetParameterServers_pre");
     Map<Integer, MatrixMeta> matrixMetas_pre =  matrixPartitionsOn_prePS.pop();
-    Set<Integer> matrixInSet = new HashSet<>();
+    Set<Integer> matrixIdSet = new HashSet<>();
+    Set<Integer> rmPartitionIds = new HashSet<>();
     for(Map.Entry<Integer, MatrixMeta> entry: matrixMetas_pre.entrySet()){
-      entry.getValue().clear_partitionMetas_repartition();
-      matrixInSet.add(entry.getValue().getId());
+      matrixIdSet.add(entry.getValue().getId());
+      for(Map.Entry<Integer, Map<Integer, PartitionMeta>> entry2: entry.getValue().partitionMetas_repartition.entrySet()){
+        for(Map.Entry<Integer, PartitionMeta> entry3: entry2.getValue().entrySet()){
+          rmPartitionIds.add(entry3.getKey());
+        }
+      }
     }
+    LOG.info("rmPartitionIds size = " + rmPartitionIds.size());
+    ParameterServerId newPSIdCopy = newPSId;
     // matrixPartitionsOnPS
-    matrixPartitionsOnPS.put(newPSId, matrixMetas_pre);
+    for(Map.Entry<ParameterServerId, Map<Integer, MatrixMeta>> entry: matrixPartitionsOnPS.entrySet()){
+      for(Map.Entry<Integer, MatrixMeta> entry2: entry.getValue().entrySet()){
+        for(Integer rmPartitionId: rmPartitionIds){
+          if (entry2.getValue().getPartitionMetas().containsKey(rmPartitionId)){
+            entry2.getValue().getPartitionMetas().remove(rmPartitionId);
+          }
+        }
+      }
+    }
+    matrixPartitionsOnPS.put(newPSIdCopy, matrixMetas_pre);
     // psIdToMatrixIdsMap
-    psIdToMatrixIdsMap.put(newPSId, matrixInSet);
+    psIdToMatrixIdsMap.put(newPSIdCopy, matrixIdSet);
     // matrixIdToPSSetMap
     for(Map.Entry<Integer, Set<ParameterServerId>> entry: matrixIdToPSSetMap.entrySet()){
-      int MatrixId = entry.getKey();
-      if (matrixMetas_pre.containsKey(maxMatrixId)){
-        entry.getValue().add(newPSId);
+      int matrixId = entry.getKey();
+      if (matrixMetas_pre.containsKey(matrixId)){
+        entry.getValue().add(newPSIdCopy);
       }
     }
     // matrixMetaManager
-    matrixMetaManager.resetParameterServers_pre_MatrixMetaManager(matrixMetas_pre);
-    matrixMetas_pre.clear();
+    matrixMetaManager.resetParameterServers_pre_MatrixMetaManager(matrixMetas_pre, rmPartitionIds);
+    // remove repartition in matrixMetas_pre
+    for(Map.Entry<Integer, MatrixMeta> entry: matrixMetas_pre.entrySet()){
+      entry.getValue().clear_partitionMetas_repartition();
+    }
+    // newPSId = null;
     LOG.info("after resetParameterServers_pre");
     print_AMMatrixMetaManager();
   }

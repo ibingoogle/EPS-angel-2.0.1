@@ -91,7 +91,10 @@ public class MatrixMeta {
     partitionMetas_idle.clear();
   }
 
-  public void resetParameterServers_pre_MatrixMeta(MatrixMeta matrixMeta_pre){
+  public void resetParameterServers_pre_MatrixMeta(MatrixMeta matrixMeta_pre, Set<Integer> rmPartitionIds){
+    for(Integer rmPartitionId: rmPartitionIds){
+      partitionMetas.remove(rmPartitionId);
+    }
     for(Map.Entry<Integer, PartitionMeta> entry: matrixMeta_pre.getPartitionMetas().entrySet()){
       partitionMetas.put(entry.getKey(), entry.getValue());
     }
