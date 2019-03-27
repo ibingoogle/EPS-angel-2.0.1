@@ -138,26 +138,40 @@ public class PSAgentMatrixMetaManager {
       MatrixMeta matrixMeta = matrixMetaManager.getMatrixMetas().get(matrixMeta_pre.getId());
       List<Integer> removedPartitionIds = new ArrayList<>();
       for (Map.Entry<Integer, PartitionMeta> entry : matrixMeta.getPartitionMetas().entrySet()) {
+        LOG.info("entry.getValue().getPartitionKey().Id = " + entry.getValue().getPartitionKey().getPartitionId() + ", status = " + entry.getValue().getPartitionKey().status);
         if (entry.getValue().getPartitionKey().status == false) {
           removedPartitionIds.add(entry.getKey());
         }
       }
+      LOG.info("removedPartitionIds size = " + removedPartitionIds.size());
       for (int j = 0; j < removedPartitionIds.size(); j++) {
         matrixMeta.getPartitionMetas().remove(removedPartitionIds.get(i));
       }
       // 2
       List<PartitionKey> partitionKeyList = matrixIdToPartsMap.get(matrixMeta_pre.getId());
-      for (int j = 0; j < partitionKeyList.size(); j++) {
+      int partitionKeyListSize = partitionKeyList.size();
+      int j = 0;
+      while (j < partitionKeyListSize){
+        LOG.info("partitionKeyList.get(j).getPartitionKey().Id = " + partitionKeyList.get(j).getPartitionId() + ", status = " + partitionKeyList.get(j).status);
         if (partitionKeyList.get(j).status == false) {
           partitionKeyList.remove(partitionKeyList.get(j));
+          partitionKeyListSize--;
+        }else {
+          j++;
         }
       }
       // 3
       for (Map.Entry<Integer, List<PartitionKey>> entry : rowIndexToPartsMap.get(matrixMeta_pre.getId()).entrySet()) {
         List<PartitionKey> partitionKeyList_row = entry.getValue();
-        for (int j = 0; j < partitionKeyList_row.size(); j++) {
-          if (partitionKeyList_row.get(j).status == false) {
-            partitionKeyList_row.remove(partitionKeyList_row.get(j));
+        int partitionKeyList_rowSize = partitionKeyList.size();
+        int k = 0;
+        while (k < partitionKeyList_rowSize){
+          LOG.info("partitionKeyList_row.get(k).getPartitionKey().Id = " + partitionKeyList_row.get(k).getPartitionId() + ", status = " + partitionKeyList_row.get(k).status);
+          if (partitionKeyList_row.get(k).status == false) {
+            partitionKeyList_row.remove(partitionKeyList.get(k));
+            partitionKeyList_rowSize--;
+          }else {
+            k++;
           }
         }
       }

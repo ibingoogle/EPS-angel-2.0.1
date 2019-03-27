@@ -322,7 +322,6 @@ public class AngelApplicationMaster extends CompositeService {
       e.printStackTrace();
     }
     LOG.info("AddedOnePsRegisted!!!!!!");
-
   }
 
   public void waitForAddedOnePsRegisted() throws InterruptedException {
