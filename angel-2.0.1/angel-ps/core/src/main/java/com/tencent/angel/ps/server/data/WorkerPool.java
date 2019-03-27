@@ -612,7 +612,9 @@ public class WorkerPool {
       /* new code */
       int matrixId = request.getMatrixId();
       LOG.info("matrixId = " + matrixId);
+      context.getMatrixMetaManager().print_PSMatrixMetaManager();
       MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
+      LOG.info("matrixMeta = " + matrixMeta);
       matrixMeta.print_MatrixMeta();
       RowType type = matrixMeta.getRowType();
       LOG.info("RowType = " + type);
