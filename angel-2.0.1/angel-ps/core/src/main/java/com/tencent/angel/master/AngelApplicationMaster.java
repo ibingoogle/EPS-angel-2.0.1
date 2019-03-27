@@ -301,7 +301,7 @@ public class AngelApplicationMaster extends CompositeService {
   public void addOneServer_AngelApplicationMaster(){
     LOG.info("addOneServer_AngelApplicationMaster()");
     if(matrixMetaManager.matrixPartitionsOn_prePS.size() == 0){
-      LOG.info("no server removed before");
+      LOG.info("no server removed before, we cannot add server now");
       return;
     }
     // set new psId
