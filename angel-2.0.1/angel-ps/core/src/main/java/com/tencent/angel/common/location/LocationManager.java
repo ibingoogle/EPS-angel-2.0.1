@@ -94,6 +94,18 @@ public class LocationManager {
     psIds = newpsIds;
   }
 
+  public void usePartitions_pre_LocationManager(ParameterServerId newPSId, Location newServerLocation){
+    LOG.info("usePartitions_pre_LocationManager");
+    psIdToLocMap.put(newPSId, newServerLocation);
+    ParameterServerId[] newpsIds = new ParameterServerId[psIds.length + 1];
+    for (int i = 0; i < psIds.length; i++){
+      newpsIds[i] = psIds[i];
+    }
+    newpsIds[newpsIds.length - 1] = newPSId;
+    psIds = null;
+    psIds = newpsIds;
+  }
+
 
   public void print_LocationManager(){
     LOG.info("print_LocationManager");

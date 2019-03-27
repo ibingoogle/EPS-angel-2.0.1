@@ -92,11 +92,15 @@ public class PSAgentMatrixMetaManager {
       }
     }
     for (Map.Entry<Integer, List<PartitionKey>> entry : matrixIdToPartsMap.entrySet()){
-      if (entry.getValue() != null) {
-        for (int i = 0; i < entry.getValue().size(); i++) {
-          if (entry.getValue().get(i).status == false){
-            entry.getValue().remove(entry.getValue().get(i));
-          }
+      List<PartitionKey> partitionKeyList = entry.getValue();
+      int partitionKeyListSize = partitionKeyList.size();
+      int j = 0;
+      while (j < partitionKeyListSize){
+          if (partitionKeyList.get(j).status == false) {
+          partitionKeyList.remove(partitionKeyList.get(j));
+          partitionKeyListSize--;
+        }else {
+          j++;
         }
       }
     }
@@ -104,9 +108,15 @@ public class PSAgentMatrixMetaManager {
       if (entry.getValue() != null){
         for (Map.Entry<Integer, List<PartitionKey>> entry2 : entry.getValue().entrySet()) {
           if (entry2.getValue() != null) {
-            for (int i = 0; i < entry2.getValue().size(); i++) {
-              if (entry2.getValue().get(i).status == false){
-                entry2.getValue().remove(entry2.getValue().get(i));
+            List<PartitionKey> partitionKeyList_row = entry2.getValue();
+            int partitionKeyList_rowSize = partitionKeyList_row.size();
+            int k = 0;
+            while (k < partitionKeyList_rowSize){
+              if (partitionKeyList_row.get(k).status == false) {
+                partitionKeyList_row.remove(partitionKeyList_row.get(k));
+                partitionKeyList_rowSize--;
+              }else {
+                k++;
               }
             }
           }
@@ -145,7 +155,7 @@ public class PSAgentMatrixMetaManager {
       }
       LOG.info("removedPartitionIds size = " + removedPartitionIds.size());
       for (int j = 0; j < removedPartitionIds.size(); j++) {
-        matrixMeta.getPartitionMetas().remove(removedPartitionIds.get(i));
+        matrixMeta.getPartitionMetas().remove(removedPartitionIds.get(j));
       }
       // 2
       List<PartitionKey> partitionKeyList = matrixIdToPartsMap.get(matrixMeta_pre.getId());
@@ -163,12 +173,12 @@ public class PSAgentMatrixMetaManager {
       // 3
       for (Map.Entry<Integer, List<PartitionKey>> entry : rowIndexToPartsMap.get(matrixMeta_pre.getId()).entrySet()) {
         List<PartitionKey> partitionKeyList_row = entry.getValue();
-        int partitionKeyList_rowSize = partitionKeyList.size();
+        int partitionKeyList_rowSize = partitionKeyList_row.size();
         int k = 0;
         while (k < partitionKeyList_rowSize){
           LOG.info("partitionKeyList_row.get(k).getPartitionKey().Id = " + partitionKeyList_row.get(k).getPartitionId() + ", status = " + partitionKeyList_row.get(k).status);
           if (partitionKeyList_row.get(k).status == false) {
-            partitionKeyList_row.remove(partitionKeyList.get(k));
+            partitionKeyList_row.remove(partitionKeyList_row.get(k));
             partitionKeyList_rowSize--;
           }else {
             k++;

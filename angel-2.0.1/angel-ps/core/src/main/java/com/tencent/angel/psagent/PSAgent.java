@@ -390,10 +390,13 @@ public class PSAgent {
 
   public void rmPartitions_pre_PSAgent() throws InterruptedException, ServiceException, ClassNotFoundException {
     LOG.info("rmPartitions_pre_PSAgent");
+    // print
     for (int i = 0; i < matrixMetas_pre.size(); i++){
       matrixMetas_pre.get(i).print_MatrixMeta();
     }
+    // matrixMetaManager
     HashSet<Integer> rmPartitionIds = matrixMetaManager.rmPartitions_pre_PSAgentMatrixMetaManager(matrixMetas_pre);
+    // clockCache
     clockCache.rmPartitions_pre_ClockCache(rmPartitionIds);
     rmPartitions_pre = false;
     // tell master that this worker has rmPartitions_pre_PSAgent so that servers can remove and save these parameters
@@ -402,13 +405,18 @@ public class PSAgent {
     print_PSAgent();
   }
 
-  public void usePartitions_pre_PSAgent() {
+  public void usePartitions_pre_PSAgent() throws ServiceException {
     LOG.info("usePartitions_pre_PSAgent");
     for (int i = 0; i < matrixMetas_pre.size(); i++){
       matrixMetas_pre.get(i).print_MatrixMeta();
     }
+    // locationManager
+    locationManager.usePartitions_pre_PSAgentLocationManager(matrixMetas_pre);
+    // matrixMetaManager
     matrixMetaManager.usePartitions_pre_PSAgentMatrixMetaManager(matrixMetas_pre);
+    // clockCache
     clockCache.usePartitions_pre_ClockCache(matrixMetas_pre);
+    // matrixStorageManager
     matrixStorageManager.usePartitions_pre_MatrixStorageManager();
     matrixMetas_pre.clear();
     usePartitions_pre = false;

@@ -21,11 +21,14 @@ package com.tencent.angel.psagent.matrix;
 import com.google.protobuf.ServiceException;
 import com.tencent.angel.common.location.Location;
 import com.tencent.angel.common.location.LocationManager;
+import com.tencent.angel.ml.matrix.MatrixMeta;
+import com.tencent.angel.ml.matrix.PartitionMeta;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.psagent.PSAgentContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,6 +68,21 @@ public class PSAgentLocationManager {
   public void rmOneParameterServer_PSAgentLocationManager(int removedParameterServerIndex){
     LOG.info("rmOneParameterServer_PSAgentLocationManager");
     locationManager.rmOneParameterServer_LocationManager(removedParameterServerIndex);
+    serverStateChange = true;
+  }
+
+  public void usePartitions_pre_PSAgentLocationManager(List<MatrixMeta> matrixMetas_pre) throws ServiceException {
+    LOG.info("usePartitions_pre_PSAgentLocationManager");
+    ParameterServerId newPSId = null;
+    Location newServerLocation = null;
+    for(Map.Entry<Integer, PartitionMeta> entry: matrixMetas_pre.get(0).getPartitionMetas().entrySet()){
+      newPSId = entry.getValue().getMasterPs();
+      newServerLocation = getPsLocation(newPSId, true);
+      LOG.info("newPSId = " + newPSId.toString());
+      LOG.info("newServerLocation = " + newServerLocation.toString());
+      break;
+    }
+    locationManager.usePartitions_pre_LocationManager(newPSId, newServerLocation);
     serverStateChange = true;
   }
 

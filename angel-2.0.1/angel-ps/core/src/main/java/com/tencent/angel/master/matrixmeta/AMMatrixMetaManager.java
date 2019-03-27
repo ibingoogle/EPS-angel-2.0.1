@@ -78,7 +78,6 @@ public class AMMatrixMetaManager {
   // used in addOneServer (i.e., recover based on previous removed PS)
   public final Stack<Map<Integer, MatrixMeta>> matrixPartitionsOn_prePS;
   public int newServerIndex = -1;
-  public ParameterServerId newPSId = null;
   public boolean newServerReadyToLoad = false; // new server can load partitions now, if this is true, set status = 2, means can load partitions to this new server
   /* code end */
 
@@ -162,7 +161,15 @@ public class AMMatrixMetaManager {
   /* new code */
   public void addOneServer_AMMatrixMetaManager(ParameterServerId psId){
     LOG.info("addOneServer_AMMatrixMetaManager");
-    newPSId = psId;
+    List<ParameterServerId> newPSIds = new ArrayList<>();
+    newPSIds.add(psId);
+    // set this newPSId
+    Map<Integer, MatrixMeta> matrixMetas_pre =  matrixPartitionsOn_prePS.peek();
+    for(Map.Entry<Integer, MatrixMeta> entry: matrixMetas_pre.entrySet()){
+      for(Map.Entry<Integer, PartitionMeta> entry2: entry.getValue().getPartitionMetas().entrySet()){
+        entry2.getValue().setPss(newPSIds);
+      }
+    }
     newServerIndex = psId.getIndex();
     // tell workers to remove some partitions from each server (i.e., set partitionKey status = false)
     int newstatus = -1;
