@@ -88,6 +88,28 @@ public class MatrixStorage {
     }
   }
 
+  public void usePartitions_pre_MatrixStorage(){
+    LOG.info("usePartitions_pre_MatrixStorage");
+    Map<Integer, List<PartitionKey>> rowId2removedPartitionKeys = new HashMap<Integer, List<PartitionKey>>();
+    // collect all partitionKey with false status
+    for (Map.Entry<Integer, HashMap<PartitionKey, float[]>> entry : rowIdToPartKeyToFloats.entrySet()){
+      rowId2removedPartitionKeys.put(entry.getKey(), new ArrayList<PartitionKey>());
+      for (Map.Entry<PartitionKey, float[]> entry2 : entry.getValue().entrySet()){
+        if (entry2.getKey().status == false){
+          rowId2removedPartitionKeys.get(entry.getKey()).add(entry2.getKey());
+        }
+      }
+    }
+    // remove
+    for (Map.Entry<Integer, List<PartitionKey>> entry: rowId2removedPartitionKeys.entrySet()){
+      int rowIndex = entry.getKey();
+      for (int i = 0; i < entry.getValue().size(); i++){
+        rowIdToPartKeyToFloats.get(rowIndex).remove(entry.getValue().get(i));
+        rowIdToPartKeyToView.get(rowIndex).remove(entry.getValue().get(i));
+      }
+    }
+  }
+
   /* code end */
 
 

@@ -1021,6 +1021,11 @@ public class MasterService extends AbstractService implements MasterProtocol {
             }
             // change status to -2, means have told this worker to remove and save parameters
             context.getMatrixMetaManager().serversStatus_workers.put(workerIndex, -2);
+          } else if (Status == 2) {
+            context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);
+            if (context.getMatrixMetaManager().serversStatus_workers.size() == 0){
+              context.getMatrixMetaManager().reSetServersStatus_change_workers(2);
+            }
           }
         }
       }else {

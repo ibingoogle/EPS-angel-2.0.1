@@ -383,6 +383,7 @@ public class Worker implements Executor {
             }
             if (ServersStatus == 2){
               LOG.info("it's time to use new server");
+              psAgent.usePartitions_pre = true;
             }
           }
           /* code end */

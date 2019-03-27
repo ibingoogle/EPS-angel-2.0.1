@@ -90,6 +90,23 @@ public class ClockCache {
     }
   }
 
+  public void usePartitions_pre_ClockCache(List<MatrixMeta> matrixMetas_pre){
+    LOG.info("usePartitions_pre_ClockCache");
+    for (int i = 0; i < matrixMetas_pre.size(); i++){
+      MatrixMeta matrixMeta_pre = matrixMetas_pre.get(i);
+      int matrixId = matrixMeta_pre.getId();
+      // 1 remove partitionKey with Integer.MAX_VALUE clock
+      for(Map.Entry<PartitionKey, Integer> entry : matrixClockCacheMap.get(matrixId).partitionClockMap.entrySet()){
+        if (entry.getValue() == Integer.MAX_VALUE){
+          matrixClockCacheMap.get(matrixId).partitionClockMap.remove(entry.getKey());
+        }
+      }
+      // 2 add matrixMetas_pre
+      MatrixClockCache matrixClockCache = matrixClockCacheMap.get(matrixId);
+      matrixClockCache.usePartitions_pre_MatrixClockCache(matrixMeta_pre);
+    }
+  }
+
   public void rmPartitions_pre_ClockCache(HashSet<Integer> rmPartitionIds){
     LOG.info("rmPartitions_pre_ClockCache");
     for (Map.Entry<Integer, MatrixClockCache> entry : matrixClockCacheMap.entrySet()){

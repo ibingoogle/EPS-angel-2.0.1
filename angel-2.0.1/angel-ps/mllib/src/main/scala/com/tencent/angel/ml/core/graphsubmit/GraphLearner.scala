@@ -365,6 +365,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       if (PSAgentContext.get().getPsAgent.rmPartitions_pre){
         PSAgentContext.get.getPsAgent.rmPartitions_pre_PSAgent()
       }
+      LOG.info("PSAgentContext.get().getPsAgent.usePartitions_pre = " + PSAgentContext.get().getPsAgent.usePartitions_pre)
+      if (PSAgentContext.get().getPsAgent.usePartitions_pre){
+        PSAgentContext.get.getPsAgent.usePartitions_pre_PSAgent()
+      }
       /* code end */
     }
     )//////

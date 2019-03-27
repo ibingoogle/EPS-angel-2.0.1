@@ -76,13 +76,21 @@ public class MatrixClockCache {
   /* new code */
   public void resetParameterServers_idle_MatrixClockCache(MatrixMeta matrixMeta_idle){
     int latestClock = getMaxClock();
-    LOG.info("latestClock = " + latestClock);
+    LOG.info("latestClock in resetParameterServers_idle_MatrixClockCache = " + latestClock);
     for (Map.Entry<Integer, PartitionMeta> entry: matrixMeta_idle.partitionMetas_idle.entrySet()){
       PartitionKey partitionKey = entry.getValue().getPartitionKey();
       partitionClockMap.put(partitionKey, latestClock);
     }
   }
 
+  public void usePartitions_pre_MatrixClockCache(MatrixMeta matrixMeta_pre){
+    int latestClock = getMaxClock();
+    LOG.info("latestClock in usePartitions_pre_MatrixClockCache = " + latestClock);
+    for (Map.Entry<Integer, PartitionMeta> entry: matrixMeta_pre.getPartitionMetas().entrySet()){
+      PartitionKey partitionKey = entry.getValue().getPartitionKey();
+      partitionClockMap.put(partitionKey, latestClock);
+    }
+  }
   /* code end */
 
 

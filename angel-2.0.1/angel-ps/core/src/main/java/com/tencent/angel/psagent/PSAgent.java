@@ -136,6 +136,8 @@ public class PSAgent {
 
   public boolean rmPartitions_pre = false;
   public List<MatrixMeta> matrixMetas_pre = new ArrayList<>();
+
+  public boolean usePartitions_pre = false;
   /* code end */
 
   /**
@@ -393,11 +395,24 @@ public class PSAgent {
     }
     HashSet<Integer> rmPartitionIds = matrixMetaManager.rmPartitions_pre_PSAgentMatrixMetaManager(matrixMetas_pre);
     clockCache.rmPartitions_pre_ClockCache(rmPartitionIds);
-    matrixMetas_pre.clear();
     rmPartitions_pre = false;
     // tell master that this worker has rmPartitions_pre_PSAgent so that servers can remove and save these parameters
     getMasterClient().WorkerParamsRemoved();
     LOG.info("after rmPartitions_pre_PSAgent");
+    print_PSAgent();
+  }
+
+  public void usePartitions_pre_PSAgent() {
+    LOG.info("usePartitions_pre_PSAgent");
+    for (int i = 0; i < matrixMetas_pre.size(); i++){
+      matrixMetas_pre.get(i).print_MatrixMeta();
+    }
+    matrixMetaManager.usePartitions_pre_PSAgentMatrixMetaManager(matrixMetas_pre);
+    clockCache.usePartitions_pre_ClockCache(matrixMetas_pre);
+    matrixStorageManager.usePartitions_pre_MatrixStorageManager();
+    matrixMetas_pre.clear();
+    usePartitions_pre = false;
+    LOG.info("after usePartitions_pre_PSAgent");
     print_PSAgent();
   }
 

@@ -338,6 +338,8 @@ public class AMMatrixMetaManager {
     }else if (oldStatus == -2){
       int newServerStatus = -2;
       context.getMatrixMetaManager().notify_servers(newServerStatus);
+    } else if (oldStatus == 2){
+      LOG.info("all workers have communicated with the new server");
     }
   }
 

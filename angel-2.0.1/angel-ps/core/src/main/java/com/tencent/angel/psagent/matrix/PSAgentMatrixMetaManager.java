@@ -129,6 +129,55 @@ public class PSAgentMatrixMetaManager {
     }
   }
 
+  public void usePartitions_pre_PSAgentMatrixMetaManager(List<MatrixMeta> matrixMetas_pre){
+    LOG.info("usePartitions_pre_PSAgentMatrixMetaManager");
+    // remove partitionMeta and partitionKey with false status
+    for (int i = 0; i < matrixMetas_pre.size(); i++) {
+      // 1
+      MatrixMeta matrixMeta_pre = matrixMetas_pre.get(i);
+      MatrixMeta matrixMeta = matrixMetaManager.getMatrixMetas().get(matrixMeta_pre.getId());
+      List<Integer> removedPartitionIds = new ArrayList<>();
+      for (Map.Entry<Integer, PartitionMeta> entry : matrixMeta.getPartitionMetas().entrySet()) {
+        if (entry.getValue().getPartitionKey().status == false) {
+          removedPartitionIds.add(entry.getKey());
+        }
+      }
+      for (int j = 0; j < removedPartitionIds.size(); j++) {
+        matrixMeta.getPartitionMetas().remove(removedPartitionIds.get(i));
+      }
+      // 2
+      List<PartitionKey> partitionKeyList = matrixIdToPartsMap.get(matrixMeta_pre.getId());
+      for (int j = 0; j < partitionKeyList.size(); j++) {
+        if (partitionKeyList.get(j).status == false) {
+          partitionKeyList.remove(partitionKeyList.get(j));
+        }
+      }
+      // 3
+      for (Map.Entry<Integer, List<PartitionKey>> entry : rowIndexToPartsMap.get(matrixMeta_pre.getId()).entrySet()) {
+        List<PartitionKey> partitionKeyList_row = entry.getValue();
+        for (int j = 0; j < partitionKeyList_row.size(); j++) {
+          if (partitionKeyList_row.get(j).status == false) {
+            partitionKeyList_row.remove(partitionKeyList_row.get(j));
+          }
+        }
+      }
+    }
+    // add pre matrixMeta
+    for (int i = 0; i < matrixMetas_pre.size(); i++){
+      MatrixMeta matrixMeta_idle = matrixMetas_pre.get(i);
+      int matrixIndex = matrixMeta_idle.getId();
+      MatrixMeta matrixMeta_curr = matrixMetaManager.getMatrixMeta(matrixIndex);
+      for (Map.Entry<Integer, PartitionMeta> entry : matrixMeta_idle.getPartitionMetas().entrySet()){
+        matrixMeta_curr.getPartitionMetas().put(entry.getKey(), entry.getValue());
+        PartitionKey partitionKey_pre = entry.getValue().getPartitionKey();
+        matrixIdToPartsMap.get(matrixIndex).add(partitionKey_pre);
+        for (int rowIndex = partitionKey_pre.getStartRow(); rowIndex < partitionKey_pre.getEndRow(); rowIndex++){
+          rowIndexToPartsMap.get(matrixIndex).get(rowIndex).add(partitionKey_pre);
+        }
+      }
+    }
+  }
+
   public HashSet<Integer> rmPartitions_pre_PSAgentMatrixMetaManager(List<MatrixMeta> matrixMetas_pre){
     LOG.info("rmPartitions_PSAgentMatrixMetaManager");
     HashSet<Integer> rmPartitionIds = new HashSet<Integer>();

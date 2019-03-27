@@ -83,6 +83,13 @@ public class MatrixStorageManager {
     }
   }
 
+  public void usePartitions_pre_MatrixStorageManager(){
+    LOG.info("usePartitions_pre_MatrixStorageManager");
+    for (Map.Entry<Integer, MatrixStorage> entry: matrixIdToStorageMap.entrySet()){
+      entry.getValue().usePartitions_pre_MatrixStorage();
+    }
+  }
+
   /* code end */
 
 
