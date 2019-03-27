@@ -1019,7 +1019,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
             for (Entry<Integer, MatrixMeta> metaEntry : matrixIdToMetaMap.entrySet()) {
               builder.addMatrixPreMetas(ProtobufUtil.convertToMatrixMetaProto(metaEntry.getValue()));
             }
-            // change status to -2, means have told this worker to remove and save parameters
+            // change status to -2, means have told this worker that do not use parameters on removed partitions
             context.getMatrixMetaManager().serversStatus_workers.put(workerIndex, -2);
           } else if (Status == 2) {
             context.getMatrixMetaManager().rmServerStatus_workers(workerIndex);

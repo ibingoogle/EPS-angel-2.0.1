@@ -430,6 +430,7 @@ public class AMMatrixMetaManager {
       entry.getValue().clear_partitionMetas_repartition();
     }
     newPSId = null;
+    addServerEpoch = -1;
     LOG.info("after resetParameterServers_pre");
     print_AMMatrixMetaManager();
   }
