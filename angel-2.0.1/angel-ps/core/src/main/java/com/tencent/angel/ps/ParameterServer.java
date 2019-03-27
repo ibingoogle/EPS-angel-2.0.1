@@ -643,11 +643,7 @@ public class ParameterServer {
     PSReportRequest request = builder.build();
     LOG.debug("ps hb = " + request);
     try {
-      LOG.info("before master.psReport(request)......"); //////
-      print_ParameterServer();//////
       ret = master.psReport(request);
-      LOG.info("after master.psReport(request)......"); //////
-      print_ParameterServer();//////
       /* new code */
       int status = ret.getPsStatus();
       LOG.info("heartbeat() in ParameterServer.java");
@@ -724,13 +720,8 @@ public class ParameterServer {
         LOG.info("ret.hasNeedLoadMatrices()"); //////
         loader.load(ProtobufUtil.convert(ret.getNeedLoadMatrices()));
       }
-      LOG.info("before syncMatrices......"); //////
-      print_ParameterServer();//////
-
       syncMatrices(ret.getNeedCreateMatricesList(), ret.getNeedReleaseMatrixIdsList(),
         ret.getNeedRecoverPartsList());
-      LOG.info("after syncMatrices......"); //////
-      print_ParameterServer();//////
     } catch (Throwable e) {
       LOG.error("send heartbeat to appmaster failed ", e);
       stop(-1);

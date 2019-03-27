@@ -98,6 +98,15 @@ public class MatrixMeta {
     for(Map.Entry<Integer, PartitionMeta> entry: matrixMeta_pre.getPartitionMetas().entrySet()){
       partitionMetas.put(entry.getKey(), entry.getValue());
     }
+    refreshPartitionIdStart();
+  }
+
+  public void refreshPartitionIdStart(){
+    int maxPartitionId = Integer.MIN_VALUE;
+    for(Map.Entry<Integer, PartitionMeta> entry: partitionMetas.entrySet()){
+      maxPartitionId = Math.max(maxPartitionId, entry.getKey());
+    }
+    PartitionIdStart = maxPartitionId + 1;
   }
 
   public void clear_partitionMetas_repartition(){

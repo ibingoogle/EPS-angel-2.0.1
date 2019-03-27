@@ -426,7 +426,7 @@ public class AMMatrixMetaManager {
     for(Map.Entry<Integer, MatrixMeta> entry: matrixMetas_pre.entrySet()){
       entry.getValue().clear_partitionMetas_repartition();
     }
-    // newPSId = null;
+    newPSId = null;
     LOG.info("after resetParameterServers_pre");
     print_AMMatrixMetaManager();
   }
@@ -701,7 +701,8 @@ public class AMMatrixMetaManager {
 
     Partitioner partitioner = initPartitioner(matrixContext, context.getConf());
 
-    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size(), idlePartitionMeta, matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
+    List<PartitionMeta> partitions = partitioner.getPartitions_idle(active_servers.size(), idlePartitionMeta,
+            matrixMetaManager.getMatrixMeta(matrixId).PartitionIdStart);
 
     assignPSForPartitions_idle(partitioner, partitions);
     return partitions;
