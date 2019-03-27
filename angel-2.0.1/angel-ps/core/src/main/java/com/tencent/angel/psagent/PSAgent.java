@@ -412,6 +412,8 @@ public class PSAgent {
     }
     // locationManager
     locationManager.usePartitions_pre_PSAgentLocationManager(matrixMetas_pre);
+    //requestDispather
+    matrixTransClient.setNewPSIds_RequestDispatcher(locationManager.locationManager.psIds);
     // matrixMetaManager
     matrixMetaManager.usePartitions_pre_PSAgentMatrixMetaManager(matrixMetas_pre);
     // clockCache

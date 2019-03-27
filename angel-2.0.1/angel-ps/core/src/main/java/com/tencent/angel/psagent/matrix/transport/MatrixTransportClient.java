@@ -116,7 +116,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
   /**
    * event dispatcher for matrix transport client
    */
+  /* old code
   private RequestDispatcher requestDispacher;
+  /* new code */
+  public RequestDispatcher requestDispacher;
+  /* code end */
 
   /**
    * event queue
@@ -902,6 +906,12 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     grayServers.putIfAbsent(psLoc.psId, new GrayServer(psLoc, System.currentTimeMillis()));
   }
 
+  /* new code */
+  public void setNewPSIds_RequestDispatcher(ParameterServerId[] newPSIds){
+    requestDispacher.psIds = newPSIds;
+  }
+  /* code end */
+
   /**
    * RPC request dispatcher.
    */
@@ -926,7 +936,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
     /**
      * server ids and last choose server indexes
      */
+    /* old code
     private final ParameterServerId[] psIds;
+    /* new code */
+    public ParameterServerId[] psIds;
+    /* code end */
 
     /**
      * the index of server that last schedule put request send to
@@ -969,6 +983,12 @@ public class MatrixTransportClient implements MatrixTransportInterface {
       tickClock = 0;
       LOG.info("ByteOrder.nativeOrder()=" + ByteOrder.nativeOrder());
     }
+
+    /* new code */
+    public void setPSIds(){
+
+    }
+    /* code end */
 
     @Override public void run() {
       while (!stopped.get() && !Thread.interrupted()) {
