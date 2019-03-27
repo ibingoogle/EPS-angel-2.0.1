@@ -107,7 +107,8 @@ public class AMMatrixMetaManager {
   public int initial_serverNum = 0;
   // not contain means save parameters
   public HashSet<Integer> active_servers = null;
-  // workerindex to status (not contain means normal, 1 means add partitions to each server,
+  // workerindex to status (not contain means normal
+  // 1 means add partitions to each server,
   // -1 means plan to tell worker to remove some partitions from each server,
   // -2 means have told worker to remove some partitions from each server,
   // 2 means use partitions from new server
@@ -380,6 +381,8 @@ public class AMMatrixMetaManager {
       }
     }
     matrixMetaManager.resetParameterServers_idle_MatrixMetaManager();
+    rmServerEpoch = -1;
+    rmParameterServerIndex = -1;
     LOG.info("after resetParameterServers_idle");
     print_AMMatrixMetaManager();
   }

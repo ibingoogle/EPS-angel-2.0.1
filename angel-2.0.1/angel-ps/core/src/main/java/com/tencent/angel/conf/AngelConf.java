@@ -349,12 +349,6 @@ public class AngelConf extends Configuration {
   public static final String ANGEL_WORKER_RM_SERVER_WEIGHT_ZERO = "angel.worker.rm.server.weight.zero";
   public static final boolean DEFAULT_ANGEL_WORKER_RM_SERVER_WEIGHT_ZERO = false;
 
-  public static final String ANGEL_WORKER_RM_SERVER_OPERATION_PUSH = "angel.worker.rm.server.operation.push";
-  public static final boolean DEFAULT_ANGEL_WORKER_RM_SERVER_OPERATION_PUSH = true;
-
-  public static final String ANGEL_WORKER_RM_SERVER_OPERATION_PULL = "angel.worker.rm.server.operation.pull";
-  public static final boolean DEFAULT_ANGEL_WORKER_RM_SERVER_OPERATION_PULL = true;
-
   public static final String ANGEL_WORKER_ADD_SERVER_EPOCH = "angel.worker.add.server.epoch";
   public static final int DEFAULT_ANGEL_WORKER_ADD_SERVER_EPOCH = -1;
   /* code end */

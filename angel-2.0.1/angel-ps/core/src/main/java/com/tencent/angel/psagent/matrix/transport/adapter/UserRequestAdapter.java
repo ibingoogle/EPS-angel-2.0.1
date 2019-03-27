@@ -124,22 +124,6 @@ public class UserRequestAdapter {
   private final int colNumThreshold = 10000000;
 
 
-  /* new code */
-  public int currentEpoch = 0;
-  public int rmServerEpoch = PSAgentContext.get().getConf()
-          .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH,
-                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
-  public int removedParameterServerIndex = PSAgentContext.get().getConf()
-          .getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID,
-                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
-  public boolean rmServerPush = PSAgentContext.get().getConf()
-          .getBoolean(AngelConf.ANGEL_WORKER_RM_SERVER_OPERATION_PUSH,
-                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_OPERATION_PUSH);
-  public boolean rmServerPull = PSAgentContext.get().getConf()
-          .getBoolean(AngelConf.ANGEL_WORKER_RM_SERVER_OPERATION_PULL,
-                  AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_OPERATION_PULL);
-  /* code end */
-
   /**
    * Create a new UserRequestAdapter.
    */
@@ -740,10 +724,6 @@ public class UserRequestAdapter {
 
   private FutureResult<Vector[]> get(IndexGetRowsRequest request) {
     /* new code */
-    LOG.info("removedParameterServerIndex = " + removedParameterServerIndex);
-    LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
-    LOG.info("currentEpoch = " + currentEpoch);
-    LOG.info("rmServerPull = " + rmServerPull);
     LOG.info("IndexGetRowsRequest request = " + request + ", class = " + request.getClass());
     //LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent() in get(IndexGetRowsRequest request) from pullGradient");
     //PSAgentContext.get().getPsAgent().print_PSAgent();
@@ -1243,10 +1223,6 @@ public class UserRequestAdapter {
     /*new code*/
     LOG.info("update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) in UserRequestAdapter.java");
     LOG.info("rows.length = " + rows.length);
-    LOG.info("removedParameterServerIndex = " + removedParameterServerIndex);
-    LOG.info("removedParameterServerEpoch = " + rmServerEpoch);
-    LOG.info("currentEpoch = " + currentEpoch);
-    LOG.info("rmServerPush = " + rmServerPush);
     // LOG.info("PSAgentContext.get().getPsAgent().print_PSAgent(); in update(int matrixId, int[] rowIds, Vector[] rows, UpdateOp op) from pushGradient");
     // PSAgentContext.get().getPsAgent().print_PSAgent();
     /*code end*/

@@ -31,7 +31,7 @@ import com.tencent.angel.ml.math2.vector.{DoubleVector, IntKeyVector, LongKeyVec
 import com.tencent.angel.ml.metric.LossMetric
 import com.tencent.angel.ml.model.MLModel
 import com.tencent.angel.ml.core.utils.{DataParser, ValidationUtils}
-import com.tencent.angel.psagent.PSAgentContext
+import com.tencent.angel.psagent.{PSAgentContext, TaskIterReturnData}
 import com.tencent.angel.split.SplitClassification
 import com.tencent.angel.worker.storage.DataBlock
 import com.tencent.angel.worker.task.TaskContext
@@ -77,10 +77,6 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
 
   var valiBoolean: Boolean = true
   var iterSleepMillis: Int = 0
-
-  // about server elasticity
-  var rmServerEpoch: Int = SharedConf.rmServerEpoch
-  var removedParameterServerIndex: Int = SharedConf.removedParameterServerIndex
   /*code end*/
 
   // Init Graph Model
@@ -319,8 +315,10 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
       /* old code */
       // ctx.incEpoch()
       /* new code */
-      val trainDataStatus: Int = ctx.incEpochWithStatus()
-      LOG.info("TrainDataStatus = " + trainDataStatus)
+      val taskIterReturnData: TaskIterReturnData = ctx.incEpochWithStatus()
+      taskIterReturnData.print_TaskIterReturnData()
+      val trainDataStatus: Int = taskIterReturnData.getTrainDataStatus()
+      val rmServerStatus: Boolean = taskIterReturnData.getRmServerStatus()
       if (trainDataStatus == 1){
         LOG.info("try to get appendedSCs info")
         LOG.info("before => actualBatchEndIndex = " +  actualBatchEndIndex)
@@ -351,11 +349,12 @@ class GraphLearner(modelClassName: String, ctx: TaskContext) extends MLLearner(c
         PSAgentContext.get().getMasterClient.taskRemoveExecution(ctx.getTaskIndex)
         break()
       }
-      LOG.info("rmServerEpoch = " + rmServerEpoch)
-      LOG.info("rmParameterServerIndex = " + removedParameterServerIndex)
-      val nextEpoch: Int = epoch + 1;
-      if (rmServerEpoch == nextEpoch){
-        PSAgentContext.get().getPsAgent.rmOneParameterServer_PSAgent(removedParameterServerIndex)
+      if (rmServerStatus) {
+        val rmServerEpoch = epoch + 1
+        val rmServerIndex = taskIterReturnData.getRmServerIndex()
+        LOG.info("rmServerEpoch = " + rmServerEpoch)
+        LOG.info("rmServerIndex = " + rmServerIndex)
+        PSAgentContext.get().getPsAgent.rmOneParameterServer_PSAgent(rmServerIndex)
       }
       LOG.info("PSAgentContext.get().getPsAgent.resetParameterServers_idle = " + PSAgentContext.get().getPsAgent.resetParameterServers_idle)
       if (PSAgentContext.get().getPsAgent.resetParameterServers_idle){

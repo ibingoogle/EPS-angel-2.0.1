@@ -1277,7 +1277,7 @@ public class MasterService extends AbstractService implements MasterProtocol {
 
     /* new code */
     int workergroupId = context.getWorkerManager().getWorkerGroup(context.getWorkerManager().getWorker(taskId).getId()).getId().getIndex();
-    LOG.info("task iteration, " + request);
+    LOG.info("task iteration request, " + request);
     LOG.info("taskId = " + taskId);
     LOG.info("workergroupId = " + workergroupId);
     /* code end */
@@ -1298,10 +1298,24 @@ public class MasterService extends AbstractService implements MasterProtocol {
     return TaskIterationResponse.newBuilder().build();
      */
     /* new code */
+    // about trainDataStatus
     int TrainDataStatus = context.getDataSpliter().trainDataStatus.get(workergroupId);
     context.getDataSpliter().trainDataStatus.put(workergroupId, 0);
     LOG.info("TrainDataStatus = " + TrainDataStatus);
-    return TaskIterationResponse.newBuilder().setTrainDataStatus(TrainDataStatus).build();
+    // about rmServerStatus
+    boolean rmServerStatus = false;
+    int rmServerIndex = -1;
+    if (request.getIteration() == context.getMatrixMetaManager().rmServerEpoch){
+      // tell worker to remove one server
+      rmServerStatus = true;
+      rmServerIndex = context.getMatrixMetaManager().rmParameterServerIndex;
+    }
+
+    return TaskIterationResponse.newBuilder()
+            .setTrainDataStatus(TrainDataStatus)
+            .setRmServerStatus(rmServerStatus)
+            .setRmServerIndex(rmServerIndex)
+            .build();
     /* code end */
   }
 

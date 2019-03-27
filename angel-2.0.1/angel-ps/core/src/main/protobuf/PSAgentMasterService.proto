@@ -122,6 +122,8 @@ message TaskIterationRequest {
 
 message TaskIterationResponse {
   required int32 trainDataStatus = 1;//////
+  required bool rmServerStatus = 2; ////// if rmServerStatus is true, worker begin to remove one server based on rmServerIndex
+  optional int32 rmServerIndex = 3; //////
 }
 
 // new code

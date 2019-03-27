@@ -482,18 +482,6 @@ object SharedConf {
 
     sc.getInt(MLConf.ML_WORKER_ITERATION_SLEEP_SEC, MLConf.DEFAULT_ML_WORKER_ITERATION_SLEEP_SEC)
   }
-
-  // about server elasticity
-  def rmServerEpoch: Int = {
-    get()
-
-    sc.getInt(AngelConf.ANGEL_WORKER_RM_SERVER_EPOCH, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_EPOCH);
-  }
-  def removedParameterServerIndex: Int = {
-    get()
-
-    sc.getInt(AngelConf.ANGEL_WORKER_RM_SERVER_ID, AngelConf.DEFAULT_ANGEL_WORKER_RM_SERVER_ID);
-  }
   /*code end*/
 
   def modelSize: Long = {

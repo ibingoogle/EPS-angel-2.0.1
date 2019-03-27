@@ -36,6 +36,7 @@ import com.tencent.angel.protobuf.generated.WorkerMasterServiceProtos.*;
 import com.tencent.angel.ps.ParameterServerId;
 import com.tencent.angel.ps.server.data.PSLocation;
 import com.tencent.angel.psagent.PSAgentContext;
+import com.tencent.angel.psagent.TaskIterReturnData;
 import com.tencent.angel.split.SplitClassification;
 import com.tencent.angel.utils.KryoUtils;
 import com.tencent.angel.utils.Time;
@@ -553,14 +554,17 @@ public class MasterClient {
    * @param iteration iteration number
    * @throws ServiceException rpc failed
    */
-  public int taskIterationWithStatus(int taskIndex, int iteration) throws ServiceException {
+  public TaskIterReturnData taskIterationWithStatus(int taskIndex, int iteration) throws ServiceException {
     TaskIterationRequest request = TaskIterationRequest.newBuilder()
             .setTaskId(TaskIdProto.newBuilder().setTaskIndex(taskIndex).build()).setIteration(iteration)
             .build();
     LOG.info("send taskIteration RPC, iteration = " + iteration + ", taskid = " + taskIndex);//////
     TaskIterationResponse response = master.taskIteration(null, request);
     int trainDataStatus = response.getTrainDataStatus();
-    return trainDataStatus;
+    boolean rmServerStatus = response.getRmServerStatus();
+    int rmServerIndex = response.getRmServerIndex();
+    TaskIterReturnData taskIterReturnData = new TaskIterReturnData(trainDataStatus, rmServerStatus, rmServerIndex);
+    return taskIterReturnData;
   }
 
   /**

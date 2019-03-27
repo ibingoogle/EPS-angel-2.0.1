@@ -24,6 +24,7 @@ import com.tencent.angel.conf.AngelConf;
 import com.tencent.angel.master.task.TaskCounter;
 import com.tencent.angel.ml.metric.Metric;
 import com.tencent.angel.psagent.PSAgentContext;
+import com.tencent.angel.psagent.TaskIterReturnData;
 import com.tencent.angel.psagent.clock.ClockCache;
 import com.tencent.angel.psagent.matrix.storage.MatrixStorageManager;
 import org.apache.commons.logging.Log;
@@ -245,17 +246,18 @@ public class TaskContext {
 
   /* new code */
   /**
-   * Increase epoch number and return train data status
+   * Increase epoch number and return [train data status, rm server status, rm server index]
    *
    * @throws ServiceException
    */
-  public int increaseEpochWithStatus() throws ServiceException {
+  public TaskIterReturnData increaseEpochWithStatus() throws ServiceException {
     int iterationValue = epoch.incrementAndGet();
+    TaskIterReturnData defaultTaskIterReturnData = new TaskIterReturnData();
     if (syncClockEnable) {
       PSAgentContext.get().getMasterClient().setAlgoMetrics(index, algoMetrics);
       return PSAgentContext.get().getMasterClient().taskIterationWithStatus(index, iterationValue);
     }
-    return 0;
+    return defaultTaskIterReturnData;
   }
   /* code end */
 

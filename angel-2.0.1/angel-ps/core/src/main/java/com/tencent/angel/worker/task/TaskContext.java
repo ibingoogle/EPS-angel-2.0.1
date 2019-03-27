@@ -30,6 +30,7 @@ import com.tencent.angel.protobuf.generated.MLProtos.TaskIdProto;
 import com.tencent.angel.protobuf.generated.WorkerMasterServiceProtos.TaskMetaInfoProto;
 import com.tencent.angel.psagent.PSAgent;
 import com.tencent.angel.psagent.PSAgentContext;
+import com.tencent.angel.psagent.TaskIterReturnData;
 import com.tencent.angel.psagent.client.MasterClient;
 import com.tencent.angel.psagent.matrix.MatrixClient;
 import com.tencent.angel.split.SplitClassification;
@@ -344,7 +345,7 @@ public class TaskContext {
    *
    * @throws ServiceException the service exception
    */
-  public int incEpochWithStatus() throws ServiceException {
+  public TaskIterReturnData incEpochWithStatus() throws ServiceException {
     return context.increaseEpochWithStatus();
   }
   /* code end */

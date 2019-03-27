@@ -234,7 +234,6 @@ class SimpleInputLayer(name: String, outputDim: Int, transFunc: TransFunc, overr
         LOG.info("indices size = " + indices.getSize)
         LOG.info("weightId = " + weightId)
         LOG.info("outputDim = " + outputDim)
-        PSAgentContext.get.getUserRequestAdapter.currentEpoch = epoch
         /* code end */
         // the shape of weight matrix is (outputDim, inputDim)
         weight = PSMatrixUtils.getMatrixWithIndex(1, weightId, 0, outputDim, indices)
