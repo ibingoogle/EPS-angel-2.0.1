@@ -1989,6 +1989,11 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         try {
           partLoc = PSAgentContext.get().getMatrixMetaManager()
             .getPartLocation(((PartitionRequest) request).getPartKey(), disableRouterCache);
+          /* new code */
+          if (request.getType().getMethodId() == 13) {
+            LOG.info("request in getPSLoc = " + request.toString() + " => partLoc.toString() = " + partLoc.toString());
+          }
+          /* code end */
         } catch (Throwable e) {
           LOG.error("Get partition location from Master failed ", e);
           partLoc = PSAgentContext.get().getMatrixMetaManager()
