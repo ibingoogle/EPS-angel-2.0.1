@@ -612,7 +612,7 @@ public class WorkerPool {
       /* new code */
       int matrixId = request.getMatrixId();
       LOG.info("matrixId = " + matrixId);
-      context.getMatrixMetaManager().print_PSMatrixMetaManager();
+      context.getPs().print_ParameterServer();
       MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
       LOG.info("matrixMeta = " + matrixMeta);
       matrixMeta.print_MatrixMeta();
