@@ -220,23 +220,21 @@ public class ServerPartition implements Serialize {
         try {
           fs = loadFilePath.getFileSystem(context.getConf());
           FSDataInputStream input = fs.open(loadFilePath);
-          for (int j = 0; j < row.size(); j++) {
-            // String line = input.readLine();
-            if (j < 10){
-              LOG.info("input.readLine() = " + input.readLine());
-            }
-            /*
+          int readcount = 0;
+          String line = input.readLine();
+          while (line != null){
+            readcount++;
             String[] kv = line.split(",");
             int col = Integer.valueOf(kv[1]);
             float value = Float.valueOf(kv[2]);
             row.set(col, value);
-            */
+            line = input.readLine();
           }
+          LOG.info("readcount = " + readcount);
           input.close();
         } catch (IOException e) {
           e.printStackTrace();
         }
-
       }
       try {
         fs.close();
@@ -257,7 +255,7 @@ public class ServerPartition implements Serialize {
     int[] ColEndIndexes = new int[splitNum];
     for(int i = 0; i < splitNum; i++){
       ColStartIndexes[i] = (int) (partitionKey.getEndCol() - baseCol)/splitNum*i;
-      ColEndIndexes[i] = (int) Math.min(ColStartIndexes[i] + 3, (partitionKey.getEndCol() - partitionKey.getStartCol()));
+      ColEndIndexes[i] = (int) Math.min(ColStartIndexes[i] + 5, (partitionKey.getEndCol() - partitionKey.getStartCol()));
     }
     for (int i = 0; i < rows.rowNum(); i++){
       LOG.info("rowIndex = " + i);
