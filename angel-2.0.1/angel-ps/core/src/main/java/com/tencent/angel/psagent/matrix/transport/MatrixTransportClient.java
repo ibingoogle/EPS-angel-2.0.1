@@ -907,8 +907,16 @@ public class MatrixTransportClient implements MatrixTransportInterface {
   }
 
   /* new code */
+
+  public void addNewServer(ParameterServerId[] newPSIds){
+    setNewPSIds_RequestDispatcher(newPSIds);
+    addNewServer_rpcContext(newPSIds[newPSIds.length - 1]);
+  }
   public void setNewPSIds_RequestDispatcher(ParameterServerId[] newPSIds){
     requestDispacher.psIds = newPSIds;
+  }
+  public void addNewServer_rpcContext(ParameterServerId NewPSId){
+    rpcContext.add_serverInflightRPCCounters(NewPSId);
   }
   /* code end */
 

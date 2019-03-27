@@ -60,6 +60,13 @@ public class RPCContext {
     lastOOMInflightRPCCounter = new AtomicInteger(0);
   }
 
+  /* new code */
+  public void add_serverInflightRPCCounters(ParameterServerId NewPSId){
+    serverInflightRPCCounters.put(NewPSId, new AtomicInteger(0));
+  }
+  /* code end */
+
+
   public void init(Configuration conf, ParameterServerId[] psIds) {
     int serverNum = conf.getInt(AngelConf.ANGEL_PS_NUMBER, AngelConf.DEFAULT_ANGEL_PS_NUMBER);
 
