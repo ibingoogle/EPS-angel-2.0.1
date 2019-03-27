@@ -60,6 +60,18 @@ public class MatrixMetaManager {
     }
   }
 
+  public void resetParameterServers_pre_MatrixMetaManager(Map<Integer, MatrixMeta> matrixMetas_pre){
+    for (Map.Entry<Integer, MatrixMeta> entry : matrixIdToMetaMap.entrySet()){
+      int matrixId = entry.getKey();
+      if (matrixMetas_pre.containsKey(matrixId)){
+        MatrixMeta matrixMeta_curr = entry.getValue();
+        MatrixMeta matrixMeta_pre = matrixMetas_pre.get(matrixId);
+        matrixMeta_curr.resetParameterServers_pre_MatrixMeta(matrixMeta_pre);
+      }
+    }
+  }
+
+
   public void print_MatrixMetaManager(){
     LOG.info("print_MatrixMetaManager");
     // LOG.info("MatrixMetaManager_toString = " + matrixMetaManager.toString());

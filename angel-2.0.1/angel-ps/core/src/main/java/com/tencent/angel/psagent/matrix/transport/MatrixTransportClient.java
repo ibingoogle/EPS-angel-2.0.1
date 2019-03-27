@@ -1180,7 +1180,6 @@ public class MatrixTransportClient implements MatrixTransportInterface {
         if (!isInGrayList(psIds[index]) && !isFailed(psIds[index]) && !checkIsOverReqNumLimit(
           psIds[index])) {
           retQueue = getItemQueues.get(psIds[index]);
-          LOG.info("index = " + index + ", psId = " + psIds[index].toString()); //////
           if (retQueue != null && !retQueue.isEmpty()) {
             lastChosenGetServerIndex = index;
             return retQueue;

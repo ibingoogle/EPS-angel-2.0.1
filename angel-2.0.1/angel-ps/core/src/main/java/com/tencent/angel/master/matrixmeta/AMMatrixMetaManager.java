@@ -78,6 +78,7 @@ public class AMMatrixMetaManager {
   // used in addOneServer (i.e., recover based on previous removed PS)
   public final Stack<Map<Integer, MatrixMeta>> matrixPartitionsOn_prePS;
   public int newServerIndex = -1;
+  public ParameterServerId newPSId = null;
   public boolean newServerReadyToLoad = false; // new server can load partitions now, if this is true, set status = 2, means can load partitions to this new server
   /* code end */
 
@@ -170,6 +171,7 @@ public class AMMatrixMetaManager {
         entry2.getValue().setPss(newPSIds);
       }
     }
+    newPSId = psId;
     newServerIndex = psId.getIndex();
     // tell workers to remove some partitions from each server (i.e., set partitionKey status = false)
     int newstatus = -1;
@@ -347,6 +349,7 @@ public class AMMatrixMetaManager {
       context.getMatrixMetaManager().notify_servers(newServerStatus);
     } else if (oldStatus == 2){
       LOG.info("all workers have communicated with the new server");
+      resetParameterServers_pre();
     }
   }
 
@@ -376,6 +379,33 @@ public class AMMatrixMetaManager {
     }
     matrixMetaManager.resetParameterServers_idle_MatrixMetaManager();
     LOG.info("after resetParameterServers_idle");
+    print_AMMatrixMetaManager();
+  }
+
+  // reset partitionMetas_idle
+  public void resetParameterServers_pre(){
+    LOG.info("resetParameterServers_pre");
+    Map<Integer, MatrixMeta> matrixMetas_pre =  matrixPartitionsOn_prePS.pop();
+    Set<Integer> matrixInSet = new HashSet<>();
+    for(Map.Entry<Integer, MatrixMeta> entry: matrixMetas_pre.entrySet()){
+      entry.getValue().clear_partitionMetas_repartition();
+      matrixInSet.add(entry.getValue().getId());
+    }
+    // matrixPartitionsOnPS
+    matrixPartitionsOnPS.put(newPSId, matrixMetas_pre);
+    // psIdToMatrixIdsMap
+    psIdToMatrixIdsMap.put(newPSId, matrixInSet);
+    // matrixIdToPSSetMap
+    for(Map.Entry<Integer, Set<ParameterServerId>> entry: matrixIdToPSSetMap.entrySet()){
+      int MatrixId = entry.getKey();
+      if (matrixMetas_pre.containsKey(maxMatrixId)){
+        entry.getValue().add(newPSId);
+      }
+    }
+    // matrixMetaManager
+    matrixMetaManager.resetParameterServers_pre_MatrixMetaManager(matrixMetas_pre);
+    matrixMetas_pre.clear();
+    LOG.info("after resetParameterServers_pre");
     print_AMMatrixMetaManager();
   }
 
@@ -545,6 +575,9 @@ public class AMMatrixMetaManager {
     print_matrixPartitionsOn_removedPS();
     LOG.info("");
     LOG.info("");
+    print_matrixPartitionsOn_prePS();
+    LOG.info("");
+    LOG.info("");
     print_psIdToMatrixIdsMap();
     LOG.info("");
     LOG.info("");
@@ -601,6 +634,22 @@ public class AMMatrixMetaManager {
         entry2.getValue().print_MatrixMeta();
       }
     }
+  }
+
+  public void print_matrixPartitionsOn_prePS(){
+    LOG.info("print_matrixPartitionsOn_prePS");
+    Iterator<Map<Integer, MatrixMeta>> iterator = matrixPartitionsOn_prePS.iterator();
+    int count = 0;
+    while (iterator.hasNext()){
+      count++;
+      LOG.info("count = " + count);
+      Map<Integer, MatrixMeta> iteratorNext = iterator.next();
+      for(Map.Entry<Integer, MatrixMeta> entry: iteratorNext.entrySet()){
+        entry.getValue().print_MatrixMeta();
+      }
+    }
+
+
   }
 
   public void print_matrixIdToPSSetMap(){

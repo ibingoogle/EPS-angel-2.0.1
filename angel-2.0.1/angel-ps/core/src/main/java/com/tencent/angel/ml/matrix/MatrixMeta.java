@@ -72,6 +72,8 @@ public class MatrixMeta {
   }
 
   /* new code */
+
+
   public void removePartitions_pre(Set<Integer> partitions_pre, Set<PartitionKey> partitionKeys_pre){
     for(Integer partition_pre: partitions_pre){
       if (partitionMetas.containsKey(partition_pre)) {
@@ -87,6 +89,12 @@ public class MatrixMeta {
       partitionMetas.put(entry.getKey(), entry.getValue());
     }
     partitionMetas_idle.clear();
+  }
+
+  public void resetParameterServers_pre_MatrixMeta(MatrixMeta matrixMeta_pre){
+    for(Map.Entry<Integer, PartitionMeta> entry: matrixMeta_pre.getPartitionMetas().entrySet()){
+      partitionMetas.put(entry.getKey(), entry.getValue());
+    }
   }
 
   public void clear_partitionMetas_repartition(){
