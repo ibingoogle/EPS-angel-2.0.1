@@ -25,6 +25,7 @@ import com.tencent.angel.exception.WaitLockTimeOutException;
 import com.tencent.angel.ml.math2.storage.IntFloatDenseVectorStorage;
 import com.tencent.angel.ml.math2.vector.IntFloatVector;
 import com.tencent.angel.ml.math2.vector.Vector;
+import com.tencent.angel.ml.matrix.MatrixMeta;
 import com.tencent.angel.ml.matrix.PartitionLocation;
 import com.tencent.angel.ml.matrix.RowType;
 import com.tencent.angel.ml.matrix.psf.get.base.GetFunc;
@@ -605,8 +606,19 @@ public class WorkerPool {
       List<Integer> rowIds = request.getRowIds();
       int rowNum = rowIds.size();
 
+      /* old code
       ValueType valueType = getValueType(
         context.getMatrixMetaManager().getMatrixMeta(request.getMatrixId()).getRowType());
+      /* new code */
+      int matrixId = request.getMatrixId();
+      LOG.info("matrixId = " + matrixId);
+      MatrixMeta matrixMeta = context.getMatrixMetaManager().getMatrixMeta(matrixId);
+      matrixMeta.print_MatrixMeta();
+      RowType type = matrixMeta.getRowType();
+      LOG.info("RowType = " + type);
+      ValueType valueType = getValueType(type);
+      LOG.info("valueType = " + valueType + ", Id = " + valueType.getTypeId());
+      /* code end */
       result = new IndexPartGetRowsResponse(ResponseType.SUCCESS);
       result.setState(state);
 
